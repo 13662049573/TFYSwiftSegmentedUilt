@@ -44,23 +44,23 @@ Pod::Spec.new do |spec|
   
   # Tool 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTool' do |tool|
-    tool.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTool/**/*.swift'
+    tool.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTool/**/*.swift'
   end
   
   # Base 模块（依赖 Tool）
   spec.subspec 'TFYSwiftBase' do |base|
-    base.source_files = 'TFYSwiftSegmentedKit/TFYSwiftBase/**/*.swift'
+    base.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftBase/**/*.swift'
     base.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
   end
   
   # Title 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTitle' do |title|
-    title.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTitle/**/*.swift'
+    title.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTitle/**/*.swift'
     title.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
   end
   
   spec.subspec 'TFYSwiftAttributeTitle' do |attributeTitle|
-    attributeTitle.source_files = 'TFYSwiftSegmentedKit/TFYSwiftAttributeTitle/**/*.swift'
+    attributeTitle.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftAttributeTitle/**/*.swift'
     attributeTitle.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     attributeTitle.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
   end
