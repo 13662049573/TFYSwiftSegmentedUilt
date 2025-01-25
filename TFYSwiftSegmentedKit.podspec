@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "1.0.5"
+  spec.version      = "1.0.6"
 
   spec.summary      = "一个功能强大且高度可定制的iOS分段控制框架，具有丰富的特性。"
 
@@ -40,7 +40,16 @@ Pod::Spec.new do |spec|
   }
 
   # 根据实际目录结构配置子规格
-  spec.default_subspec = 'TFYSwiftBase'
+  spec.default_subspec = ['TFYSwiftTool', 
+                          'TFYSwiftBase', 
+                          'TFYSwiftTitle',
+                          'TFYSwiftAttributeTitle',
+                          'TFYSwiftDot',
+                          'TFYSwiftIndicator',
+                          'TFYSwiftNumber',
+                          'TFYSwiftTitleGradient',
+                          'TFYSwiftTitleImage',
+                          'TFYSwiftTitleOrImage']
   
   # Tool 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTool' do |tool|
