@@ -181,9 +181,9 @@ segmentedView.listContainer = listContainerView
 
 ```bash
 git clone https://github.com/13662049573/TFYSwiftSegmentedUilt.git
-cd TFYSwiftSegmentedDemo
+cd TFYSwiftSegmentedUilt
 pod install
-open TFYSwiftSegmentedDemo.xcworkspace
+open TFYSwiftSegmentedUilt.xcworkspace
 ```
 
 ## 常见问题
