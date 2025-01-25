@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "1.0.4"
+  spec.version      = "1.0.5"
 
   spec.summary      = "一个功能强大且高度可定制的iOS分段控制框架，具有丰富的特性。"
 
@@ -44,60 +44,60 @@ Pod::Spec.new do |spec|
   
   # Tool 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTool' do |tool|
-    tool.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTool/**/*.swift'
+    tool.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTool/**/*.swift'
   end
   
   # Base 模块（依赖 Tool）
   spec.subspec 'TFYSwiftBase' do |base|
-    base.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftBase/**/*.swift'
+    base.source_files = 'TFYSwiftSegmentedKit/TFYSwiftBase/**/*.swift'
     base.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
   end
   
   # Title 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTitle' do |title|
-    title.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTitle/**/*.swift'
+    title.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTitle/**/*.swift'
     title.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
   end
   
   spec.subspec 'TFYSwiftAttributeTitle' do |attributeTitle|
-    attributeTitle.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftAttributeTitle/**/*.swift'
+    attributeTitle.source_files = 'TFYSwiftSegmentedKit/TFYSwiftAttributeTitle/**/*.swift'
     attributeTitle.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     attributeTitle.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
   end
   
   spec.subspec 'TFYSwiftDot' do |dot|
-    dot.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftDot/**/*.swift'
+    dot.source_files = 'TFYSwiftSegmentedKit/TFYSwiftDot/**/*.swift'
     dot.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     dot.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
   end
   
   spec.subspec 'TFYSwiftIndicator' do |indicator|
-    indicator.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftIndicator/**/*.swift'
+    indicator.source_files = 'TFYSwiftSegmentedKit/TFYSwiftIndicator/**/*.swift'
     indicator.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     indicator.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
   end
   
   spec.subspec 'TFYSwiftNumber' do |number|
-    number.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftNumber/**/*.swift'
+    number.source_files = 'TFYSwiftSegmentedKit/TFYSwiftNumber/**/*.swift'
     number.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     number.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
   end
   
   spec.subspec 'TFYSwiftTitleGradient' do |titleGradient|
-    titleGradient.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTitleGradient/**/*.swift'
+    titleGradient.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTitleGradient/**/*.swift'
     titleGradient.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     titleGradient.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
   end
   
   spec.subspec 'TFYSwiftTitleImage' do |titleImage|
-    titleImage.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTitleImage/**/*.swift'
+    titleImage.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTitleImage/**/*.swift'
     titleImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     titleImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
     titleImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
   end
   
   spec.subspec 'TFYSwiftTitleOrImage' do |titleOrImage|
-    titleOrImage.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftTitleOrImage/**/*.swift'
+    titleOrImage.source_files = 'TFYSwiftSegmentedKit/TFYSwiftTitleOrImage/**/*.swift'
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
