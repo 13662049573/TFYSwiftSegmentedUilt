@@ -180,7 +180,7 @@ segmentedView.listContainer = listContainerView
 克隆仓库并运行示例项目：
 
 ```bash
-git clone https://github.com/13662049573/TFYSwiftSegmentedDemo.git
+git clone https://github.com/13662049573/TFYSwiftSegmentedUilt.git
 cd TFYSwiftSegmentedDemo
 pod install
 open TFYSwiftSegmentedDemo.xcworkspace
