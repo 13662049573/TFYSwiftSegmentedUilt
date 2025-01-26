@@ -21,8 +21,10 @@ class ContentBaseViewController: UIViewController {
         //segmentedViewDataSource一定要通过属性强持有！！！！！！！！！
         segmentedView.dataSource = segmentedDataSource
         segmentedView.delegate = self
+        
         view.addSubview(segmentedView)
 
+        listContainerView.isScrollEnabled = false
         segmentedView.listContainer = listContainerView
         view.addSubview(listContainerView)
 

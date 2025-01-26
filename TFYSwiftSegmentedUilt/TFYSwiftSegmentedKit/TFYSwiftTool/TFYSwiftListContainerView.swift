@@ -77,6 +77,14 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             }
         }
     }
+    /// 滑动是否禁止
+    open var isScrollEnabled:Bool = true {
+        didSet {
+            self.collectionView.isScrollEnabled = isScrollEnabled
+            self.scrollView.isScrollEnabled = isScrollEnabled
+        }
+    }
+    
     open var listCellBackgroundColor: UIColor = .white
     /// 需要和segmentedView.defaultSelectedIndex保持一致，用于触发默认index列表的加载
     open var defaultSelectedIndex: Int = 0 {

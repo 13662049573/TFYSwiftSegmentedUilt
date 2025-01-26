@@ -185,7 +185,13 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     open var contentEdgeInsetRight: CGFloat = TFYSwiftViewAutomaticDimension
     /// 点击切换的时候，contentScrollView的切换是否需要动画
     open var isContentScrollViewClickTransitionAnimationEnabled: Bool = true
-
+    /// 滑动是否禁止
+    open var isScrollEnabled:Bool = true {
+        didSet {
+            self.collectionView.isScrollEnabled = isScrollEnabled
+        }
+    }
+    
     private var itemDataSource = [TFYSwiftBaseItemModel]()
     private var innerItemSpacing: CGFloat = 0
     private var lastContentOffset: CGPoint = CGPoint.zero
