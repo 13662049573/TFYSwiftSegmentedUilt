@@ -2,8 +2,7 @@
 //  GridCellExampleViewController.swift
 //  TFYSwiftViewExample
 //
-//  Created by jiaxin on 2020/1/9.
-//  Copyright © 2020 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit

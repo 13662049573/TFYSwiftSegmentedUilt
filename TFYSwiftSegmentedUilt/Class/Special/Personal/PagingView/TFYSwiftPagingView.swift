@@ -1,62 +1,61 @@
 //
-//  JXPagingView.swift
-//  JXPagingView
+//  TFYSwiftPagingView.swift
+//  TFYSwiftPagingView
 //
-//  Created by jiaxin on 2018/5/22.
-//  Copyright © 2018年 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit
 
-@objc public protocol JXPagingViewDelegate {
+@objc public protocol TFYSwiftPagingViewDelegate {
     /// tableHeaderView的高度，因为内部需要比对判断，只能是整型数
-    func tableHeaderViewHeight(in pagingView: JXPagingView) -> Int
+    func tableHeaderViewHeight(in pagingView: TFYSwiftPagingView) -> Int
     /// 返回tableHeaderView
-    func tableHeaderView(in pagingView: JXPagingView) -> UIView
+    func tableHeaderView(in pagingView: TFYSwiftPagingView) -> UIView
     /// 返回悬浮HeaderView的高度，因为内部需要比对判断，只能是整型数
-    func heightForPinSectionHeader(in pagingView: JXPagingView) -> Int
+    func heightForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> Int
     /// 返回悬浮HeaderView
-    func viewForPinSectionHeader(in pagingView: JXPagingView) -> UIView
+    func viewForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> UIView
     /// 返回列表的数量
-    func numberOfLists(in pagingView: JXPagingView) -> Int
-    /// 根据index初始化一个对应列表实例，需要是遵从`JXPagerViewListViewDelegate`协议的对象。
-    /// 如果列表是用自定义UIView封装的，就让自定义UIView遵从`JXPagerViewListViewDelegate`协议，该方法返回自定义UIView即可。
-    /// 如果列表是用自定义UIViewController封装的，就让自定义UIViewController遵从`JXPagerViewListViewDelegate`协议，该方法返回自定义UIViewController即可。
+    func numberOfLists(in pagingView: TFYSwiftPagingView) -> Int
+    /// 根据index初始化一个对应列表实例，需要是遵从`TFYSwiftPagerViewListViewDelegate`协议的对象。
+    /// 如果列表是用自定义UIView封装的，就让自定义UIView遵从`TFYSwiftPagerViewListViewDelegate`协议，该方法返回自定义UIView即可。
+    /// 如果列表是用自定义UIViewController封装的，就让自定义UIViewController遵从`TFYSwiftPagerViewListViewDelegate`协议，该方法返回自定义UIViewController即可。
     ///
     /// - Parameters:
     ///   - pagingView: pagingView description
     ///   - index: 新生成的列表实例
-    func pagingView(_ pagingView: JXPagingView, initListAtIndex index: Int) -> JXPagingViewListViewDelegate
+    func pagingView(_ pagingView: TFYSwiftPagingView, initListAtIndex index: Int) -> TFYSwiftPagingViewListViewDelegate
 
-    /// 将要被弃用！请使用pagingView(_ pagingView: JXPagingView, mainTableViewDidScroll scrollView: UIScrollView) 方法作为替代。
-    @available(*, message: "Use pagingView(_ pagingView: JXPagingView, mainTableViewDidScroll scrollView: UIScrollView) method")
+    /// 将要被弃用！请使用pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidScroll scrollView: UIScrollView) 方法作为替代。
+    @available(*, message: "Use pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidScroll scrollView: UIScrollView) method")
     @objc optional func mainTableViewDidScroll(_ scrollView: UIScrollView)
-    @objc optional func pagingView(_ pagingView: JXPagingView, mainTableViewDidScroll scrollView: UIScrollView)
-    @objc optional func pagingView(_ pagingView: JXPagingView, mainTableViewWillBeginDragging scrollView: UIScrollView)
-    @objc optional func pagingView(_ pagingView: JXPagingView, mainTableViewDidEndDragging scrollView: UIScrollView, willDecelerate decelerate: Bool)
-    @objc optional func pagingView(_ pagingView: JXPagingView, mainTableViewDidEndDecelerating scrollView: UIScrollView)
-    @objc optional func pagingView(_ pagingView: JXPagingView, mainTableViewDidEndScrollingAnimation scrollView: UIScrollView)
+    @objc optional func pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidScroll scrollView: UIScrollView)
+    @objc optional func pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewWillBeginDragging scrollView: UIScrollView)
+    @objc optional func pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidEndDragging scrollView: UIScrollView, willDecelerate decelerate: Bool)
+    @objc optional func pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidEndDecelerating scrollView: UIScrollView)
+    @objc optional func pagingView(_ pagingView: TFYSwiftPagingView, mainTableViewDidEndScrollingAnimation scrollView: UIScrollView)
 
 
     /// 返回自定义UIScrollView或UICollectionView的Class
     /// 某些特殊情况需要自己处理列表容器内UIScrollView内部逻辑。比如项目用了FDFullscreenPopGesture，需要处理手势相关代理。
     ///
-    /// - Parameter pagingView: JXPagingView
+    /// - Parameter pagingView: TFYSwiftPagingView
     /// - Returns: 自定义UIScrollView实例
-    @objc optional func scrollViewClassInListContainerView(in pagingView: JXPagingView) -> AnyClass
+    @objc optional func scrollViewClassInListContainerView(in pagingView: TFYSwiftPagingView) -> AnyClass
 }
 
-open class JXPagingView: UIView {
+open class TFYSwiftPagingView: UIView {
     /// 需要和categoryView.defaultSelectedIndex保持一致
     public var defaultSelectedIndex: Int = 0 {
         didSet {
             listContainerView.defaultSelectedIndex = defaultSelectedIndex
         }
     }
-    public private(set) lazy var mainTableView: JXPagingMainTableView = JXPagingMainTableView(frame: CGRect.zero, style: .plain)
-    public private(set) lazy var listContainerView: JXPagingListContainerView = JXPagingListContainerView(dataSource: self, type: listContainerType)
+    public private(set) lazy var mainTableView: TFYSwiftPagingMainTableView = TFYSwiftPagingMainTableView(frame: CGRect.zero, style: .plain)
+    public private(set) lazy var listContainerView: TFYSwiftPagingListContainerView = TFYSwiftPagingListContainerView(dataSource: self, type: listContainerType)
     /// 当前已经加载过可用的列表字典，key就是index值，value是对应的列表。
-    public private(set) var validListDict = [Int:JXPagingViewListViewDelegate]()
+    public private(set) var validListDict = [Int:TFYSwiftPagingViewListViewDelegate]()
     /// 顶部固定sectionHeader的垂直偏移量。数值越大越往下沉。
     public var pinSectionHeaderVerticalOffset: Int = 0
     public var isListHorizontalScrollEnabled = true {
@@ -67,14 +66,14 @@ open class JXPagingView: UIView {
     /// 是否允许当前列表自动显示或隐藏列表是垂直滚动指示器。true：悬浮的headerView滚动到顶部开始滚动列表时，就会显示，反之隐藏。false：内部不会处理列表的垂直滚动指示器。默认为：true。
     public var automaticallyDisplayListVerticalScrollIndicator = true
     public var currentScrollingListView: UIScrollView?
-    public var currentList: JXPagingViewListViewDelegate?
+    public var currentList: TFYSwiftPagingViewListViewDelegate?
     private var currentIndex: Int = 0
-    private weak var delegate: JXPagingViewDelegate?
+    private weak var delegate: TFYSwiftPagingViewDelegate?
     private var tableHeaderContainerView: UIView!
     private let cellIdentifier = "cell"
-    private let listContainerType: JXPagingListContainerType
+    private let listContainerType: TFYSwiftPagingListContainerType
 
-    public init(delegate: JXPagingViewDelegate, listContainerType: JXPagingListContainerType = .collectionView) {
+    public init(delegate: TFYSwiftPagingViewDelegate, listContainerType: TFYSwiftPagingListContainerType = .collectionView) {
         self.delegate = delegate
         self.listContainerType = listContainerType
         super.init(frame: CGRect.zero)
@@ -214,8 +213,8 @@ open class JXPagingView: UIView {
         }
     }
 
-    //仅用于处理设置了pinSectionHeaderVerticalOffset，又添加了MJRefresh的下拉刷新。这种情况会导致JXPagingView和MJRefresh来回设置contentInset值。针对这种及其特殊的情况，就内部特殊处理了。通过下面的判断条件，来判定当前是否处于下拉刷新中。请勿让pinSectionHeaderVerticalOffset和下拉刷新设置的contentInset.top值相同。
-    //具体原因参考：https://github.com/pujiaxin33/JXPagingView/issues/203
+    //仅用于处理设置了pinSectionHeaderVerticalOffset，又添加了MJRefresh的下拉刷新。这种情况会导致TFYSwiftPagingView和MJRefresh来回设置contentInset值。针对这种及其特殊的情况，就内部特殊处理了。通过下面的判断条件，来判定当前是否处于下拉刷新中。请勿让pinSectionHeaderVerticalOffset和下拉刷新设置的contentInset.top值相同。
+    //具体原因参考：https://github.com/pujiaxin33/TFYSwiftPagingView/issues/203
     func isSetMainScrollViewContentInsetToZeroEnabled(scrollView: UIScrollView) -> Bool {
         return !(scrollView.contentInset.top != 0 && scrollView.contentInset.top != CGFloat(pinSectionHeaderVerticalOffset))
     }
@@ -253,7 +252,7 @@ open class JXPagingView: UIView {
 }
 
 //MARK: - UITableViewDataSource, UITableViewDelegate
-extension JXPagingView: UITableViewDataSource, UITableViewDelegate {
+extension TFYSwiftPagingView: UITableViewDataSource, UITableViewDelegate {
     open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -347,14 +346,14 @@ extension JXPagingView: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension JXPagingView: JXPagingListContainerViewDataSource {
-    public func numberOfLists(in listContainerView: JXPagingListContainerView) -> Int {
+extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDataSource {
+    public func numberOfLists(in listContainerView: TFYSwiftPagingListContainerView) -> Int {
         guard let delegate = delegate else { return 0 }
         return delegate.numberOfLists(in: self)
     }
 
-    public func listContainerView(_ listContainerView: JXPagingListContainerView, initListAt index: Int) -> JXPagingViewListViewDelegate {
-        guard let delegate = delegate else { fatalError("JXPaingView.delegate must not be nil") }
+    public func listContainerView(_ listContainerView: TFYSwiftPagingListContainerView, initListAt index: Int) -> TFYSwiftPagingViewListViewDelegate {
+        guard let delegate = delegate else { fatalError("TFYSwiftPaingView.delegate must not be nil") }
         var list = validListDict[index]
         if list == nil {
             list = delegate.pagingView(self, initListAtIndex: index)
@@ -367,7 +366,7 @@ extension JXPagingView: JXPagingListContainerViewDataSource {
         return list!
     }
 
-    public func scrollViewClass(in listContainerView: JXPagingListContainerView) -> AnyClass {
+    public func scrollViewClass(in listContainerView: TFYSwiftPagingListContainerView) -> AnyClass {
         if let any = delegate?.scrollViewClassInListContainerView?(in: self) {
             return any
         }
@@ -375,16 +374,16 @@ extension JXPagingView: JXPagingListContainerViewDataSource {
     }
 }
 
-extension JXPagingView: JXPagingListContainerViewDelegate {
-    public func listContainerViewWillBeginDragging(_ listContainerView: JXPagingListContainerView) {
+extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDelegate {
+    public func listContainerViewWillBeginDragging(_ listContainerView: TFYSwiftPagingListContainerView) {
         mainTableView.isScrollEnabled = false
     }
 
-    public func listContainerViewDidEndScrolling(_ listContainerView: JXPagingListContainerView) {
+    public func listContainerViewDidEndScrolling(_ listContainerView: TFYSwiftPagingListContainerView) {
         mainTableView.isScrollEnabled = true
     }
 
-    public func listContainerView(_ listContainerView: JXPagingListContainerView, listDidAppearAt index: Int) {
+    public func listContainerView(_ listContainerView: TFYSwiftPagingListContainerView, listDidAppearAt index: Int) {
         currentScrollingListView = validListDict[index]?.listScrollView()
         for listItem in validListDict.values {
             if listItem === validListDict[index] {

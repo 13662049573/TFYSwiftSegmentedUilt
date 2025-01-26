@@ -1,9 +1,8 @@
 //
 //  PagingListBaseView.swift
-//  JXPagingView
+//  TFYSwiftPagingView
 //
-//  Created by jiaxin on 2018/5/28.
-//  Copyright © 2018年 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit
@@ -72,7 +71,7 @@ extension PagingListBaseView: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension PagingListBaseView: JXPagingViewListViewDelegate {
+extension PagingListBaseView: TFYSwiftPagingViewListViewDelegate {
     public func listView() -> UIView {
         return self
     }

@@ -2,8 +2,7 @@
 //  NaviSegmentedControlViewController.swift
 //  TFYSwiftView
 //
-//  Created by jiaxin on 2019/1/3.
-//  Copyright © 2019 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit

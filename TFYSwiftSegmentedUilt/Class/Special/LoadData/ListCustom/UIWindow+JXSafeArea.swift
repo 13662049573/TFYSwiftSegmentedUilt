@@ -1,16 +1,15 @@
 //
-//  UIWindow+JXSafeArea.swift
+//  UIWindow+TFYSwiftSafeArea.swift
 //  TFYSwiftView
 //
-//  Created by jiaxin on 2019/1/7.
-//  Copyright © 2019 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import Foundation
 import UIKit
 
 extension UIWindow {
-    func jx_layoutinsets() -> UIEdgeInsets {
+    func sg_layoutinsets() -> UIEdgeInsets {
         if #available(iOS 11.0, *) {
             if safeAreaInsets.bottom > 0 {
                 return safeAreaInsets
@@ -21,7 +20,7 @@ extension UIWindow {
         return UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
     }
 
-    func jx_navigationHeight() -> CGFloat {
-        return jx_layoutinsets().top + 44
+    func sg_navigationHeight() -> CGFloat {
+        return sg_layoutinsets().top + 44
     }
 }

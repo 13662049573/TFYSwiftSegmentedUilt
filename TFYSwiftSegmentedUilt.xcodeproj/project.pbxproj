@@ -18,7 +18,7 @@
 		363B3C2C2D44FDC400BC628D /* TestListBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BB82D44FDC400BC628D /* TestListBaseView.swift */; };
 		363B3C2D2D44FDC400BC628D /* TitleImageSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BB92D44FDC400BC628D /* TitleImageSettingViewController.swift */; };
 		363B3C2E2D44FDC400BC628D /* GridCellExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BBB2D44FDC400BC628D /* GridCellExampleViewController.swift */; };
-		363B3C2F2D44FDC400BC628D /* JXSegmentedMixcellDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BBD2D44FDC400BC628D /* JXSegmentedMixcellDataSource.swift */; };
+		363B3C2F2D44FDC400BC628D /* TFYSwiftMixcellDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BBD2D44FDC400BC628D /* TFYSwiftMixcellDataSource.swift */; };
 		363B3C302D44FDC400BC628D /* TitleConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BC02D44FDC400BC628D /* TitleConfigurationViewController.swift */; };
 		363B3C312D44FDC400BC628D /* ListCacheViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BC22D44FDC400BC628D /* ListCacheViewController.swift */; };
 		363B3C322D44FDC400BC628D /* LoadDataCustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BC42D44FDC400BC628D /* LoadDataCustomListViewController.swift */; };
@@ -30,11 +30,11 @@
 		363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */; };
 		363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */; };
 		363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD02D44FDC400BC628D /* NestViewController.swift */; };
-		363B3C3B2D44FDC400BC628D /* JXPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD22D44FDC400BC628D /* JXPagingListContainerView.swift */; };
-		363B3C3C2D44FDC400BC628D /* JXPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD32D44FDC400BC628D /* JXPagingListRefreshView.swift */; };
-		363B3C3D2D44FDC400BC628D /* JXPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD42D44FDC400BC628D /* JXPagingMainTableView.swift */; };
-		363B3C3E2D44FDC400BC628D /* JXPagingSmoothView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD52D44FDC400BC628D /* JXPagingSmoothView.swift */; };
-		363B3C3F2D44FDC400BC628D /* JXPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD62D44FDC400BC628D /* JXPagingView.swift */; };
+		363B3C3B2D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */; };
+		363B3C3C2D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */; };
+		363B3C3D2D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */; };
+		363B3C3E2D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */; };
+		363B3C3F2D44FDC400BC628D /* TFYSwiftPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */; };
 		363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */; };
 		363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */; };
 		363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BDA2D44FDC400BC628D /* PagingViewController.swift */; };
@@ -100,7 +100,7 @@
 		363B3BB82D44FDC400BC628D /* TestListBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestListBaseView.swift; sourceTree = "<group>"; };
 		363B3BB92D44FDC400BC628D /* TitleImageSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleImageSettingViewController.swift; sourceTree = "<group>"; };
 		363B3BBB2D44FDC400BC628D /* GridCellExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridCellExampleViewController.swift; sourceTree = "<group>"; };
-		363B3BBD2D44FDC400BC628D /* JXSegmentedMixcellDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXSegmentedMixcellDataSource.swift; sourceTree = "<group>"; };
+		363B3BBD2D44FDC400BC628D /* TFYSwiftMixcellDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftMixcellDataSource.swift; sourceTree = "<group>"; };
 		363B3BC02D44FDC400BC628D /* TitleConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleConfigurationViewController.swift; sourceTree = "<group>"; };
 		363B3BC22D44FDC400BC628D /* ListCacheViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCacheViewController.swift; sourceTree = "<group>"; };
 		363B3BC42D44FDC400BC628D /* LoadDataCustomListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadDataCustomListViewController.swift; sourceTree = "<group>"; };
@@ -112,11 +112,11 @@
 		363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaviItemCustomViewController.swift; sourceTree = "<group>"; };
 		363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestChildViewController.swift; sourceTree = "<group>"; };
 		363B3BD02D44FDC400BC628D /* NestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestViewController.swift; sourceTree = "<group>"; };
-		363B3BD22D44FDC400BC628D /* JXPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXPagingListContainerView.swift; sourceTree = "<group>"; };
-		363B3BD32D44FDC400BC628D /* JXPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXPagingListRefreshView.swift; sourceTree = "<group>"; };
-		363B3BD42D44FDC400BC628D /* JXPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXPagingMainTableView.swift; sourceTree = "<group>"; };
-		363B3BD52D44FDC400BC628D /* JXPagingSmoothView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXPagingSmoothView.swift; sourceTree = "<group>"; };
-		363B3BD62D44FDC400BC628D /* JXPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JXPagingView.swift; sourceTree = "<group>"; };
+		363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
+		363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
+		363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingMainTableView.swift; sourceTree = "<group>"; };
+		363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingSmoothView.swift; sourceTree = "<group>"; };
+		363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingView.swift; sourceTree = "<group>"; };
 		363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseCell.swift; sourceTree = "<group>"; };
 		363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseView.swift; sourceTree = "<group>"; };
 		363B3BDA2D44FDC400BC628D /* PagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingViewController.swift; sourceTree = "<group>"; };
@@ -228,7 +228,7 @@
 		363B3BBE2D44FDC400BC628D /* MixCell */ = {
 			isa = PBXGroup;
 			children = (
-				363B3BBD2D44FDC400BC628D /* JXSegmentedMixcellDataSource.swift */,
+				363B3BBD2D44FDC400BC628D /* TFYSwiftMixcellDataSource.swift */,
 			);
 			path = MixCell;
 			sourceTree = "<group>";
@@ -305,22 +305,22 @@
 			path = Nest;
 			sourceTree = "<group>";
 		};
-		363B3BD72D44FDC400BC628D /* JXPagingView */ = {
+		363B3BD72D44FDC400BC628D /* PagingView */ = {
 			isa = PBXGroup;
 			children = (
-				363B3BD22D44FDC400BC628D /* JXPagingListContainerView.swift */,
-				363B3BD32D44FDC400BC628D /* JXPagingListRefreshView.swift */,
-				363B3BD42D44FDC400BC628D /* JXPagingMainTableView.swift */,
-				363B3BD52D44FDC400BC628D /* JXPagingSmoothView.swift */,
-				363B3BD62D44FDC400BC628D /* JXPagingView.swift */,
+				363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */,
+				363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */,
+				363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */,
+				363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */,
+				363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */,
 			);
-			path = JXPagingView;
+			path = PagingView;
 			sourceTree = "<group>";
 		};
 		363B3BDC2D44FDC400BC628D /* Personal */ = {
 			isa = PBXGroup;
 			children = (
-				363B3BD72D44FDC400BC628D /* JXPagingView */,
+				363B3BD72D44FDC400BC628D /* PagingView */,
 				363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */,
 				363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */,
 				363B3BDA2D44FDC400BC628D /* PagingViewController.swift */,
@@ -590,7 +590,7 @@
 				363B3C2C2D44FDC400BC628D /* TestListBaseView.swift in Sources */,
 				363B3C2D2D44FDC400BC628D /* TitleImageSettingViewController.swift in Sources */,
 				363B3C2E2D44FDC400BC628D /* GridCellExampleViewController.swift in Sources */,
-				363B3C2F2D44FDC400BC628D /* JXSegmentedMixcellDataSource.swift in Sources */,
+				363B3C2F2D44FDC400BC628D /* TFYSwiftMixcellDataSource.swift in Sources */,
 				363B3C302D44FDC400BC628D /* TitleConfigurationViewController.swift in Sources */,
 				363B3C312D44FDC400BC628D /* ListCacheViewController.swift in Sources */,
 				363B3C322D44FDC400BC628D /* LoadDataCustomListViewController.swift in Sources */,
@@ -602,11 +602,11 @@
 				363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */,
 				363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */,
 				363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */,
-				363B3C3B2D44FDC400BC628D /* JXPagingListContainerView.swift in Sources */,
-				363B3C3C2D44FDC400BC628D /* JXPagingListRefreshView.swift in Sources */,
-				363B3C3D2D44FDC400BC628D /* JXPagingMainTableView.swift in Sources */,
-				363B3C3E2D44FDC400BC628D /* JXPagingSmoothView.swift in Sources */,
-				363B3C3F2D44FDC400BC628D /* JXPagingView.swift in Sources */,
+				363B3C3B2D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift in Sources */,
+				363B3C3C2D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift in Sources */,
+				363B3C3D2D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift in Sources */,
+				363B3C3E2D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift in Sources */,
+				363B3C3F2D44FDC400BC628D /* TFYSwiftPagingView.swift in Sources */,
 				363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */,
 				363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */,
 				363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */,

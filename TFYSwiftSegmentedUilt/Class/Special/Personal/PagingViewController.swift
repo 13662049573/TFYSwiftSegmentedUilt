@@ -1,25 +1,25 @@
 //
 //  PagingViewController.swift
-//  JXPagingView
+//  TFYSwiftPagingView
 //
-//  Created by jiaxin on 2018/8/10.
-//  Copyright © 2018年 jiaxin. All rights reserved.
+//
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit
 
 
-extension JXPagingListContainerView: TFYSwiftViewListContainer {}
+extension TFYSwiftPagingListContainerView: TFYSwiftViewListContainer {}
 
 class PagingViewController: UIViewController {
-    var pagingView: JXPagingView!
+    var pagingView: TFYSwiftPagingView!
     var userHeaderView: PagingViewTableHeaderView!
     var userHeaderContainerView: UIView!
     var segmentedViewDataSource: TFYSwiftTitleDataSource!
     var segmentedView: TFYSwiftView!
     let titles = ["能力", "爱好", "队友"]
-    var JXTableHeaderViewHeight: Int = 200
-    var JXheightForHeaderInSection: Int = 50
+    var TFYSwiftTableHeaderViewHeight: Int = 200
+    var TFYSwiftheightForHeaderInSection: Int = 50
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +27,7 @@ class PagingViewController: UIViewController {
         self.title = "个人中心"
         self.navigationController?.navigationBar.isTranslucent = false
 
-        userHeaderContainerView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: CGFloat(JXTableHeaderViewHeight)))
+        userHeaderContainerView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: CGFloat(TFYSwiftTableHeaderViewHeight)))
         userHeaderView = PagingViewTableHeaderView(frame: userHeaderContainerView.bounds)
         userHeaderContainerView.addSubview(userHeaderView)
 
@@ -39,7 +39,7 @@ class PagingViewController: UIViewController {
         segmentedViewDataSource.isTitleColorGradientEnabled = true
         segmentedViewDataSource.isTitleZoomEnabled = true
 
-        segmentedView = TFYSwiftView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: CGFloat(JXheightForHeaderInSection)))
+        segmentedView = TFYSwiftView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: CGFloat(TFYSwiftheightForHeaderInSection)))
         segmentedView.backgroundColor = UIColor.white
         segmentedView.dataSource = segmentedViewDataSource
         segmentedView.isContentScrollViewClickTransitionAnimationEnabled = false
@@ -55,7 +55,7 @@ class PagingViewController: UIViewController {
         lineLayer.frame = CGRect(x: 0, y: segmentedView.bounds.height - lineWidth, width: segmentedView.bounds.width, height: lineWidth)
         segmentedView.layer.addSublayer(lineLayer)
 
-        pagingView = JXPagingView(delegate: self)
+        pagingView = TFYSwiftPagingView(delegate: self)
 
         self.view.addSubview(pagingView)
         
@@ -69,29 +69,29 @@ class PagingViewController: UIViewController {
     }
 }
 
-extension PagingViewController: JXPagingViewDelegate {
+extension PagingViewController: TFYSwiftPagingViewDelegate {
 
-    func tableHeaderViewHeight(in pagingView: JXPagingView) -> Int {
-        return JXTableHeaderViewHeight
+    func tableHeaderViewHeight(in pagingView: TFYSwiftPagingView) -> Int {
+        return TFYSwiftTableHeaderViewHeight
     }
 
-    func tableHeaderView(in pagingView: JXPagingView) -> UIView {
+    func tableHeaderView(in pagingView: TFYSwiftPagingView) -> UIView {
         return userHeaderContainerView
     }
 
-    func heightForPinSectionHeader(in pagingView: JXPagingView) -> Int {
-        return JXheightForHeaderInSection
+    func heightForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> Int {
+        return TFYSwiftheightForHeaderInSection
     }
 
-    func viewForPinSectionHeader(in pagingView: JXPagingView) -> UIView {
+    func viewForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> UIView {
         return segmentedView
     }
 
-    func numberOfLists(in pagingView: JXPagingView) -> Int {
+    func numberOfLists(in pagingView: TFYSwiftPagingView) -> Int {
         return titles.count
     }
 
-    func pagingView(_ pagingView: JXPagingView, initListAtIndex index: Int) -> JXPagingViewListViewDelegate {
+    func pagingView(_ pagingView: TFYSwiftPagingView, initListAtIndex index: Int) -> TFYSwiftPagingViewListViewDelegate {
         let list = PagingListBaseView()
         if index == 0 {
             list.dataSource = ["橡胶火箭", "橡胶火箭炮", "橡胶机关枪", "橡胶子弹", "橡胶攻城炮", "橡胶象枪", "橡胶象枪乱打", "橡胶灰熊铳", "橡胶雷神象枪", "橡胶猿王枪", "橡胶犀·榴弹炮", "橡胶大蛇炮", "橡胶火箭", "橡胶火箭炮", "橡胶机关枪", "橡胶子弹", "橡胶攻城炮", "橡胶象枪", "橡胶象枪乱打", "橡胶灰熊铳", "橡胶雷神象枪", "橡胶猿王枪", "橡胶犀·榴弹炮", "橡胶大蛇炮"]

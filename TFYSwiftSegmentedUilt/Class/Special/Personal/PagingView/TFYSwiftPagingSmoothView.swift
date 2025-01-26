@@ -1,53 +1,52 @@
 //
-//  JXPagingSmoothView.swift
-//  JXPagingView
+//  TFYSwiftPagingSmoothView.swift
+//  TFYSwiftPagingView
 //
-//  Created by jiaxin on 2019/11/20.
-//  Copyright © 2019 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
 
 import UIKit
 
-@objc public protocol JXPagingSmoothViewListViewDelegate {
+@objc public protocol TFYSwiftPagingSmoothViewListViewDelegate {
     /// 返回listView。如果是vc包裹的就是vc.view；如果是自定义view包裹的，就是自定义view自己。
     func listView() -> UIView
-    /// 返回JXPagerSmoothViewListViewDelegate内部持有的UIScrollView或UITableView或UICollectionView
+    /// 返回TFYSwiftPagerSmoothViewListViewDelegate内部持有的UIScrollView或UITableView或UICollectionView
     func listScrollView() -> UIScrollView
     @objc optional func listDidAppear()
     @objc optional func listDidDisappear()
 }
 
 @objc
-public protocol JXPagingSmoothViewDataSource {
+public protocol TFYSwiftPagingSmoothViewDataSource {
     /// 返回页面header的高度
-    func heightForPagingHeader(in pagingView: JXPagingSmoothView) -> CGFloat
+    func heightForPagingHeader(in pagingView: TFYSwiftPagingSmoothView) -> CGFloat
     /// 返回页面header视图
-    func viewForPagingHeader(in pagingView: JXPagingSmoothView) -> UIView
+    func viewForPagingHeader(in pagingView: TFYSwiftPagingSmoothView) -> UIView
     /// 返回悬浮视图的高度
-    func heightForPinHeader(in pagingView: JXPagingSmoothView) -> CGFloat
+    func heightForPinHeader(in pagingView: TFYSwiftPagingSmoothView) -> CGFloat
     /// 返回悬浮视图
-    func viewForPinHeader(in pagingView: JXPagingSmoothView) -> UIView
+    func viewForPinHeader(in pagingView: TFYSwiftPagingSmoothView) -> UIView
     /// 返回列表的数量
-    func numberOfLists(in pagingView: JXPagingSmoothView) -> Int
-    /// 根据index初始化一个对应列表实例，需要是遵从`JXPagingSmoothViewListViewDelegate`协议的对象。
-    /// 如果列表是用自定义UIView封装的，就让自定义UIView遵从`JXPagingSmoothViewListViewDelegate`协议，该方法返回自定义UIView即可。
-    /// 如果列表是用自定义UIViewController封装的，就让自定义UIViewController遵从`JXPagingSmoothViewListViewDelegate`协议，该方法返回自定义UIViewController即可。
-    func pagingView(_ pagingView: JXPagingSmoothView, initListAtIndex index: Int) -> JXPagingSmoothViewListViewDelegate
+    func numberOfLists(in pagingView: TFYSwiftPagingSmoothView) -> Int
+    /// 根据index初始化一个对应列表实例，需要是遵从`TFYSwiftPagingSmoothViewListViewDelegate`协议的对象。
+    /// 如果列表是用自定义UIView封装的，就让自定义UIView遵从`TFYSwiftPagingSmoothViewListViewDelegate`协议，该方法返回自定义UIView即可。
+    /// 如果列表是用自定义UIViewController封装的，就让自定义UIViewController遵从`TFYSwiftPagingSmoothViewListViewDelegate`协议，该方法返回自定义UIViewController即可。
+    func pagingView(_ pagingView: TFYSwiftPagingSmoothView, initListAtIndex index: Int) -> TFYSwiftPagingSmoothViewListViewDelegate
 }
 
 @objc
-public protocol JXPagingSmoothViewDelegate {
+public protocol TFYSwiftPagingSmoothViewDelegate {
     @objc optional func pagingSmoothViewDidScroll(_ scrollView: UIScrollView)
 }
 
 
-open class JXPagingSmoothView: UIView {
-    public private(set) var listDict = [Int : JXPagingSmoothViewListViewDelegate]()
-    public let listCollectionView: JXPagingSmoothCollectionView
+open class TFYSwiftPagingSmoothView: UIView {
+    public private(set) var listDict = [Int : TFYSwiftPagingSmoothViewListViewDelegate]()
+    public let listCollectionView: TFYSwiftPagingSmoothCollectionView
     public var defaultSelectedIndex: Int = 0
-    public weak var delegate: JXPagingSmoothViewDelegate?
+    public weak var delegate: TFYSwiftPagingSmoothViewDelegate?
 
-    weak var dataSource: JXPagingSmoothViewDataSource?
+    weak var dataSource: TFYSwiftPagingSmoothViewDataSource?
     var listHeaderDict = [Int : UIView]()
     var isSyncListContentOffsetEnabled: Bool = false
     let pagingHeaderContainerView: UIView
@@ -68,14 +67,14 @@ open class JXPagingSmoothView: UIView {
         }
     }
 
-    public init(dataSource: JXPagingSmoothViewDataSource) {
+    public init(dataSource: TFYSwiftPagingSmoothViewDataSource) {
         self.dataSource = dataSource
         pagingHeaderContainerView = UIView()
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.scrollDirection = .horizontal
-        listCollectionView = JXPagingSmoothCollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+        listCollectionView = TFYSwiftPagingSmoothCollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         super.init(frame: CGRect.zero)
 
         listCollectionView.dataSource = self
@@ -266,7 +265,7 @@ open class JXPagingSmoothView: UIView {
     }
 }
 
-extension JXPagingSmoothView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return bounds.size
     }
@@ -354,7 +353,7 @@ extension JXPagingSmoothView: UICollectionViewDataSource, UICollectionViewDelega
     }
 }
 
-public class JXPagingSmoothCollectionView: UICollectionView, UIGestureRecognizerDelegate {
+public class TFYSwiftPagingSmoothCollectionView: UICollectionView, UIGestureRecognizerDelegate {
     var pagingHeaderContainerView: UIView?
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         let point = touch.location(in: pagingHeaderContainerView)

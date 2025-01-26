@@ -1,17 +1,15 @@
 //
-//  JXPagingListRefreshView.swift
-//  JXPagingView
+//  TFYSwiftPagingListRefreshView.swift
+//  TFYSwiftPagingView
 //
-//  Created by jiaxin on 2018/8/28.
-//  Copyright © 2018年 jiaxin. All rights reserved.
+//  Created by 田风有 on 2025/1/25.
 //
-
 import UIKit
 
-open class JXPagingListRefreshView: JXPagingView {
+open class TFYSwiftPagingListRefreshView: TFYSwiftPagingView {
     private var lastScrollingListViewContentOffsetY: CGFloat = 0
 
-    public override init(delegate: JXPagingViewDelegate, listContainerType: JXPagingListContainerType = .collectionView) {
+    public override init(delegate: TFYSwiftPagingViewDelegate, listContainerType: TFYSwiftPagingListContainerType = .collectionView) {
         super.init(delegate: delegate, listContainerType: listContainerType)
 
         mainTableView.bounces = false
