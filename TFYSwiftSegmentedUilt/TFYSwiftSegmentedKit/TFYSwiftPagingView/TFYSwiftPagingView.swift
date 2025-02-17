@@ -86,6 +86,7 @@ open class TFYSwiftPagingView: UIView {
         mainTableView.dataSource = self
         mainTableView.delegate = self
         mainTableView.scrollsToTop = false
+        mainTableView.backgroundColor = .clear
         refreshTableHeaderView()
         mainTableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
         if #available(iOS 11.0, *) {
