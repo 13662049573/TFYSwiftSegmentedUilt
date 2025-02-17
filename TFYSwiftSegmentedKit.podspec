@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "1.0.9"
+  spec.version      = "1.1.0"
 
   spec.summary      = "一个功能强大且高度可定制的iOS分段控制框架，具有丰富的特性。"
 
@@ -49,7 +49,8 @@ Pod::Spec.new do |spec|
                           'TFYSwiftNumber',
                           'TFYSwiftTitleGradient',
                           'TFYSwiftTitleImage',
-                          'TFYSwiftTitleOrImage']
+                          'TFYSwiftTitleOrImage',
+                          'TFYSwiftPagingView']
   
   # Tool 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTool' do |tool|
@@ -110,6 +111,10 @@ Pod::Spec.new do |spec|
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
     titleOrImage.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
+  end
+
+  spec.subspec 'TFYSwiftPagingView' do |paging|
+    paging.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftPagingView/**/*.swift'
   end
 
   spec.framework    = "UIKit"
