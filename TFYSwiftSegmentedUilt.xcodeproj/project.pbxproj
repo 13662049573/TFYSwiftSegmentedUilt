@@ -30,11 +30,6 @@
 		363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */; };
 		363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */; };
 		363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD02D44FDC400BC628D /* NestViewController.swift */; };
-		363B3C3B2D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */; };
-		363B3C3C2D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */; };
-		363B3C3D2D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */; };
-		363B3C3E2D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */; };
-		363B3C3F2D44FDC400BC628D /* TFYSwiftPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */; };
 		363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */; };
 		363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */; };
 		363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BDA2D44FDC400BC628D /* PagingViewController.swift */; };
@@ -88,6 +83,11 @@
 		363B3C722D44FDC400BC628D /* TFYSwiftViewTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C172D44FDC400BC628D /* TFYSwiftViewTool.swift */; };
 		363B3C732D44FDC400BC628D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C1A2D44FDC400BC628D /* AppDelegate.swift */; };
 		363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C212D44FDC400BC628D /* SceneDelegate.swift */; };
+		3D68BB452D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */; };
+		3D68BB462D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */; };
+		3D68BB472D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */; };
+		3D68BB482D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB422D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift */; };
+		3D68BB492D62CE8700A244A7 /* TFYSwiftPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB432D62CE8700A244A7 /* TFYSwiftPagingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,11 +112,6 @@
 		363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaviItemCustomViewController.swift; sourceTree = "<group>"; };
 		363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestChildViewController.swift; sourceTree = "<group>"; };
 		363B3BD02D44FDC400BC628D /* NestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestViewController.swift; sourceTree = "<group>"; };
-		363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
-		363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
-		363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingMainTableView.swift; sourceTree = "<group>"; };
-		363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingSmoothView.swift; sourceTree = "<group>"; };
-		363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingView.swift; sourceTree = "<group>"; };
 		363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseCell.swift; sourceTree = "<group>"; };
 		363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseView.swift; sourceTree = "<group>"; };
 		363B3BDA2D44FDC400BC628D /* PagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingViewController.swift; sourceTree = "<group>"; };
@@ -174,6 +169,11 @@
 		363B3C1D2D44FDC400BC628D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		363B3C1F2D44FDC400BC628D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		363B3C212D44FDC400BC628D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
+		3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
+		3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingMainTableView.swift; sourceTree = "<group>"; };
+		3D68BB422D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingSmoothView.swift; sourceTree = "<group>"; };
+		3D68BB432D62CE8700A244A7 /* TFYSwiftPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -305,22 +305,9 @@
 			path = Nest;
 			sourceTree = "<group>";
 		};
-		363B3BD72D44FDC400BC628D /* PagingView */ = {
-			isa = PBXGroup;
-			children = (
-				363B3BD22D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift */,
-				363B3BD32D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift */,
-				363B3BD42D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift */,
-				363B3BD52D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift */,
-				363B3BD62D44FDC400BC628D /* TFYSwiftPagingView.swift */,
-			);
-			path = PagingView;
-			sourceTree = "<group>";
-		};
 		363B3BDC2D44FDC400BC628D /* Personal */ = {
 			isa = PBXGroup;
 			children = (
-				363B3BD72D44FDC400BC628D /* PagingView */,
 				363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */,
 				363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */,
 				363B3BDA2D44FDC400BC628D /* PagingViewController.swift */,
@@ -479,6 +466,7 @@
 		363B3C192D44FDC400BC628D /* TFYSwiftSegmentedKit */ = {
 			isa = PBXGroup;
 			children = (
+				3D68BB442D62CE8700A244A7 /* TFYSwiftPagingView */,
 				363B3BE62D44FDC400BC628D /* TFYSwiftAttributeTitle */,
 				363B3BEE2D44FDC400BC628D /* TFYSwiftBase */,
 				363B3BF22D44FDC400BC628D /* TFYSwiftDot */,
@@ -506,6 +494,18 @@
 				363B3C212D44FDC400BC628D /* SceneDelegate.swift */,
 			);
 			path = TFYSwiftSegmentedUilt;
+			sourceTree = "<group>";
+		};
+		3D68BB442D62CE8700A244A7 /* TFYSwiftPagingView */ = {
+			isa = PBXGroup;
+			children = (
+				3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */,
+				3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */,
+				3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */,
+				3D68BB422D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift */,
+				3D68BB432D62CE8700A244A7 /* TFYSwiftPagingView.swift */,
+			);
+			path = TFYSwiftPagingView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -602,11 +602,6 @@
 				363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */,
 				363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */,
 				363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */,
-				363B3C3B2D44FDC400BC628D /* TFYSwiftPagingListContainerView.swift in Sources */,
-				363B3C3C2D44FDC400BC628D /* TFYSwiftPagingListRefreshView.swift in Sources */,
-				363B3C3D2D44FDC400BC628D /* TFYSwiftPagingMainTableView.swift in Sources */,
-				363B3C3E2D44FDC400BC628D /* TFYSwiftPagingSmoothView.swift in Sources */,
-				363B3C3F2D44FDC400BC628D /* TFYSwiftPagingView.swift in Sources */,
 				363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */,
 				363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */,
 				363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */,
@@ -645,6 +640,11 @@
 				363B3C632D44FDC400BC628D /* TFYSwiftTitleDataSource.swift in Sources */,
 				363B3C642D44FDC400BC628D /* TFYSwiftTitleDynamicConfiguration.swift in Sources */,
 				363B3C652D44FDC400BC628D /* TFYSwiftTitleItemModel.swift in Sources */,
+				3D68BB452D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift in Sources */,
+				3D68BB462D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift in Sources */,
+				3D68BB472D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift in Sources */,
+				3D68BB482D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift in Sources */,
+				3D68BB492D62CE8700A244A7 /* TFYSwiftPagingView.swift in Sources */,
 				363B3C662D44FDC400BC628D /* TFYSwiftTitleGradientCell.swift in Sources */,
 				363B3C672D44FDC400BC628D /* TFYSwiftTitleGradientDataSource.swift in Sources */,
 				363B3C682D44FDC400BC628D /* TFYSwiftTitleGradientItemModel.swift in Sources */,
