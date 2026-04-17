@@ -10,5 +10,6 @@ import UIKit
 open class TFYSwiftTitleOrImageItemModel: TFYSwiftTitleItemModel {
     open var selectedImageInfo: String?
     open var loadImageClosure: LoadImageClosure?
+    open var imageBundle: Bundle = .main
     open var imageSize: CGSize = CGSize.zero
 }

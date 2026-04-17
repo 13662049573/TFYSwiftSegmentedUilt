@@ -32,8 +32,8 @@ open class TFYSwiftTitleAttributeDataSource: TFYSwiftBaseDataSource {
             return
         }
 
-        myItemModel.attributedTitle = attributedTitles[index]
-        myItemModel.selectedAttributedTitle = selectedAttributedTitles?[index]
+        myItemModel.attributedTitle = attributedTitles[safe: index] ?? NSAttributedString(string: "")
+        myItemModel.selectedAttributedTitle = selectedAttributedTitles?[safe: index]
         myItemModel.textWidth = widthForTitle(myItemModel.attributedTitle, selectedTitle: myItemModel.selectedAttributedTitle)
         myItemModel.titleNumberOfLines = titleNumberOfLines
     }
@@ -43,20 +43,19 @@ open class TFYSwiftTitleAttributeDataSource: TFYSwiftBaseDataSource {
         guard let text = attriText else {
             return 0
         }
-        if widthForTitleClosure != nil {
-            return widthForTitleClosure!(text)
-        }else {
-            let textWidth = text.boundingRect(with: CGSize(width: CGFloat.infinity, height: CGFloat.infinity), options: NSStringDrawingOptions.init(rawValue: NSStringDrawingOptions.usesLineFragmentOrigin.rawValue | NSStringDrawingOptions.usesFontLeading.rawValue), context: nil).size.width
-            return CGFloat(ceilf(Float(textWidth)))
+        if let widthForTitleClosure {
+            return widthForTitleClosure(text)
         }
+        let textWidth = text.boundingRect(with: CGSize(width: CGFloat.infinity, height: CGFloat.infinity), options: NSStringDrawingOptions.init(rawValue: NSStringDrawingOptions.usesLineFragmentOrigin.rawValue | NSStringDrawingOptions.usesFontLeading.rawValue), context: nil).size.width
+        return CGFloat(ceilf(Float(textWidth)))
     }
 
     /// 因为该方法会被频繁调用，所以应该在`preferredRefreshItemModel( _ itemModel: TFYSwiftBaseItemModel, at index: Int, selectedIndex: Int)`方法里面，根据数据源计算好文字宽度，然后缓存起来。该方法直接使用已经计算好的文字宽度即可。
     open override func preferredSegmentedView(_ segmentedView: TFYSwiftView, widthForItemAt index: Int) -> CGFloat {
         var width: CGFloat = 0
         if itemWidth == TFYSwiftViewAutomaticDimension {
-            let myItemModel = dataSource[index] as! TFYSwiftTitleAttributeItemModel
-            width = myItemModel.textWidth + itemWidthIncrement
+            let myItemModel = dataSource[safe: index] as? TFYSwiftTitleAttributeItemModel
+            width = (myItemModel?.textWidth ?? 0) + itemWidthIncrement
         }else {
             width = itemWidth + itemWidthIncrement
         }
@@ -73,4 +72,3 @@ open class TFYSwiftTitleAttributeDataSource: TFYSwiftBaseDataSource {
         return cell
     }
 }
-

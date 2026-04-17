@@ -9,6 +9,7 @@ import UIKit
 class ContentBaseViewController: UIViewController {
     var segmentedDataSource: TFYSwiftBaseDataSource?
     let segmentedView = TFYSwiftView()
+    private var runtimeAPIToggle = false
     lazy var listContainerView: TFYSwiftListContainerView! = {
         return TFYSwiftListContainerView(dataSource: self)
     }()
@@ -28,6 +29,7 @@ class ContentBaseViewController: UIViewController {
         segmentedView.listContainer = listContainerView
         view.addSubview(listContainerView)
 
+        var rightBarButtonItems = [UIBarButtonItem(title: "API", style: .plain, target: self, action: #selector(handleRuntimeAPIDemo))]
         for indicaotr in segmentedView.indicators {
             if (indicaotr as? TFYSwiftIndicatorLineView) != nil ||
                 (indicaotr as? TFYSwiftIndicatorDotLineView) != nil ||
@@ -35,19 +37,20 @@ class ContentBaseViewController: UIViewController {
                 (indicaotr as? TFYSwiftIndicatorRainbowLineView) != nil ||
                 (indicaotr as? TFYSwiftIndicatorImageView) != nil ||
                 (indicaotr as? TFYSwiftIndicatorTriangleView) != nil {
-                navigationItem.rightBarButtonItem = UIBarButtonItem(title: "指示器位置切换", style: UIBarButtonItem.Style.plain, target: self, action: #selector(didIndicatorPositionChanged))
+                rightBarButtonItems.append(UIBarButtonItem(title: "位置", style: .plain, target: self, action: #selector(didIndicatorPositionChanged)))
                 break
             }
         }
 
         if (segmentedDataSource as? TFYSwiftTitleImageDataSource) != nil {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "设置", style: UIBarButtonItem.Style.plain, target: self, action: #selector(didSetingsButtonClicked))
+            rightBarButtonItems.append(UIBarButtonItem(title: "设置", style: .plain, target: self, action: #selector(didSetingsButtonClicked)))
         }
         
         
         if let _ = segmentedDataSource as? TFYSwiftNumberDataSource {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "刷新", style: UIBarButtonItem.Style.plain, target: self, action: #selector(hanldeNumberRefresh))
+            rightBarButtonItems.append(UIBarButtonItem(title: "刷新", style: .plain, target: self, action: #selector(hanldeNumberRefresh)))
         }
+        navigationItem.rightBarButtonItems = rightBarButtonItems
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -103,7 +106,34 @@ class ContentBaseViewController: UIViewController {
             _segDataSource.numberHeight = 18
             _segDataSource.numberOffset = CGPoint(x: -5, y: 5)
             _segDataSource.numbers = newNumbers
-            segmentedView.reloadDataWithoutListContainer()
+            segmentedView.reloadItems(at: Array(newNumbers.indices))
+        }
+    }
+
+    // MARK: 新增运行时API演示
+    @objc private func handleRuntimeAPIDemo() {
+        guard segmentedView.itemCount > 0 else {
+            return
+        }
+
+        runtimeAPIToggle.toggle()
+        let targetIndex = min(runtimeAPIToggle ? 2 : segmentedView.itemCount - 1, segmentedView.itemCount - 1)
+
+        if let titleDataSource = segmentedDataSource as? TFYSwiftTitleDataSource,
+           titleDataSource.titles.indices.contains(targetIndex) {
+            let originalTitle = titleDataSource.titles[targetIndex].replacingOccurrences(of: " ·API", with: "")
+            titleDataSource.titles[targetIndex] = runtimeAPIToggle ? "\(originalTitle) ·API" : originalTitle
+            segmentedView.reloadItems(at: [targetIndex])
+        } else {
+            let reloadCount = min(segmentedView.itemCount, 3)
+            segmentedView.reloadItems(at: Array(0..<reloadCount))
+        }
+
+        segmentedView.selectItemAt(index: targetIndex, animated: false)
+        segmentedView.scrollToSelectedItem(animated: true)
+
+        if let itemModel = segmentedView.itemModel(at: targetIndex) {
+            print("Runtime API Demo -> itemCount: \(segmentedView.itemCount), selected: \(segmentedView.selectedIndex), modelIndex: \(itemModel.index)")
         }
     }
 
@@ -134,4 +164,3 @@ extension ContentBaseViewController: TFYSwiftListContainerViewDataSource {
         return ListBaseViewController()
     }
 }
-

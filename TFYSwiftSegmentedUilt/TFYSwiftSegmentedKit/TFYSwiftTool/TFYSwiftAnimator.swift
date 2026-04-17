@@ -12,35 +12,51 @@ open class TFYSwiftAnimator {
     open var duration: TimeInterval = 0.25
     open var progressClosure: ((CGFloat)->())?
     open var completedClosure: (()->())?
-    private var displayLink: CADisplayLink!
+    private var displayLink: CADisplayLink?
     private var firstTimestamp: CFTimeInterval?
+    private var hasStarted = false
 
     public init() {
-        displayLink = CADisplayLink(target: self, selector: #selector(processDisplayLink(sender:)))
     }
 
     open func start() {
-        displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
+        guard duration > 0 else {
+            finishAnimation(shouldComplete: true)
+            return
+        }
+        if displayLink == nil {
+            displayLink = CADisplayLink(target: self, selector: #selector(processDisplayLink(sender:)))
+        }
+        firstTimestamp = nil
+        hasStarted = true
+        displayLink?.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
     }
 
     open func stop() {
-        progressClosure?(1)
-        displayLink.invalidate()
-        completedClosure?()
+        finishAnimation(shouldComplete: hasStarted)
     }
 
     @objc private func processDisplayLink(sender: CADisplayLink) {
-        if firstTimestamp == nil {
-            firstTimestamp = sender.timestamp
-        }
-        let percent = (sender.timestamp - firstTimestamp!)/duration
+        let startTimestamp = firstTimestamp ?? sender.timestamp
+        firstTimestamp = startTimestamp
+        let percent = (sender.timestamp - startTimestamp)/duration
         if percent >= 1 {
-            progressClosure?(1)
-            displayLink.invalidate()
-            completedClosure?()
+            finishAnimation(shouldComplete: true)
         }else {
             progressClosure?(CGFloat(percent))
         }
     }
-}
 
+    private func finishAnimation(shouldComplete: Bool) {
+        if shouldComplete {
+            progressClosure?(1)
+        }
+        displayLink?.invalidate()
+        displayLink = nil
+        firstTimestamp = nil
+        if shouldComplete {
+            completedClosure?()
+        }
+        hasStarted = false
+    }
+}

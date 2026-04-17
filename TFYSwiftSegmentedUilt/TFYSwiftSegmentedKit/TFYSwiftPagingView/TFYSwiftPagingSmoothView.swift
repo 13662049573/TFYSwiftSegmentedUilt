@@ -59,12 +59,11 @@ open class TFYSwiftPagingSmoothView: UIView {
     let cellIdentifier = "cell"
     var currentListInitializeContentOffsetY: CGFloat = 0
     var singleScrollView: UIScrollView?
+    private var contentOffsetObservations = [ObjectIdentifier: NSKeyValueObservation]()
+    private var contentSizeObservations = [ObjectIdentifier: NSKeyValueObservation]()
 
     deinit {
-        listDict.values.forEach {
-            $0.listScrollView().removeObserver(self, forKeyPath: "contentOffset")
-            $0.listScrollView().removeObserver(self, forKeyPath: "contentSize")
-        }
+        invalidateListObservations()
     }
 
     public init(dataSource: TFYSwiftPagingSmoothViewDataSource) {
@@ -100,15 +99,15 @@ open class TFYSwiftPagingSmoothView: UIView {
 
     public func reloadData() {
         guard let dataSource = dataSource else { return }
+        let listCount = max(dataSource.numberOfLists(in: self), 0)
         currentListScrollView = nil
-        currentIndex = defaultSelectedIndex
+        currentIndex = clampedIndex(defaultSelectedIndex, count: listCount)
         currentPagingHeaderContainerViewY = 0
         isSyncListContentOffsetEnabled = false
 
         listHeaderDict.removeAll()
+        invalidateListObservations()
         listDict.values.forEach { (list) in
-            list.listScrollView().removeObserver(self, forKeyPath: "contentOffset")
-            list.listScrollView().removeObserver(self, forKeyPath: "contentSize")
             list.listView().removeFromSuperview()
         }
         listDict.removeAll()
@@ -119,20 +118,22 @@ open class TFYSwiftPagingSmoothView: UIView {
 
         let pagingHeader = dataSource.viewForPagingHeader(in: self)
         let pinHeader = dataSource.viewForPinHeader(in: self)
+        pagingHeaderContainerView.subviews.forEach { $0.removeFromSuperview() }
         pagingHeaderContainerView.addSubview(pagingHeader)
         pagingHeaderContainerView.addSubview(pinHeader)
 
         pagingHeaderContainerView.frame = CGRect(x: 0, y: 0, width: bounds.size.width, height: heightForPagingHeaderContainerView)
         pagingHeader.frame = CGRect(x: 0, y: 0, width: bounds.size.width, height: heightForPagingHeader)
         pinHeader.frame = CGRect(x: 0, y: heightForPagingHeader, width: bounds.size.width, height: heightForPinHeader)
-        listCollectionView.setContentOffset(CGPoint(x: listCollectionView.bounds.size.width*CGFloat(defaultSelectedIndex), y: 0), animated: false)
+        listCollectionView.setContentOffset(CGPoint(x: listCollectionView.bounds.size.width*CGFloat(currentIndex), y: 0), animated: false)
         listCollectionView.reloadData()
 
-        if dataSource.numberOfLists(in: self) == 0 {
-            singleScrollView = UIScrollView()
-            addSubview(singleScrollView!)
-            singleScrollView?.addSubview(pagingHeader)
-            singleScrollView?.contentSize = CGSize(width: bounds.size.width, height: heightForPagingHeader)
+        if listCount == 0 {
+            let scrollView = UIScrollView()
+            singleScrollView = scrollView
+            addSubview(scrollView)
+            scrollView.addSubview(pagingHeader)
+            scrollView.contentSize = CGSize(width: bounds.size.width, height: heightForPagingHeader)
         }else if singleScrollView != nil {
             singleScrollView?.removeFromSuperview()
             singleScrollView = nil
@@ -143,7 +144,7 @@ open class TFYSwiftPagingSmoothView: UIView {
         super.layoutSubviews()
 
         listCollectionView.frame = bounds
-        if pagingHeaderContainerView.frame == CGRect.zero {
+        if pagingHeaderContainerView.frame == CGRect.zero || pagingHeaderContainerView.bounds.width != bounds.size.width {
             reloadData()
         }
         if singleScrollView != nil {
@@ -191,27 +192,34 @@ open class TFYSwiftPagingSmoothView: UIView {
         }
     }
 
-    //MARK: - KVO
+    //MARK: - Observation
 
-    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "contentOffset" {
-            if let scrollView = object as? UIScrollView {
-                listDidScroll(scrollView: scrollView)
-            }
-        }else if keyPath == "contentSize" {
-            if let scrollView = object as? UIScrollView {
-                let minContentSizeHeight = bounds.size.height - heightForPinHeader
-                if minContentSizeHeight > scrollView.contentSize.height {
-                    scrollView.contentSize = CGSize(width: scrollView.contentSize.width, height: minContentSizeHeight)
-                    //新的scrollView第一次加载的时候重置contentOffset
-                    if currentListScrollView != nil, scrollView != currentListScrollView! {
-                        scrollView.contentOffset = CGPoint(x: 0, y: currentListInitializeContentOffsetY)
-                    }
+    private func observeListScrollView(_ scrollView: UIScrollView) {
+        let identifier = ObjectIdentifier(scrollView)
+        contentOffsetObservations[identifier]?.invalidate()
+        contentOffsetObservations[identifier] = scrollView.observe(\.contentOffset, options: [.new]) { [weak self, weak scrollView] _, _ in
+            guard let self, let scrollView else { return }
+            self.listDidScroll(scrollView: scrollView)
+        }
+
+        contentSizeObservations[identifier]?.invalidate()
+        contentSizeObservations[identifier] = scrollView.observe(\.contentSize, options: [.new]) { [weak self, weak scrollView] _, _ in
+            guard let self, let scrollView else { return }
+            let minContentSizeHeight = self.bounds.size.height - self.heightForPinHeader
+            if minContentSizeHeight > scrollView.contentSize.height {
+                scrollView.contentSize = CGSize(width: scrollView.contentSize.width, height: minContentSizeHeight)
+                if let currentListScrollView = self.currentListScrollView, scrollView !== currentListScrollView {
+                    scrollView.contentOffset = CGPoint(x: 0, y: self.currentListInitializeContentOffsetY)
                 }
             }
-        }else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
+    }
+
+    private func invalidateListObservations() {
+        contentOffsetObservations.values.forEach { $0.invalidate() }
+        contentSizeObservations.values.forEach { $0.invalidate() }
+        contentOffsetObservations.removeAll()
+        contentSizeObservations.removeAll()
     }
 
     //MARK: - Private
@@ -235,8 +243,8 @@ open class TFYSwiftPagingSmoothView: UIView {
 
     func listDidAppear(at index: Int) {
         guard let dataSource = dataSource else { return }
-        let count = dataSource.numberOfLists(in: self)
-        if count <= 0 || index >= count {
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        if count <= 0 || index < 0 || index >= count {
             return
         }
         listDict[index]?.listDidAppear?()
@@ -244,8 +252,8 @@ open class TFYSwiftPagingSmoothView: UIView {
 
     func listDidDisappear(at index: Int) {
         guard let dataSource = dataSource else { return }
-        let count = dataSource.numberOfLists(in: self)
-        if count <= 0 || index >= count {
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        if count <= 0 || index < 0 || index >= count {
             return
         }
         listDict[index]?.listDidDisappear?()
@@ -263,6 +271,26 @@ open class TFYSwiftPagingSmoothView: UIView {
             listHeader.addSubview(pagingHeaderContainerView)
         }
     }
+
+    private func clampedIndex(_ index: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        return min(max(index, 0), count - 1)
+    }
+
+    private func horizontalIndex(for scrollView: UIScrollView) -> Int? {
+        guard
+            let dataSource,
+            scrollView.bounds.size.width > 0
+        else {
+            return nil
+        }
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        guard count > 0 else {
+            return nil
+        }
+        let rawIndex = Int(round(scrollView.contentOffset.x / scrollView.bounds.size.width))
+        return clampedIndex(rawIndex, count: count)
+    }
 }
 
 extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -272,7 +300,7 @@ extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionView
 
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let dataSource = dataSource else { return 0 }
-        return dataSource.numberOfLists(in: self)
+        return max(dataSource.numberOfLists(in: self), 0)
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -280,29 +308,29 @@ extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionView
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath)
         var list = listDict[indexPath.item]
         if list == nil {
-            list = dataSource.pagingView(self, initListAtIndex: indexPath.item)
-            listDict[indexPath.item] = list!
-            list?.listView().setNeedsLayout()
-            list?.listView().layoutIfNeeded()
-            if list?.listScrollView().isKind(of: UITableView.self) == true {
-                (list?.listScrollView() as? UITableView)?.estimatedRowHeight = 0
-                (list?.listScrollView() as? UITableView)?.estimatedSectionHeaderHeight = 0
-                (list?.listScrollView() as? UITableView)?.estimatedSectionFooterHeight = 0
+            let createdList = dataSource.pagingView(self, initListAtIndex: indexPath.item)
+            list = createdList
+            listDict[indexPath.item] = createdList
+            createdList.listView().setNeedsLayout()
+            createdList.listView().layoutIfNeeded()
+            if createdList.listScrollView().isKind(of: UITableView.self) {
+                (createdList.listScrollView() as? UITableView)?.estimatedRowHeight = 0
+                (createdList.listScrollView() as? UITableView)?.estimatedSectionHeaderHeight = 0
+                (createdList.listScrollView() as? UITableView)?.estimatedSectionFooterHeight = 0
             }
             if #available(iOS 11.0, *) {
-                list?.listScrollView().contentInsetAdjustmentBehavior = .never
+                createdList.listScrollView().contentInsetAdjustmentBehavior = .never
             }
-            list?.listScrollView().contentInset = UIEdgeInsets(top: heightForPagingHeaderContainerView, left: 0, bottom: 0, right: 0)
+            createdList.listScrollView().contentInset = UIEdgeInsets(top: heightForPagingHeaderContainerView, left: 0, bottom: 0, right: 0)
             currentListInitializeContentOffsetY = -heightForPagingHeaderContainerView + min(-currentPagingHeaderContainerViewY, heightForPagingHeader)
-            list?.listScrollView().contentOffset = CGPoint(x: 0, y: currentListInitializeContentOffsetY)
+            createdList.listScrollView().contentOffset = CGPoint(x: 0, y: currentListInitializeContentOffsetY)
             let listHeader = UIView(frame: CGRect(x: 0, y: -heightForPagingHeaderContainerView, width: bounds.size.width, height: heightForPagingHeaderContainerView))
-            list?.listScrollView().addSubview(listHeader)
+            createdList.listScrollView().addSubview(listHeader)
             if pagingHeaderContainerView.superview == nil {
                 listHeader.addSubview(pagingHeaderContainerView)
             }
             listHeaderDict[indexPath.item] = listHeader
-            list?.listScrollView().addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
-            list?.listScrollView().addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+            observeListScrollView(createdList.listScrollView())
         }
         listDict.values.forEach { $0.listScrollView().scrollsToTop = ($0 === list) }
         if let listView = list?.listView(), listView.superview != cell.contentView {
@@ -323,8 +351,18 @@ extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionView
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         delegate?.pagingSmoothViewDidScroll?(scrollView)
+        guard
+            let dataSource,
+            scrollView.bounds.size.width > 0
+        else {
+            return
+        }
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        guard count > 0 else {
+            return
+        }
         let indexPercent = scrollView.contentOffset.x/scrollView.bounds.size.width
-        let index = Int(scrollView.contentOffset.x/scrollView.bounds.size.width)
+        let index = clampedIndex(Int(floor(indexPercent)), count: count)
         let listScrollView = listDict[index]?.listScrollView()
         if (indexPercent - CGFloat(index) == 0) && index != currentIndex && !(scrollView.isDragging || scrollView.isDecelerating) && listScrollView?.contentOffset.y ?? 0 <= -heightForPinHeader {
             horizontalScrollDidEnd(at: index)
@@ -341,14 +379,15 @@ extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionView
     }
 
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-            let index = Int(scrollView.contentOffset.x/scrollView.bounds.size.width)
+        if !decelerate, let index = horizontalIndex(for: scrollView) {
             horizontalScrollDidEnd(at: index)
         }
     }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let index = Int(scrollView.contentOffset.x/scrollView.bounds.size.width)
+        guard let index = horizontalIndex(for: scrollView) else {
+            return
+        }
         horizontalScrollDidEnd(at: index)
     }
 }

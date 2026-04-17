@@ -31,7 +31,7 @@ open class TFYSwiftDotDataSource: TFYSwiftTitleDataSource {
         }
 
         itemModel.dotOffset = dotOffset
-        itemModel.dotState = dotStates[index]
+        itemModel.dotState = dotStates[safe: index] ?? false
         itemModel.dotColor = dotColor
         itemModel.dotSize = dotSize
         if dotCornerRadius == TFYSwiftViewAutomaticDimension {
@@ -51,4 +51,3 @@ open class TFYSwiftDotDataSource: TFYSwiftTitleDataSource {
         return cell
     }
 }
-

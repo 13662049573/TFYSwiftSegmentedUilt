@@ -25,6 +25,10 @@ TFYSwiftSegmentedKit 是一个功能强大的 iOS 分段选择器框架，使用
 - [x] 支持RTL布局
 - [x] 支持自适应布局
 - [x] 支持列表容器联动
+- [x] 支持 Swift Package Manager
+- [x] 支持图片资源自定义 Bundle
+- [x] 支持可访问性选中状态
+- [x] 支持安全单项/批量刷新
 - [x] 完整的示例代码
 
 ## 要求
@@ -50,6 +54,20 @@ TFYSwiftSegmentedKit 是一个功能强大的 iOS 分段选择器框架，使用
 
 ## 安装
 
+### Swift Package Manager
+
+在 Xcode 中选择 `File > Add Package Dependencies...`，输入仓库地址：
+
+```text
+https://github.com/13662049573/TFYSwiftSegmentedUilt.git
+```
+
+然后选择 `TFYSwiftSegmentedKit` 添加到你的 iOS Target。代码中直接导入：
+
+```swift
+import TFYSwiftSegmentedKit
+```
+
 ### CocoaPods
 
 1. 在 Podfile 中添加依赖：
@@ -59,16 +77,17 @@ TFYSwiftSegmentedKit 是一个功能强大的 iOS 分段选择器框架，使用
 pod 'TFYSwiftSegmentedKit'
 
 # 按需安装
-pod 'TFYSwiftSegmentedKit/Base'        # 核心功能
-pod 'TFYSwiftSegmentedKit/Title'       # 标题样式
-pod 'TFYSwiftSegmentedKit/Indicator'   # 指示器
-pod 'TFYSwiftSegmentedKit/Number'      # 数字显示
-pod 'TFYSwiftSegmentedKit/Dot'         # 点状装饰
-pod 'TFYSwiftSegmentedKit/TitleImage'  # 图文混排
-pod 'TFYSwiftSegmentedKit/TitleGradient' # 标题渐变
-pod 'TFYSwiftSegmentedKit/TitleOrImage'  # 标题或图片
-pod 'TFYSwiftSegmentedKit/AttributeTitle' # 富文本标题
-pod 'TFYSwiftSegmentedKit/Tool'          # 工具
+pod 'TFYSwiftSegmentedKit/TFYSwiftBase'        # 核心功能
+pod 'TFYSwiftSegmentedKit/TFYSwiftTitle'       # 标题样式
+pod 'TFYSwiftSegmentedKit/TFYSwiftIndicator'   # 指示器
+pod 'TFYSwiftSegmentedKit/TFYSwiftNumber'      # 数字显示
+pod 'TFYSwiftSegmentedKit/TFYSwiftDot'         # 点状装饰
+pod 'TFYSwiftSegmentedKit/TFYSwiftTitleImage'  # 图文混排
+pod 'TFYSwiftSegmentedKit/TFYSwiftTitleGradient' # 标题渐变
+pod 'TFYSwiftSegmentedKit/TFYSwiftTitleOrImage'  # 标题或图片
+pod 'TFYSwiftSegmentedKit/TFYSwiftAttributeTitle' # 富文本标题
+pod 'TFYSwiftSegmentedKit/TFYSwiftTool'          # 工具
+pod 'TFYSwiftSegmentedKit/TFYSwiftPagingView'    # Paging联动
 ```
 
 2. 执行安装：
@@ -162,9 +181,28 @@ itemModel.isTitleZoomEnabled = true
 ```swift
 let itemModel = TFYSwiftTitleImageItemModel()
 itemModel.title = "首页"
-itemModel.normalImageInfo = UIImage(named: "home_normal")
-itemModel.selectedImageInfo = UIImage(named: "home_selected")
+itemModel.normalImageInfo = "home_normal"
+itemModel.selectedImageInfo = "home_selected"
 itemModel.imageSize = CGSize(width: 20, height: 20)
+```
+
+如果图片资源不在 main bundle，例如业务模块或 Swift Package 内部资源，可以在数据源上指定 Bundle：
+
+```swift
+let dataSource = TFYSwiftTitleImageDataSource()
+dataSource.titles = ["首页", "消息"]
+dataSource.normalImageInfos = ["home_normal", "message_normal"]
+dataSource.selectedImageInfos = ["home_selected", "message_selected"]
+dataSource.imageBundle = Bundle(for: ResourceMarker.self)
+```
+
+### 运行时刷新
+
+```swift
+segmentedView.reloadItem(at: 0)
+segmentedView.reloadItems(at: [1, 2, 3])
+segmentedView.selectItemAt(index: 2, animated: false)
+segmentedView.scrollToSelectedItem(animated: true)
 ```
 
 ### 列表容器联动

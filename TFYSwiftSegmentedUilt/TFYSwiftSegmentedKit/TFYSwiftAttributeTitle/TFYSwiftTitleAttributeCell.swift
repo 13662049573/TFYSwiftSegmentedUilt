@@ -36,7 +36,7 @@ open class TFYSwiftTitleAttributeCell: TFYSwiftBaseCell {
         }else {
             titleLabel.attributedText = myItemModel.attributedTitle
         }
+        accessibilityLabel = titleLabel.attributedText?.string
         titleLabel.textAlignment = .center
     }
 }
-

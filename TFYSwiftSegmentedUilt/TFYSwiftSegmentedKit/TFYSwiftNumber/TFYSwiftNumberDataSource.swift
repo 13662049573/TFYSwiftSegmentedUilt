@@ -37,9 +37,9 @@ open class TFYSwiftNumberDataSource: TFYSwiftTitleDataSource {
             return
         }
 
-        itemModel.number = numbers[index]
-        if numberStringFormatterClosure != nil {
-            itemModel.numberString = numberStringFormatterClosure!(itemModel.number)
+        itemModel.number = numbers[safe: index] ?? 0
+        if let numberStringFormatterClosure {
+            itemModel.numberString = numberStringFormatterClosure(itemModel.number)
         }else {
             itemModel.numberString = "\(itemModel.number)"
         }
@@ -61,4 +61,3 @@ open class TFYSwiftNumberDataSource: TFYSwiftTitleDataSource {
         return cell
     }
 }
-

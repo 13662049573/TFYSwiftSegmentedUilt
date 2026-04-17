@@ -69,10 +69,10 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
             //需要更新isTransitionAnimating，用于处理在过滤时，禁止响应点击，避免界面异常。
             itemModel.isTransitionAnimating = true
             animator?.progressClosure = {[weak self] (percent) in
-                guard self != nil else {
+                guard let self else {
                     return
                 }
-                for closure in self!.selectedAnimationClosureArray {
+                for closure in self.selectedAnimationClosureArray {
                     closure(percent)
                 }
             }
@@ -86,6 +86,8 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
 
     open func reloadData(itemModel: TFYSwiftBaseItemModel, selectedType: TFYSwiftViewItemSelectedType) {
         self.itemModel = itemModel
+        isAccessibilityElement = true
+        accessibilityTraits = itemModel.isSelected ? [.button, .selected] : .button
 
         if itemModel.isSelectedAnimable {
             selectedAnimationClosureArray.removeAll()
@@ -115,4 +117,3 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
         
     }
 }
-

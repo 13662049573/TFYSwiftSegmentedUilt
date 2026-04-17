@@ -79,6 +79,7 @@ open class TFYSwiftTitleCell: TFYSwiftBaseCell {
         }
 
         let title = myItemModel.title ?? ""
+        accessibilityLabel = title
         let attriText = NSMutableAttributedString(string: title)
         if myItemModel.isTitleStrokeWidthEnabled {
             if myItemModel.isSelectedAnimable && canStartSelectedAnimation(itemModel: itemModel, selectedType: selectedType) {
@@ -206,4 +207,3 @@ open class TFYSwiftTitleCell: TFYSwiftBaseCell {
         }
     }
 }
-

@@ -9,23 +9,49 @@ import Foundation
 import UIKit
 
 public extension UIColor {
+    private var tfy_rgbaComponents: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        if getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            return (red, green, blue, alpha)
+        }
+
+        guard
+            let convertedColor = cgColor.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil),
+            let components = convertedColor.components
+        else {
+            return (0, 0, 0, cgColor.alpha)
+        }
+
+        switch components.count {
+        case 4:
+            return (components[0], components[1], components[2], components[3])
+        case 2:
+            return (components[0], components[0], components[0], components[1])
+        default:
+            return (0, 0, 0, cgColor.alpha)
+        }
+    }
+
     var ge_red: CGFloat {
-        var r: CGFloat = 0
-        getRed(&r, green: nil, blue: nil, alpha: nil)
-        return r
+        tfy_rgbaComponents.red
     }
     var ge_green: CGFloat {
-        var g: CGFloat = 0
-        getRed(nil, green: &g, blue: nil, alpha: nil)
-        return g
+        tfy_rgbaComponents.green
     }
     var ge_blue: CGFloat {
-        var b: CGFloat = 0
-        getRed(nil, green: nil, blue: &b, alpha: nil)
-        return b
+        tfy_rgbaComponents.blue
     }
     var ge_alpha: CGFloat {
-        return cgColor.alpha
+        tfy_rgbaComponents.alpha
+    }
+}
+
+public extension Collection {
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }
 
@@ -46,6 +72,9 @@ public class TFYSwiftViewTool {
     }
 
     public static func interpolateColors(from: [CGColor], to: [CGColor], percent: CGFloat) -> [CGColor] {
+        guard from.count == to.count else {
+            return from
+        }
         var resultColors = [CGColor]()
         for index in 0..<from.count {
             let fromColor = UIColor(cgColor: from[index])
@@ -62,17 +91,14 @@ public class TFYSwiftViewTool {
 
 extension TFYSwiftViewTool {
     public static func interpolateThemeColor(from: UIColor, to: UIColor, percent: CGFloat) -> UIColor {
-        
         if #available(iOS 13.0, *) {
             return UIColor { (traitCollection) -> UIColor in
                 let resolvedFrom = from.resolvedColor(with: traitCollection)
                 let resolvedTo = to.resolvedColor(with: traitCollection)
                 return interpolateColor(from: resolvedFrom, to: resolvedTo, percent: percent)
             }
-            
         } else {
             return interpolateColor(from: from, to: to, percent: percent)
         }
     }
 }
-

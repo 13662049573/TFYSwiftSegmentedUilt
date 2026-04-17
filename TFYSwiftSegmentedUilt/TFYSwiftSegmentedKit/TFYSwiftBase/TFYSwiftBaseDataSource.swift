@@ -56,7 +56,10 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
         animator?.stop()
         animator = nil
         dataSource.removeAll()
-        for index in 0..<preferredItemCount() {
+        let itemCount = preferredItemCount()
+        guard itemCount > 0 else { return }
+        dataSource.reserveCapacity(itemCount)
+        for index in 0..<itemCount {
             let itemModel = preferredItemModelInstance()
             preferredRefreshItemModel(itemModel, at: index, selectedIndex: selectedIndex)
             dataSource.append(itemModel)
@@ -125,14 +128,15 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
             if (selectedType == .scroll && !isItemTransitionEnabled) ||
                 selectedType == .click ||
                 selectedType == .code {
+                animator?.stop()
                 animator = TFYSwiftAnimator()
                 animator?.duration = selectedAnimationDuration
                 animator?.progressClosure = {[weak self] (percent) in
                     guard let self = self else { return }
                     currentSelectedItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: currentSelectedItemModel.itemWidthSelectedZoomScale, to: currentSelectedItemModel.itemWidthNormalZoomScale, percent: percent)
-                    currentSelectedItemModel.itemWidth = self.itemWidthWithZoom(at: currentSelectedItemModel.index, model: currentSelectedItemModel)
+                    currentSelectedItemModel.itemWidth = self.itemWidthWithZoom(in: segmentedView, at: currentSelectedItemModel.index, model: currentSelectedItemModel)
                     willSelectedItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: willSelectedItemModel.itemWidthNormalZoomScale, to: willSelectedItemModel.itemWidthSelectedZoomScale, percent: percent)
-                    willSelectedItemModel.itemWidth = self.itemWidthWithZoom(at: willSelectedItemModel.index, model: willSelectedItemModel)
+                    willSelectedItemModel.itemWidth = self.itemWidthWithZoom(in: segmentedView, at: willSelectedItemModel.index, model: willSelectedItemModel)
                     segmentedView.collectionView.collectionViewLayout.invalidateLayout()
                 }
                 if isItemWidthZoomAnimable {
@@ -154,9 +158,9 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
         if isItemWidthZoomEnabled && isItemTransitionEnabled {
             //允许itemWidth缩放动画且允许item渐变过渡
             leftItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: leftItemModel.itemWidthSelectedZoomScale, to: leftItemModel.itemWidthNormalZoomScale, percent: percent)
-            leftItemModel.itemWidth = itemWidthWithZoom(at: leftItemModel.index, model: leftItemModel)
+            leftItemModel.itemWidth = itemWidthWithZoom(in: segmentedView, at: leftItemModel.index, model: leftItemModel)
             rightItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: rightItemModel.itemWidthNormalZoomScale, to: rightItemModel.itemWidthSelectedZoomScale, percent: percent)
-            rightItemModel.itemWidth = itemWidthWithZoom(at: rightItemModel.index, model: rightItemModel)
+            rightItemModel.itemWidth = itemWidthWithZoom(in: segmentedView, at: rightItemModel.index, model: rightItemModel)
             segmentedView.collectionView.collectionViewLayout.invalidateLayout()
         }
     }
@@ -166,12 +170,11 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
         preferredRefreshItemModel(itemModel, at: index, selectedIndex: selectedIndex)
     }
 
-    private func itemWidthWithZoom(at index: Int, model: TFYSwiftBaseItemModel) -> CGFloat {
-        var width = self.segmentedView(TFYSwiftView(), widthForItemAt: index)
+    private func itemWidthWithZoom(in segmentedView: TFYSwiftView, at index: Int, model: TFYSwiftBaseItemModel) -> CGFloat {
+        var width = self.segmentedView(segmentedView, widthForItemAt: index)
         if isItemWidthZoomEnabled {
             width *= model.itemWidthCurrentZoomScale
         }
         return width
     }
 }
-

@@ -194,6 +194,7 @@ open class TFYSwiftPagingView: UIView {
         guard let delegate = delegate else { return }
         let tableHeaderView = delegate.tableHeaderView(in: self)
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat(delegate.tableHeaderViewHeight(in: self))))
+        tableHeaderContainerView?.subviews.forEach { $0.removeFromSuperview() }
         containerView.addSubview(tableHeaderView)
         tableHeaderView.translatesAutoresizingMaskIntoConstraints = false
         let top = NSLayoutConstraint(item: tableHeaderView, attribute: .top, relatedBy: .equal, toItem: containerView, attribute: .top, multiplier: 1, constant: 0)
@@ -297,7 +298,12 @@ extension TFYSwiftPagingView: UITableViewDataSource, UITableViewDelegate {
 
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if pinSectionHeaderVerticalOffset != 0 {
-            if !(currentScrollingListView != nil && currentScrollingListView!.contentOffset.y > minContentOffsetYInListScrollView(currentScrollingListView!)) {
+            let isScrollingCurrentList = {
+                guard let currentScrollingListView = currentScrollingListView else { return false }
+                return currentScrollingListView.contentOffset.y > minContentOffsetYInListScrollView(currentScrollingListView)
+            }()
+
+            if !isScrollingCurrentList {
                 //没有处于滚动某一个listView的状态
                 if scrollView.contentOffset.y >= CGFloat(pinSectionHeaderVerticalOffset) {
                     //固定的位置就是contentInset.top
@@ -354,7 +360,7 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDataSource {
     }
 
     public func listContainerView(_ listContainerView: TFYSwiftPagingListContainerView, initListAt index: Int) -> TFYSwiftPagingViewListViewDelegate {
-        guard let delegate = delegate else { fatalError("TFYSwiftPaingView.delegate must not be nil") }
+        guard let delegate = delegate else { preconditionFailure("TFYSwiftPagingView.delegate must not be nil") }
         var list = validListDict[index]
         if list == nil {
             list = delegate.pagingView(self, initListAtIndex: index)
@@ -362,9 +368,14 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDataSource {
                 self?.currentList = list
                 self?.listViewDidScroll(scrollView: scrollView)
             }
-            validListDict[index] = list!
+            if let list {
+                validListDict[index] = list
+            }
         }
-        return list!
+        guard let list else {
+            preconditionFailure("Failed to initialize list at index \(index)")
+        }
+        return list
     }
 
     public func scrollViewClass(in listContainerView: TFYSwiftPagingListContainerView) -> AnyClass {
@@ -395,5 +406,3 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDelegate {
         }
     }
 }
-
-

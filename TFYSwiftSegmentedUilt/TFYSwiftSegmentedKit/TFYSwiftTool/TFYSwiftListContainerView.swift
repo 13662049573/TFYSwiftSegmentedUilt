@@ -195,9 +195,11 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
         super.layoutSubviews()
 
         containerVC.view.frame = bounds
-        guard let count = dataSource?.numberOfLists(in: self) else {
+        guard let rawCount = dataSource?.numberOfLists(in: self) else {
             return
         }
+        let count = max(rawCount, 0)
+        let targetIndex = clampedIndex(currentIndex, count: count)
         if type == .scrollView {
             if scrollView.frame == CGRect.zero || scrollView.bounds.size != bounds.size {
                 scrollView.frame = bounds
@@ -205,7 +207,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
                 for (index, list) in validListDict {
                     list.listView().frame = CGRect(x: CGFloat(index)*scrollView.bounds.size.width, y: 0, width: scrollView.bounds.size.width, height: scrollView.bounds.size.height)
                 }
-                scrollView.contentOffset = CGPoint(x: CGFloat(currentIndex)*scrollView.bounds.size.width, y: 0)
+                scrollView.contentOffset = CGPoint(x: CGFloat(targetIndex)*scrollView.bounds.size.width, y: 0)
             }else {
                 scrollView.frame = bounds
                 scrollView.contentSize = CGSize(width: scrollView.bounds.size.width*CGFloat(count), height: scrollView.bounds.size.height)
@@ -214,7 +216,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             if collectionView.frame == CGRect.zero || collectionView.bounds.size != bounds.size {
                 collectionView.frame = bounds
                 collectionView.collectionViewLayout.invalidateLayout()
-                collectionView.setContentOffset(CGPoint(x: CGFloat(currentIndex)*collectionView.bounds.size.width, y: 0), animated: false)
+                collectionView.setContentOffset(CGPoint(x: CGFloat(targetIndex)*collectionView.bounds.size.width, y: 0), animated: false)
             }else {
                 collectionView.frame = bounds
             }
@@ -246,7 +248,8 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
 
     open func reloadData() {
         guard let dataSource = dataSource else { return }
-        if currentIndex < 0 || currentIndex >= dataSource.numberOfLists(in: self) {
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        if currentIndex < 0 || currentIndex >= count {
             defaultSelectedIndex = 0
             currentIndex = 0
         }
@@ -258,7 +261,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
         }
         validListDict.removeAll()
         if type == .scrollView {
-            scrollView.contentSize = CGSize(width: scrollView.bounds.size.width*CGFloat(dataSource.numberOfLists(in: self)), height: scrollView.bounds.size.height)
+            scrollView.contentSize = CGSize(width: scrollView.bounds.size.width*CGFloat(count), height: scrollView.bounds.size.height)
         }else {
             collectionView.reloadData()
         }
@@ -386,14 +389,22 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
 
     private func checkIndexValid(_ index: Int) -> Bool {
         guard let dataSource = dataSource else { return false }
-        let count = dataSource.numberOfLists(in: self)
-        if count <= 0 || index >= count {
+        let count = max(dataSource.numberOfLists(in: self), 0)
+        if count <= 0 || index < 0 || index >= count {
             return false
         }
         return true
     }
 
+    private func clampedIndex(_ index: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        return min(max(index, 0), count - 1)
+    }
+
     private func listDidAppearOrDisappear(scrollView: UIScrollView) {
+        guard scrollView.bounds.size.width > 0 else {
+            return
+        }
         let currentIndexPercent = scrollView.contentOffset.x/scrollView.bounds.size.width
         if willAppearIndex != -1 || willDisappearIndex != -1 {
             let disappearIndex = willDisappearIndex
@@ -422,17 +433,16 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
 extension TFYSwiftListContainerView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let dataSource = dataSource else { return 0 }
-        return dataSource.numberOfLists(in: self)
+        return max(dataSource.numberOfLists(in: self), 0)
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
         cell.contentView.backgroundColor = listCellBackgroundColor
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        let list = validListDict[indexPath.item]
-        if list != nil {
-            list?.listView().frame = cell.contentView.bounds
-            cell.contentView.addSubview(list!.listView())
+        if let list = validListDict[indexPath.item] {
+            list.listView().frame = cell.contentView.bounds
+            cell.contentView.addSubview(list.listView())
         }
         return cell
     }
@@ -445,8 +455,14 @@ extension TFYSwiftListContainerView: UICollectionViewDataSource, UICollectionVie
         guard scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating else {
             return
         }
+        guard scrollView.bounds.size.width > 0 else {
+            return
+        }
         let percent = scrollView.contentOffset.x/scrollView.bounds.size.width
         let maxCount = Int(round(scrollView.contentSize.width/scrollView.bounds.size.width))
+        guard maxCount > 0 else {
+            return
+        }
         var leftIndex = Int(floor(Double(percent)))
         leftIndex = max(0, min(maxCount - 1, leftIndex))
         let rightIndex = leftIndex + 1;
@@ -524,4 +540,3 @@ class TFYSwiftListContainerViewController: UIViewController {
         viewDidDisappearClosure?()
     }
 }
-

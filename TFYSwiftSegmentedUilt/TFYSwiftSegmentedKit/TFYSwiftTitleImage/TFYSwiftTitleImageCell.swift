@@ -83,12 +83,12 @@ open class TFYSwiftTitleImageCell: TFYSwiftTitleCell {
         }
 
         //因为`func reloadData(itemModel: TFYSwiftBaseItemModel, selectedType: TFYSwiftViewItemSelectedType)`方法会回调多次，尤其是左右滚动的时候会调用无数次。如果每次都触发图片加载，会非常消耗性能。所以只会在图片发生了变化的时候，才进行图片加载。
-        if normalImageInfo != nil && normalImageInfo != currentImageInfo {
+        if let normalImageInfo, normalImageInfo != currentImageInfo {
             currentImageInfo = normalImageInfo
-            if myItemModel.loadImageClosure != nil {
-                myItemModel.loadImageClosure!(imageView, normalImageInfo!)
-            }else {
-                imageView.image = UIImage(named: normalImageInfo!)
+            if let loadImageClosure = myItemModel.loadImageClosure {
+                loadImageClosure(imageView, normalImageInfo)
+            } else {
+                imageView.image = UIImage(named: normalImageInfo, in: myItemModel.imageBundle, compatibleWith: nil)
             }
         }
 
@@ -101,4 +101,3 @@ open class TFYSwiftTitleImageCell: TFYSwiftTitleCell {
         setNeedsLayout()
     }
 }
-

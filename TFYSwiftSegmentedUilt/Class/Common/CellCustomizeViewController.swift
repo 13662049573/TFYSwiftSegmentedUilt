@@ -7,6 +7,8 @@
 
 import UIKit
 
+private final class DemoImageBundleMarker {}
+
 class CellCustomizeViewController: UITableViewController {
 
     override func viewDidLoad() {
@@ -128,11 +130,9 @@ class CellCustomizeViewController: UITableViewController {
             dataSource.titleImageType = .rightImage
             dataSource.isImageZoomEnabled = true
             dataSource.normalImageInfos = ["monkey", "frog", "dog", "pig", "sheep", "chicken", "horse", "cow", "elephant", "dragon"]
-            dataSource.loadImageClosure = {(imageView, normalImageInfo) in
-                //如果normalImageInfo传递的是图片的地址，你需要借助SDWebImage等第三方库进行图片加载。
-                //加载bundle内的图片，就用下面的方式，内部默认也采用该方法。
-                imageView.image = UIImage(named: normalImageInfo)
-            }
+            // 演示新增的Bundle图片加载能力。这里在App target中等价于main bundle；
+            // 如果库通过Swift Package集成并且资源在Package内，可替换为对应Package资源Bundle。
+            dataSource.imageBundle = Bundle(for: DemoImageBundleMarker.self)
             vc.segmentedDataSource = dataSource
         case "文字或者图片":
             //配置数据源
@@ -146,11 +146,7 @@ class CellCustomizeViewController: UITableViewController {
             dataSource.isSelectedAnimable = true
             dataSource.titles = titles
             dataSource.selectedImageInfos = ["monkey", nil, "dog", nil, "sheep", "chicken", "horse", nil, nil, "dragon"]
-            dataSource.loadImageClosure = {(imageView, normalImageInfo) in
-                //如果normalImageInfo传递的是图片的地址，你需要借助SDWebImage等第三方库进行图片加载。
-                //加载bundle内的图片，就用下面的方式，内部默认也采用该方法。
-                imageView.image = UIImage(named: normalImageInfo)
-            }
+            dataSource.imageBundle = Bundle(for: DemoImageBundleMarker.self)
             vc.segmentedDataSource = dataSource
         case "多行文字(自己添加换行符)":
             //配置数据源

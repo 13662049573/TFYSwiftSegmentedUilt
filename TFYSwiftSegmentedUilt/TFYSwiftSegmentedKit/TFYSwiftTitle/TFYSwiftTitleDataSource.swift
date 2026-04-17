@@ -52,7 +52,7 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
             return
         }
 
-        myItemModel.title = titles[index]
+        myItemModel.title = titles[safe: index] ?? ""
         myItemModel.textWidth = widthForTitle(myItemModel.title ?? "", index)
         myItemModel.titleNumberOfLines = innerTitleNumberOfLines(at: index)
         myItemModel.isSelectedAnimable = isSelectedAnimable
@@ -83,19 +83,18 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
     }
 
     open func widthForTitle(_ title: String, _ index: Int) -> CGFloat {
-        if widthForTitleClosure != nil {
-            return widthForTitleClosure!(title)
-        }else {
-            let textWidth = NSString(string: title).boundingRect(with: CGSize(width: CGFloat.infinity, height: CGFloat.infinity), options: [.usesFontLeading, .usesLineFragmentOrigin], attributes: [NSAttributedString.Key.font : innerTitleNormalFont(at: index)], context: nil).size.width
-            return CGFloat(ceilf(Float(textWidth)))
+        if let widthForTitleClosure {
+            return widthForTitleClosure(title)
         }
+        let textWidth = NSString(string: title).boundingRect(with: CGSize(width: CGFloat.infinity, height: CGFloat.infinity), options: [.usesFontLeading, .usesLineFragmentOrigin], attributes: [NSAttributedString.Key.font : innerTitleNormalFont(at: index)], context: nil).size.width
+        return CGFloat(ceilf(Float(textWidth)))
     }
 
     /// 因为该方法会被频繁调用，所以应该在`preferredRefreshItemModel( _ itemModel: TFYSwiftBaseItemModel, at index: Int, selectedIndex: Int)`方法里面，根据数据源计算好文字宽度，然后缓存起来。该方法直接使用已经计算好的文字宽度即可。
     open override func preferredSegmentedView(_ segmentedView: TFYSwiftView, widthForItemAt index: Int) -> CGFloat {
         var width = super.preferredSegmentedView(segmentedView, widthForItemAt: index)
         if itemWidth == TFYSwiftViewAutomaticDimension {
-            width += (dataSource[index] as! TFYSwiftTitleItemModel).textWidth
+            width += (dataSource[safe: index] as? TFYSwiftTitleItemModel)?.textWidth ?? 0
         }else {
             width += itemWidth
         }
@@ -113,7 +112,9 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
     }
 
     public override func segmentedView(_ segmentedView: TFYSwiftView, widthForItemContentAt index: Int) -> CGFloat {
-        let model = dataSource[index] as! TFYSwiftTitleItemModel
+        guard let model = dataSource[safe: index] as? TFYSwiftTitleItemModel else {
+            return 0
+        }
         if isTitleZoomEnabled {
             return model.textWidth*model.titleCurrentZoomScale
         }else {
@@ -199,4 +200,3 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
         }
     }
 }
-

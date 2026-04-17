@@ -12,6 +12,7 @@ open class TFYSwiftTitleImageItemModel: TFYSwiftTitleItemModel {
     open var normalImageInfo: String?
     open var selectedImageInfo: String?
     open var loadImageClosure: LoadImageClosure?
+    open var imageBundle: Bundle = .main
     open var imageSize: CGSize = CGSize.zero
     open var titleImageSpacing: CGFloat = 0
     open var isImageZoomEnabled: Bool = false
@@ -19,4 +20,3 @@ open class TFYSwiftTitleImageItemModel: TFYSwiftTitleItemModel {
     open var imageCurrentZoomScale: CGFloat = 0
     open var imageSelectedZoomScale: CGFloat = 0
 }
-

@@ -17,7 +17,9 @@ open class TFYSwiftPagingListRefreshView: TFYSwiftPagingView {
 
     override open func preferredProcessMainTableViewDidScroll(_ scrollView: UIScrollView) {
         if pinSectionHeaderVerticalOffset != 0 {
-            if !(currentScrollingListView != nil && currentScrollingListView!.contentOffset.y > minContentOffsetYInListScrollView(currentScrollingListView!)) {
+            if let currentScrollingListView, currentScrollingListView.contentOffset.y > minContentOffsetYInListScrollView(currentScrollingListView) {
+                // 当前已经进入某个列表的垂直滚动阶段，保持既有逻辑
+            } else {
                 //没有处于滚动某一个listView的状态
                 if scrollView.contentOffset.y <= 0 {
                     mainTableView.bounces = false

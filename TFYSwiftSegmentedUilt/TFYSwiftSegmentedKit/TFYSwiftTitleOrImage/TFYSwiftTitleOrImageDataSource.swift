@@ -12,6 +12,8 @@ open class TFYSwiftTitleOrImageDataSource: TFYSwiftTitleDataSource {
     open var selectedImageInfos: [String?]?
     /// 内部默认通过UIImage(named:)加载图片。如果传递的是图片地址或者想自己处理图片加载逻辑，可以通过该闭包处理。
     open var loadImageClosure: LoadImageClosure?
+    /// 默认图片所在Bundle。Package模式或业务模块化资源不在main bundle时，可指定对应Bundle。
+    open var imageBundle: Bundle = .main
     /// 图片尺寸
     open var imageSize: CGSize = CGSize(width: 30, height: 30)
 
@@ -32,8 +34,9 @@ open class TFYSwiftTitleOrImageDataSource: TFYSwiftTitleDataSource {
             return
         }
 
-        itemModel.selectedImageInfo = selectedImageInfos?[index]
+        itemModel.selectedImageInfo = selectedImageInfos?[safe: index] ?? nil
         itemModel.loadImageClosure = loadImageClosure
+        itemModel.imageBundle = imageBundle
         itemModel.imageSize = imageSize
     }
 
@@ -48,4 +51,3 @@ open class TFYSwiftTitleOrImageDataSource: TFYSwiftTitleDataSource {
     }
 
 }
-
