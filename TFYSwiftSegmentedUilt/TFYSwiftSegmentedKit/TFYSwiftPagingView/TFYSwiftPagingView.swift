@@ -89,12 +89,8 @@ open class TFYSwiftPagingView: UIView {
         mainTableView.backgroundColor = .clear
         refreshTableHeaderView()
         mainTableView.register(UITableViewCell.self, forCellReuseIdentifier: cellIdentifier)
-        if #available(iOS 11.0, *) {
-            mainTableView.contentInsetAdjustmentBehavior = .never
-        }
-        if #available(iOS 15.0, *) {
-            mainTableView.sectionHeaderTopPadding = 0
-        }
+        mainTableView.contentInsetAdjustmentBehavior = .never
+        mainTableView.sectionHeaderTopPadding = 0
         addSubview(mainTableView)
     }
 
@@ -231,10 +227,7 @@ open class TFYSwiftPagingView: UIView {
     }
 
     func minContentOffsetYInListScrollView(_ scrollView: UIScrollView) -> CGFloat {
-        if #available(iOS 11.0, *) {
-            return -scrollView.adjustedContentInset.top
-        }
-        return -scrollView.contentInset.top
+        return -scrollView.adjustedContentInset.top
     }
 
     func setListScrollViewToMinContentOffsetY(_ scrollView: UIScrollView) {

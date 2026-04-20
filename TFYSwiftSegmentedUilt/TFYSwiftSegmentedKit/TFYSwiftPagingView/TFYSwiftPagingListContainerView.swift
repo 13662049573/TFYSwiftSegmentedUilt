@@ -160,9 +160,7 @@ open class TFYSwiftPagingListContainerView: UIView {
             scrollView.showsHorizontalScrollIndicator = false
             scrollView.scrollsToTop = false
             scrollView.bounces = false
-            if #available(iOS 11.0, *) {
-                scrollView.contentInsetAdjustmentBehavior = .never
-            }
+            scrollView.contentInsetAdjustmentBehavior = .never
             containerVC.view.addSubview(scrollView)
         }else if type == .collectionView {
             let layout = UICollectionViewFlowLayout()
@@ -183,12 +181,8 @@ open class TFYSwiftPagingListContainerView: UIView {
             collectionView.dataSource = self
             collectionView.delegate = self
             collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-            if #available(iOS 10.0, *) {
-                collectionView.isPrefetchingEnabled = false
-            }
-            if #available(iOS 11.0, *) {
-                self.collectionView.contentInsetAdjustmentBehavior = .never
-            }
+            collectionView.isPrefetchingEnabled = false
+            collectionView.contentInsetAdjustmentBehavior = .never
             containerVC.view.addSubview(collectionView)
             //让外部统一访问scrollView
             scrollView = collectionView
@@ -197,10 +191,14 @@ open class TFYSwiftPagingListContainerView: UIView {
 
     open override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
+        guard newSuperview != nil else { return }
         var next: UIResponder? = newSuperview
         while next != nil {
-            if let vc = next as? UIViewController{
-                vc.addChild(containerVC)
+            if let vc = next as? UIViewController {
+                if containerVC.parent !== vc {
+                    containerVC.removeFromParent()
+                    vc.addChild(containerVC)
+                }
                 break
             }
             next = next?.next

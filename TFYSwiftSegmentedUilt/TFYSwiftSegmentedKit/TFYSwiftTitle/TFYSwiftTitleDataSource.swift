@@ -36,6 +36,13 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
     open var titleSelectedStrokeWidth: CGFloat = -2
     /// title是否使用遮罩过渡
     open var isTitleMaskEnabled: Bool = false
+    /// 是否让 title 字号跟随系统 Dynamic Type 自动缩放。
+    /// 打开后内部通过 `UIFontMetrics(forTextStyle:)` 对 `titleNormalFont` / `titleSelectedFont` 做按需放大。
+    open var isTitleDynamicTypeEnabled: Bool = false
+    /// Dynamic Type 使用的基准 `UIFont.TextStyle`。默认 `.body`，适合导航分段标题。
+    open var titleDynamicTypeTextStyle: UIFont.TextStyle = .body
+    /// Dynamic Type 放大的字号上限，默认允许到 `.accessibilityLarge`，避免被超大辅助字号撑破布局。
+    open var titleMaximumContentSizeCategory: UIContentSizeCategory = .accessibilityLarge
 
     open override func preferredItemCount() -> Int {
         return titles.count
@@ -86,8 +93,13 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
         if let widthForTitleClosure {
             return widthForTitleClosure(title)
         }
-        let textWidth = NSString(string: title).boundingRect(with: CGSize(width: CGFloat.infinity, height: CGFloat.infinity), options: [.usesFontLeading, .usesLineFragmentOrigin], attributes: [NSAttributedString.Key.font : innerTitleNormalFont(at: index)], context: nil).size.width
-        return CGFloat(ceilf(Float(textWidth)))
+        // 通过共享 `TFYSwiftTextMeasure` 缓存同一 (title, font, numberOfLines) 组合的测量结果，
+        // 避免 reloadData / KVO 联动过程中对相同文案反复调用 boundingRect。
+        return TFYSwiftTextMeasure.shared.width(
+            for: title,
+            font: innerTitleNormalFont(at: index),
+            numberOfLines: innerTitleNumberOfLines(at: index)
+        )
     }
 
     /// 因为该方法会被频繁调用，所以应该在`preferredRefreshItemModel( _ itemModel: TFYSwiftBaseItemModel, at index: Int, selectedIndex: Int)`方法里面，根据数据源计算好文字宽度，然后缓存起来。该方法直接使用已经计算好的文字宽度即可。
@@ -186,17 +198,33 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
         }
     }
     private func innerTitleNormalFont(at index: Int) -> UIFont {
+        let base: UIFont
         if let configuration {
-            return configuration.titleNormalFont(at: index)
+            base = configuration.titleNormalFont(at: index)
         } else {
-            return titleNormalFont
+            base = titleNormalFont
         }
+        return scaleFontForDynamicTypeIfNeeded(base)
     }
     private func innerTitleSelectedFont(at index: Int) -> UIFont? {
+        let base: UIFont?
         if let configuration {
-            return configuration.titleSelectedFont(at: index)
+            base = configuration.titleSelectedFont(at: index)
         } else {
-            return titleSelectedFont
+            base = titleSelectedFont
         }
+        guard let base else { return nil }
+        return scaleFontForDynamicTypeIfNeeded(base)
+    }
+
+    /// 根据 `isTitleDynamicTypeEnabled` + `titleMaximumContentSizeCategory` 对给定 font 做 `UIFontMetrics` 缩放。
+    /// - 启用时按当前系统 Dynamic Type 设置进行缩放，但不会超过 `titleMaximumContentSizeCategory` 所对应的大小。
+    /// - 关闭时原样返回，保持与旧版完全一致的行为。
+    open func scaleFontForDynamicTypeIfNeeded(_ font: UIFont) -> UIFont {
+        guard isTitleDynamicTypeEnabled else { return font }
+        let metrics = UIFontMetrics(forTextStyle: titleDynamicTypeTextStyle)
+        let capTrait = UITraitCollection(preferredContentSizeCategory: titleMaximumContentSizeCategory)
+        let maxPointSize = metrics.scaledFont(for: font, compatibleWith: capTrait).pointSize
+        return metrics.scaledFont(for: font, maximumPointSize: maxPointSize)
     }
 }

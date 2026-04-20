@@ -88,6 +88,23 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
         self.itemModel = itemModel
         isAccessibilityElement = true
         accessibilityTraits = itemModel.isSelected ? [.button, .selected] : .button
+        if itemModel.totalItemCount > 0 {
+            let format = NSLocalizedString("tfy_segmented.a11y.value_format",
+                                           value: "Tab %d of %d",
+                                           comment: "Accessibility value announced for a segmented tab; 1-based index and total.")
+            accessibilityValue = String(format: format, itemModel.index + 1, itemModel.totalItemCount)
+        } else {
+            accessibilityValue = nil
+        }
+        if let hint = itemModel.accessibilityHintText, !hint.isEmpty {
+            accessibilityHint = hint
+        } else if !itemModel.isSelected {
+            accessibilityHint = NSLocalizedString("tfy_segmented.a11y.hint_switch",
+                                                  value: "Double tap to switch tab",
+                                                  comment: "Accessibility hint announced for an unselected segmented tab.")
+        } else {
+            accessibilityHint = nil
+        }
 
         if itemModel.isSelectedAnimable {
             selectedAnimationClosureArray.removeAll()

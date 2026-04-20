@@ -57,17 +57,24 @@ public extension Collection {
 
 public typealias LoadImageClosure = ((UIImageView, String) -> Void)
 
-public class TFYSwiftViewTool {
-    public static func interpolate<T: SignedNumeric & Comparable>(from: T, to:  T, percent:  T) ->  T {
-        let percent = max(0, min(1, percent))
-        return from + (to - from) * percent
+public final class TFYSwiftViewTool {
+    private init() {}
+
+    /// 浮点数线性插值。percent 会被 clamp 到 [0, 1]。
+    /// 约束为 `FloatingPoint` 以保证 clamp 与乘法在整数类型下不会丢失精度
+    /// （旧实现使用 SignedNumeric & Comparable，若传入 Int 类型会退化为 step 函数）。
+    @inlinable
+    public static func interpolate<T: FloatingPoint>(from: T, to: T, percent: T) -> T {
+        let p = Swift.max(T.zero, Swift.min(T(1), percent))
+        return from + (to - from) * p
     }
 
     public static func interpolateColor(from: UIColor, to: UIColor, percent: CGFloat) -> UIColor {
-        let r = interpolate(from: from.ge_red, to: to.ge_red, percent: percent)
-        let g = interpolate(from: from.ge_green, to: to.ge_green, percent: CGFloat(percent))
-        let b = interpolate(from: from.ge_blue, to: to.ge_blue, percent: CGFloat(percent))
-        let a = interpolate(from: from.ge_alpha, to: to.ge_alpha, percent: CGFloat(percent))
+        let p = max(0, min(1, percent))
+        let r = interpolate(from: from.ge_red, to: to.ge_red, percent: p)
+        let g = interpolate(from: from.ge_green, to: to.ge_green, percent: p)
+        let b = interpolate(from: from.ge_blue, to: to.ge_blue, percent: p)
+        let a = interpolate(from: from.ge_alpha, to: to.ge_alpha, percent: p)
         return UIColor(red: r, green: g, blue: b, alpha: a)
     }
 
@@ -75,30 +82,27 @@ public class TFYSwiftViewTool {
         guard from.count == to.count else {
             return from
         }
+        let p = max(0, min(1, percent))
         var resultColors = [CGColor]()
+        resultColors.reserveCapacity(from.count)
         for index in 0..<from.count {
             let fromColor = UIColor(cgColor: from[index])
             let toColor = UIColor(cgColor: to[index])
-            let r = interpolate(from: fromColor.ge_red, to: toColor.ge_red, percent: percent)
-            let g = interpolate(from: fromColor.ge_green, to: toColor.ge_green, percent: CGFloat(percent))
-            let b = interpolate(from: fromColor.ge_blue, to: toColor.ge_blue, percent: CGFloat(percent))
-            let a = interpolate(from: fromColor.ge_alpha, to: toColor.ge_alpha, percent: CGFloat(percent))
+            let r = interpolate(from: fromColor.ge_red, to: toColor.ge_red, percent: p)
+            let g = interpolate(from: fromColor.ge_green, to: toColor.ge_green, percent: p)
+            let b = interpolate(from: fromColor.ge_blue, to: toColor.ge_blue, percent: p)
+            let a = interpolate(from: fromColor.ge_alpha, to: toColor.ge_alpha, percent: p)
             resultColors.append(UIColor(red: r, green: g, blue: b, alpha: a).cgColor)
         }
         return resultColors
     }
-}
 
-extension TFYSwiftViewTool {
+    /// 生成一个随 `UITraitCollection` 动态解析的插值颜色，适合深色模式下的实时切换。
     public static func interpolateThemeColor(from: UIColor, to: UIColor, percent: CGFloat) -> UIColor {
-        if #available(iOS 13.0, *) {
-            return UIColor { (traitCollection) -> UIColor in
-                let resolvedFrom = from.resolvedColor(with: traitCollection)
-                let resolvedTo = to.resolvedColor(with: traitCollection)
-                return interpolateColor(from: resolvedFrom, to: resolvedTo, percent: percent)
-            }
-        } else {
-            return interpolateColor(from: from, to: to, percent: percent)
+        UIColor { traitCollection in
+            let resolvedFrom = from.resolvedColor(with: traitCollection)
+            let resolvedTo = to.resolvedColor(with: traitCollection)
+            return interpolateColor(from: resolvedFrom, to: resolvedTo, percent: percent)
         }
     }
 }

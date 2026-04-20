@@ -62,6 +62,7 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
         for index in 0..<itemCount {
             let itemModel = preferredItemModelInstance()
             preferredRefreshItemModel(itemModel, at: index, selectedIndex: selectedIndex)
+            itemModel.totalItemCount = itemCount
             dataSource.append(itemModel)
         }
     }

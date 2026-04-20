@@ -83,6 +83,8 @@
 		363B3C722D44FDC400BC628D /* TFYSwiftViewTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C172D44FDC400BC628D /* TFYSwiftViewTool.swift */; };
 		363B3C732D44FDC400BC628D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C1A2D44FDC400BC628D /* AppDelegate.swift */; };
 		363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C212D44FDC400BC628D /* SceneDelegate.swift */; };
+		363B3CFF2D44FDC400BC628D /* TFYSwiftTextMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */; };
+		363B3D012D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D002D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift */; };
 		3D68BB452D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */; };
 		3D68BB462D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */; };
 		3D68BB472D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */; };
@@ -169,6 +171,8 @@
 		363B3C1D2D44FDC400BC628D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		363B3C1F2D44FDC400BC628D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		363B3C212D44FDC400BC628D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftTextMeasure.swift; sourceTree = "<group>"; };
+		363B3D002D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftSegmentedRepresentable.swift; sourceTree = "<group>"; };
 		3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
 		3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
 		3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingMainTableView.swift; sourceTree = "<group>"; };
@@ -459,6 +463,7 @@
 				363B3C152D44FDC400BC628D /* TFYSwiftListContainerView.swift */,
 				363B3C162D44FDC400BC628D /* TFYSwiftRTLLayout.swift */,
 				363B3C172D44FDC400BC628D /* TFYSwiftViewTool.swift */,
+				363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */,
 			);
 			path = TFYSwiftTool;
 			sourceTree = "<group>";
@@ -477,6 +482,7 @@
 				363B3C0F2D44FDC400BC628D /* TFYSwiftTitleImage */,
 				363B3C132D44FDC400BC628D /* TFYSwiftTitleOrImage */,
 				363B3C182D44FDC400BC628D /* TFYSwiftTool */,
+				363B3D032D44FDC400BC628D /* TFYSwiftSwiftUI */,
 			);
 			path = TFYSwiftSegmentedKit;
 			sourceTree = "<group>";
@@ -494,6 +500,14 @@
 				363B3C212D44FDC400BC628D /* SceneDelegate.swift */,
 			);
 			path = TFYSwiftSegmentedUilt;
+			sourceTree = "<group>";
+		};
+		363B3D032D44FDC400BC628D /* TFYSwiftSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				363B3D002D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift */,
+			);
+			path = TFYSwiftSwiftUI;
 			sourceTree = "<group>";
 		};
 		3D68BB442D62CE8700A244A7 /* TFYSwiftPagingView */ = {
@@ -658,6 +672,8 @@
 				363B3C702D44FDC400BC628D /* TFYSwiftListContainerView.swift in Sources */,
 				363B3C712D44FDC400BC628D /* TFYSwiftRTLLayout.swift in Sources */,
 				363B3C722D44FDC400BC628D /* TFYSwiftViewTool.swift in Sources */,
+				363B3CFF2D44FDC400BC628D /* TFYSwiftTextMeasure.swift in Sources */,
+				363B3D012D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift in Sources */,
 				363B3C732D44FDC400BC628D /* AppDelegate.swift in Sources */,
 				363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */,
 			);

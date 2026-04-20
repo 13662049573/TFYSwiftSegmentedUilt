@@ -106,7 +106,7 @@ open class TFYSwiftTitleOrImageCell: TFYSwiftTitleCell {
                     //将要取消选中
                     itemModel.titleCurrentStrokeWidth = itemModel.titleNormalStrokeWidth
                 }
-                attriText.addAttributes([NSAttributedString.Key.strokeWidth: itemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: attriText.string.count))
+                attriText.addAttributes([NSAttributedString.Key.strokeWidth: itemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: (attriText.string as NSString).length))
                 self?.titleLabel.attributedText = attriText
             }
             //手动调用closure，更新到最新状态

@@ -20,6 +20,11 @@ let package = Package(
             swiftSettings: [
                 .define("SWIFT_PACKAGE")
             ]
+        ),
+        .testTarget(
+            name: "TFYSwiftSegmentedKitTests",
+            dependencies: ["TFYSwiftSegmentedKit"],
+            path: "Tests/TFYSwiftSegmentedKitTests"
         )
     ]
 )

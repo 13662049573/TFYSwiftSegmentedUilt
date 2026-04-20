@@ -147,9 +147,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             scrollView.showsHorizontalScrollIndicator = false
             scrollView.scrollsToTop = false
             scrollView.bounces = false
-            if #available(iOS 11.0, *) {
-                scrollView.contentInsetAdjustmentBehavior = .never
-            }
+            scrollView.contentInsetAdjustmentBehavior = .never
             if segmentedViewShouldRTLLayout() {
                 segmentedView(horizontalFlipForView: scrollView)
             }
@@ -163,12 +161,8 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             collectionView.dataSource = self
             collectionView.delegate = self
             collectionView.register(TFYSwiftRTLCollectionCell.self, forCellWithReuseIdentifier: "cell")
-            if #available(iOS 10.0, *) {
-                collectionView.isPrefetchingEnabled = false
-            }
-            if #available(iOS 11.0, *) {
-                self.collectionView.contentInsetAdjustmentBehavior = .never
-            }
+            collectionView.isPrefetchingEnabled = false
+            collectionView.contentInsetAdjustmentBehavior = .never
             if segmentedViewShouldRTLLayout() {
                 collectionView.semanticContentAttribute = .forceLeftToRight
                 segmentedView(horizontalFlipForView: collectionView)
@@ -181,10 +175,16 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
 
     open override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
+        // newSuperview == nil 代表正在从父视图移除，此时不应再追加 child VC。
+        guard newSuperview != nil else { return }
         var next: UIResponder? = newSuperview
         while next != nil {
-            if let vc = next as? UIViewController{
-                vc.addChild(containerVC)
+            if let vc = next as? UIViewController {
+                // 避免跨父 VC 多次迁移后重复 addChild（UIKit 允许 addChild 到同一父 VC 多次，但会累加子 VC）。
+                if containerVC.parent !== vc {
+                    containerVC.removeFromParent()
+                    vc.addChild(containerVC)
+                }
                 break
             }
             next = next?.next

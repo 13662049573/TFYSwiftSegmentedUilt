@@ -87,7 +87,7 @@ open class TFYSwiftTitleCell: TFYSwiftBaseCell {
                 let titleStrokeWidthClosure = preferredTitleStrokeWidthAnimateClosure(itemModel: myItemModel, attriText: attriText)
                 appendSelectedAnimationClosure(closure: titleStrokeWidthClosure)
             }else {
-                attriText.addAttributes([NSAttributedString.Key.strokeWidth: myItemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: title.count))
+                attriText.addAttributes([NSAttributedString.Key.strokeWidth: myItemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: (title as NSString).length))
                 titleLabel.attributedText = attriText
                 maskTitleLabel.attributedText = attriText
             }
@@ -180,7 +180,7 @@ open class TFYSwiftTitleCell: TFYSwiftBaseCell {
                 //将要取消选中，StrokeWidth从大到小插值渐变
                 itemModel.titleCurrentStrokeWidth = TFYSwiftViewTool.interpolate(from: itemModel.titleSelectedStrokeWidth, to:itemModel.titleNormalStrokeWidth , percent: percent)
             }
-            attriText.addAttributes([NSAttributedString.Key.strokeWidth: itemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: attriText.string.count))
+            attriText.addAttributes([NSAttributedString.Key.strokeWidth: itemModel.titleCurrentStrokeWidth], range: NSRange(location: 0, length: (attriText.string as NSString).length))
             self?.titleLabel.attributedText = attriText
             self?.maskTitleLabel.attributedText = attriText
         }

@@ -171,9 +171,14 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             collectionView.indicators = indicators
         }
     }
-    /// 初始化或者reloadData之前设置，用于指定默认的index
+    /// 初始化或者reloadData之前设置，用于指定默认的index。
+    /// 非法负值会被自动 clamp 为 0；超出 item 数量的 index 会在 reloadData 中再次 clamp。
     open var defaultSelectedIndex: Int = 0 {
         didSet {
+            if defaultSelectedIndex < 0 {
+                defaultSelectedIndex = 0
+                return
+            }
             selectedIndex = defaultSelectedIndex
             if listContainer != nil {
                 listContainer?.defaultSelectedIndex = defaultSelectedIndex
@@ -193,7 +198,18 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             self.collectionView.isScrollEnabled = isScrollEnabled
         }
     }
-    
+    /// 是否启用 UICollectionView 预取（默认 false，保持历史默认行为）。
+    /// 大多数业务下 item 数量有限、宽度动态变化，关闭预取可以避免无谓刷新；
+    /// 若 item 非常多且稳定，可按需打开以提升首屏显示。
+    open var isPrefetchingEnabled: Bool = false {
+        didSet {
+            collectionView.isPrefetchingEnabled = isPrefetchingEnabled
+        }
+    }
+    /// KVO 联动过渡时的最小变化阈值（百分比）。小于该值的微小偏移变化会被忽略，降低高频重绘压力。
+    /// 默认 0，完全保留历史行为；调大（例如 0.002）可降低 ProMotion 设备下的 CPU 占用。
+    open var contentScrollViewTransitionEpsilon: CGFloat = 0
+
     private var itemDataSource = [TFYSwiftBaseItemModel]()
     private var innerItemSpacing: CGFloat = 0
     private var lastContentOffset: CGPoint = CGPoint.zero
@@ -202,8 +218,16 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     private var scrollingTargetIndex: Int = -1
     private var isFirstLayoutSubviews = true
 
+    // MARK: - 布局缓存
+    // 累积 item 起始 x 偏移缓存：itemStartXCache[i] = item i 的左边界（含 contentInset）
+    // 仅在 reloadData 或 innerItemSpacing / itemWidth 发生变化时刷新，保证 getItemFrameAt 为 O(1)。
+    private var itemStartXCache: [CGFloat] = []
+    private var totalContentWidthCache: CGFloat = 0
+    private var lastTransitionProgress: CGFloat = -1
+
     deinit {
         contentScrollObservation?.invalidate()
+        NotificationCenter.default.removeObserver(self)
     }
 
     public override init(frame: CGRect) {
@@ -229,33 +253,41 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "TFYSwiftViewInnerEmptyCell")
         collectionView.dataSource = self
         collectionView.delegate = self
-        if #available(iOS 10.0, *) {
-            collectionView.isPrefetchingEnabled = false
-        }
-        if #available(iOS 11.0, *) {
-            collectionView.contentInsetAdjustmentBehavior = .never
-        }
+        collectionView.isPrefetchingEnabled = isPrefetchingEnabled
+        collectionView.contentInsetAdjustmentBehavior = .never
         if segmentedViewShouldRTLLayout() {
             collectionView.semanticContentAttribute = .forceLeftToRight
             segmentedView(horizontalFlipForView: collectionView)
         }
         addSubview(collectionView)
+
+        // Dynamic Type：系统字号变化时自动重排。数据源开启 `isTitleDynamicTypeEnabled` 才实际影响字号，
+        // 但 reload 是无损操作，放在基类里对所有数据源都安全。
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(tfy_handleContentSizeCategoryDidChange),
+            name: UIContentSizeCategory.didChangeNotification,
+            object: nil
+        )
+        // 共享文本宽度缓存与字号强绑定，字号变更后必须失效，否则会继续返回旧宽度导致截断。
+        NotificationCenter.default.addObserver(
+            forName: UIContentSizeCategory.didChangeNotification,
+            object: nil,
+            queue: .main) { _ in
+                TFYSwiftTextMeasure.shared.invalidate()
+            }
+    }
+
+    @objc private func tfy_handleContentSizeCategoryDidChange() {
+        // superview 还没挂载时不急着刷新，避免不必要的 layout。
+        guard superview != nil, dataSource != nil else { return }
+        reloadData()
     }
 
     open override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-
-        var nextResponder: UIResponder? = newSuperview
-        while nextResponder != nil {
-            if let parentVC = nextResponder as? UIViewController {
-                if #available(iOS 11.0, *) {
-                } else {
-                    parentVC.automaticallyAdjustsScrollViewInsets = false
-                }
-                break
-            }
-            nextResponder = nextResponder?.next
-        }
+        // 早期 iOS 版本（< 11）需要关闭父 VC 的 automaticallyAdjustsScrollViewInsets 以避免 inset 偏移。
+        // 本库最低支持 iOS 15，因此保留空实现仅用于未来扩展钩子。
     }
 
     open override func layoutSubviews() {
@@ -278,13 +310,22 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     }
 
     //MARK: - Public
+    /// 从复用池中出队一个 `TFYSwiftBaseCell` 子类实例。
+    /// - Note: 历史版本在类型不匹配时直接 `fatalError`，在生产环境会导致崩溃。
+    ///   现改为 `assertionFailure` + 降级返回一个空壳 `TFYSwiftBaseCell`，
+    ///   同时补发一条控制台日志，便于开发者在 Debug 包中排查。
     public final func dequeueReusableCell(withReuseIdentifier identifier: String, at index: Int) -> TFYSwiftBaseCell {
         let indexPath = IndexPath(item: index, section: 0)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
-        guard let baseCell = cell as? TFYSwiftBaseCell else {
-            fatalError("Cell class must be subclass of TFYSwiftBaseCell")
+        if let baseCell = cell as? TFYSwiftBaseCell {
+            return baseCell
         }
-        return baseCell
+        assertionFailure("[TFYSwiftSegmentedKit] Cell(identifier: \(identifier)) 必须是 TFYSwiftBaseCell 的子类。收到: \(type(of: cell))。请检查 registerCellClass(in:) 实现。")
+        #if DEBUG
+        print("[TFYSwiftSegmentedKit][WARN] dequeueReusableCell fallback at index=\(index), identifier=\(identifier)")
+        #endif
+        // 生产环境降级：返回一个临时的空壳 cell，避免整个列表崩溃
+        return TFYSwiftBaseCell(frame: cell.frame)
     }
 
     open func reloadData() {
@@ -299,6 +340,9 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         guard !itemDataSource.isEmpty else {
             selectedIndex = 0
             lastContentOffset = .zero
+            lastTransitionProgress = -1
+            itemStartXCache = []
+            totalContentWidthCache = 0
             indicators.forEach { $0.isHidden = true }
             collectionView.collectionViewLayout.invalidateLayout()
             collectionView.reloadData()
@@ -348,20 +392,15 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             }
         }
 
+        // 一次遍历同时构建累积起点缓存 + 计算总内容宽度 + 当前选中 item 的 frame 数据
+        rebuildItemStartXCache()
+        totalContentWidth = totalContentWidthCache
+
         var selectedItemFrameX = getContentEdgeInsetLeft()
         var selectedItemWidth: CGFloat = 0
-        totalContentWidth = getContentEdgeInsetLeft()
-        for (index, itemModel) in itemDataSource.enumerated() {
-            if index < selectedIndex {
-                selectedItemFrameX += itemModel.itemWidth + innerItemSpacing
-            }else if index == selectedIndex {
-                selectedItemWidth = itemModel.itemWidth
-            }
-            if index == itemDataSource.count - 1 {
-                totalContentWidth += itemModel.itemWidth + getContentEdgeInsetRight()
-            }else {
-                totalContentWidth += itemModel.itemWidth + innerItemSpacing
-            }
+        if let startX = itemStartXCache[safe: selectedIndex], let model = itemDataSource[safe: selectedIndex] {
+            selectedItemFrameX = startX
+            selectedItemWidth = model.itemWidth
         }
 
         let minX: CGFloat = 0
@@ -597,53 +636,74 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
 
         let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? TFYSwiftBaseCell
         cell?.reloadData(itemModel: itemModel, selectedType: selectedType)
-        return abs(newWidth - oldWidth) > CGFloat.ulpOfOne
+        let didChange = abs(newWidth - oldWidth) > CGFloat.ulpOfOne
+        if didChange {
+            rebuildItemStartXCache()
+        }
+        return didChange
     }
 
-    private func getItemFrameAt(index: Int) -> CGRect {
-        guard index >= 0, index < itemDataSource.count else {
-            return CGRect.zero
+    /// 重新构建 `itemStartXCache` 与 `totalContentWidthCache`。
+    /// 在 reloadData / item 宽度变化 / innerItemSpacing 变化时调用。
+    private func rebuildItemStartXCache() {
+        let count = itemDataSource.count
+        guard count > 0 else {
+            itemStartXCache = []
+            totalContentWidthCache = 0
+            return
         }
+        var cache = [CGFloat](repeating: 0, count: count)
         var x = getContentEdgeInsetLeft()
-        for i in 0..<index {
-            let itemModel = itemDataSource[i]
-            var itemWidth: CGFloat = 0
-            if itemModel.isTransitionAnimating && itemModel.isItemWidthZoomEnabled {
-                //正在进行动画的时候，itemWidthCurrentZoomScale是随着动画渐变的，而没有立即更新到目标值
-                if itemModel.isSelected {
-                    itemWidth = (dataSource?.segmentedView(self, widthForItemAt: itemModel.index) ?? 0) * itemModel.itemWidthSelectedZoomScale
-                }else {
-                    itemWidth = (dataSource?.segmentedView(self, widthForItemAt: itemModel.index) ?? 0) * itemModel.itemWidthNormalZoomScale
-                }
-            }else {
-                itemWidth = itemModel.itemWidth
+        for (index, itemModel) in itemDataSource.enumerated() {
+            cache[index] = x
+            if index == count - 1 {
+                x += itemModel.itemWidth + getContentEdgeInsetRight()
+            } else {
+                x += itemModel.itemWidth + innerItemSpacing
             }
-            x += itemWidth + innerItemSpacing
         }
-        var width: CGFloat = 0
-        let selectedItemModel = itemDataSource[index]
-        if selectedItemModel.isTransitionAnimating && selectedItemModel.isItemWidthZoomEnabled {
-            width = (dataSource?.segmentedView(self, widthForItemAt: selectedItemModel.index) ?? 0) * selectedItemModel.itemWidthSelectedZoomScale
-        }else {
-            width = selectedItemModel.itemWidth
-        }
-        return CGRect(x: x, y: 0, width: width, height: bounds.size.height)
+        itemStartXCache = cache
+        totalContentWidthCache = x
     }
 
+    /// O(1) 获取 item 的 frame，如果正在进行动画并开启了宽度缩放，
+    /// 会基于 dataSource 的目标宽度 + 缩放比例临时纠正（避免动画过程中的抖动显示）。
+    private func getItemFrameAt(index: Int) -> CGRect {
+        guard itemDataSource.indices.contains(index),
+              let startX = itemStartXCache[safe: index] else {
+            return .zero
+        }
+        let itemModel = itemDataSource[index]
+        var width: CGFloat
+        if itemModel.isTransitionAnimating && itemModel.isItemWidthZoomEnabled {
+            let baseWidth = dataSource?.segmentedView(self, widthForItemAt: itemModel.index) ?? 0
+            let scale = itemModel.isSelected ? itemModel.itemWidthSelectedZoomScale : itemModel.itemWidthNormalZoomScale
+            width = baseWidth * scale
+        } else {
+            width = itemModel.itemWidth
+        }
+        return CGRect(x: startX, y: 0, width: width, height: bounds.size.height)
+    }
+
+    /// 计算"选中态下"的 item frame。
+    /// 语义与旧版本一致：假设先于 index 的 item 回归到 dataSource 提供的原始宽度（即 normalZoom = 1 的视觉），
+    /// 目标 item 按 `itemWidthSelectedZoomScale` 放大。主要在 `selectItemAt` 结束后用于定位指示器。
+    /// 由于单次调用 O(n) 可接受，这里不使用累积缓存，避免状态耦合。
     private func getSelectedItemFrameAt(index: Int) -> CGRect {
-        guard index >= 0, index < itemDataSource.count else {
-            return CGRect.zero
+        guard itemDataSource.indices.contains(index) else {
+            return .zero
         }
         var x = getContentEdgeInsetLeft()
         for i in 0..<index {
-            let itemWidth = (dataSource?.segmentedView(self, widthForItemAt: i) ?? 0)
-            x += itemWidth + innerItemSpacing
+            let rawWidth = dataSource?.segmentedView(self, widthForItemAt: i) ?? 0
+            x += rawWidth + innerItemSpacing
         }
-        var width: CGFloat = 0
         let selectedItemModel = itemDataSource[index]
+        let width: CGFloat
         if selectedItemModel.isItemWidthZoomEnabled {
-            width = (dataSource?.segmentedView(self, widthForItemAt: selectedItemModel.index) ?? 0) * selectedItemModel.itemWidthSelectedZoomScale
-        }else {
+            let rawWidth = dataSource?.segmentedView(self, widthForItemAt: selectedItemModel.index) ?? 0
+            width = rawWidth * selectedItemModel.itemWidthSelectedZoomScale
+        } else {
             width = selectedItemModel.itemWidth
         }
         return CGRect(x: x, y: 0, width: width, height: bounds.size.height)
@@ -682,8 +742,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     }
 
     private func handleContentScrollViewDidScroll(in contentScrollView: UIScrollView, contentOffset: CGPoint) {
-        defer { lastContentOffset = contentOffset }
-
+        // 仅在 tracking/decelerating 场景参与联动，避免 setContentOffset 动画期间误触发。
         guard contentScrollView.isTracking || contentScrollView.isDecelerating else {
             return
         }
@@ -698,11 +757,13 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             return
         }
         if contentOffset.x == 0 && selectedIndex == 0 && lastContentOffset.x == 0 {
+            lastContentOffset = contentOffset
             return
         }
 
         let maxContentOffsetX = max(contentScrollView.contentSize.width - pageWidth, 0)
         if contentOffset.x == maxContentOffsetX && selectedIndex == itemDataSource.count - 1 && lastContentOffset.x == maxContentOffsetX {
+            lastContentOffset = contentOffset
             return
         }
 
@@ -710,6 +771,16 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         let baseIndex = Int(floor(progress))
         let remainderProgress = progress - CGFloat(baseIndex)
         let rightIndex = min(baseIndex + 1, itemDataSource.count - 1)
+
+        // Epsilon 节流：仅在进度变化超过阈值，或者跨越整数 index 边界时继续处理。
+        if contentScrollViewTransitionEpsilon > 0,
+           lastTransitionProgress >= 0,
+           Int(floor(lastTransitionProgress)) == baseIndex,
+           abs(progress - lastTransitionProgress) < contentScrollViewTransitionEpsilon,
+           remainderProgress != 0 {
+            lastContentOffset = contentOffset
+            return
+        }
 
         let leftItemFrame = getItemFrameAt(index: baseIndex)
         let rightItemFrame = getItemFrameAt(index: rightIndex)
@@ -726,10 +797,13 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             if !(lastContentOffset.x == contentOffset.x && selectedIndex == baseIndex) {
                 scrollSelectItemAt(index: baseIndex)
             }
+            lastContentOffset = contentOffset
+            lastTransitionProgress = progress
             return
         }
 
         guard rightIndex < itemDataSource.count else {
+            lastContentOffset = contentOffset
             return
         }
 
@@ -761,6 +835,9 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         rightCell?.reloadData(itemModel: itemDataSource[rightIndex], selectedType: .unknown)
 
         delegate?.segmentedView(self, scrollingFrom: baseIndex, to: rightIndex, percent: remainderProgress)
+
+        lastContentOffset = contentOffset
+        lastTransitionProgress = progress
     }
 
     private func currentItemContentWidth(at index: Int) -> CGFloat {

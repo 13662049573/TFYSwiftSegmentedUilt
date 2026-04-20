@@ -83,12 +83,8 @@ open class TFYSwiftPagingSmoothView: UIView {
         listCollectionView.showsHorizontalScrollIndicator = false
         listCollectionView.scrollsToTop = false
         listCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
-        if #available(iOS 10.0, *) {
-            listCollectionView.isPrefetchingEnabled = false
-        }
-        if #available(iOS 11.0, *) {
-            listCollectionView.contentInsetAdjustmentBehavior = .never
-        }
+        listCollectionView.isPrefetchingEnabled = false
+        listCollectionView.contentInsetAdjustmentBehavior = .never
         listCollectionView.pagingHeaderContainerView = pagingHeaderContainerView
         addSubview(listCollectionView)
     }
@@ -318,9 +314,7 @@ extension TFYSwiftPagingSmoothView: UICollectionViewDataSource, UICollectionView
                 (createdList.listScrollView() as? UITableView)?.estimatedSectionHeaderHeight = 0
                 (createdList.listScrollView() as? UITableView)?.estimatedSectionFooterHeight = 0
             }
-            if #available(iOS 11.0, *) {
-                createdList.listScrollView().contentInsetAdjustmentBehavior = .never
-            }
+            createdList.listScrollView().contentInsetAdjustmentBehavior = .never
             createdList.listScrollView().contentInset = UIEdgeInsets(top: heightForPagingHeaderContainerView, left: 0, bottom: 0, right: 0)
             currentListInitializeContentOffsetY = -heightForPagingHeaderContainerView + min(-currentPagingHeaderContainerViewY, heightForPagingHeader)
             createdList.listScrollView().contentOffset = CGPoint(x: 0, y: currentListInitializeContentOffsetY)
