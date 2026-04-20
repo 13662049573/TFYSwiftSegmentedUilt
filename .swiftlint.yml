@@ -1,0 +1,42 @@
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - type_body_length
+  - file_length
+  - function_body_length
+  - cyclomatic_complexity
+  - identifier_name
+  - nesting
+  - large_tuple
+  - type_name
+  - force_cast
+
+opt_in_rules:
+  - force_unwrapping
+  - empty_count
+  - closure_end_indentation
+  - closure_spacing
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - object_literal
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - sorted_imports
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+
+excluded:
+  - Pods
+  - .build
+  - Carthage
+  - build
+  - DerivedData
+  - TFYSwiftSegmentedUilt/ViewController.swift
+
+reporter: "xcode"
+
+force_unwrapping:
+  severity: warning

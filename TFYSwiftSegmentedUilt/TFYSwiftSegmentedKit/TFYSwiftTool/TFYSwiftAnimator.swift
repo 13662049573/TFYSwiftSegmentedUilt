@@ -14,6 +14,8 @@ import UIKit
 /// - 能在任意时刻通过 `progressClosure` 取到 0~1 的插值，方便驱动自定义属性。
 /// - 支持前后台切换：App 进入后台会自动暂停 `displayLink` 以避免跳帧；回到前台会基于暂停时的剩余进度续播。
 /// - 在 iOS 15+ / ProMotion（120Hz）设备上使用 `preferredFrameRateRange`，默认维持稳定 60~120Hz。
+/// - 线程约束：CADisplayLink、UIApplication 通知均要求主线程，调用方必须在主线程使用。
+///   未来升级 Swift 6 语言模式时建议整体标注 `@MainActor`（目前为兼容 Swift 5 call site 暂缓）。
 open class TFYSwiftAnimator {
     /// 动画时长（秒）。<= 0 会直接触发完成回调。
     open var duration: TimeInterval = 0.25
@@ -39,7 +41,12 @@ open class TFYSwiftAnimator {
     public init() {}
 
     deinit {
-        detachApplicationObservers()
+        if let willResignObserver {
+            NotificationCenter.default.removeObserver(willResignObserver)
+        }
+        if let didBecomeActiveObserver {
+            NotificationCenter.default.removeObserver(didBecomeActiveObserver)
+        }
         displayLink?.invalidate()
     }
 

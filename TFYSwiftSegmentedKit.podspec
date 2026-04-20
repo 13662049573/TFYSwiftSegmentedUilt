@@ -2,25 +2,25 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "1.2.0"
+  spec.version      = "2.0.0"
 
   spec.summary      = "一个功能强大且高度可定制的iOS分段控制框架，具有丰富的特性。"
 
   spec.description  = <<-DESC
-                     TFYSwiftSegmentedKit 是一个全面的iOS分段控制框架，提供以下功能：
+                     TFYSwiftSegmentedKit 2.0 — 纯 Swift、与 JXSegmentedView 解耦的
+                     分段控件 / 分页标签组件库。
                      功能特点：
-                     * 多种指示器样式（线条、方块、背景等）
-                     * 标题渐变效果和缩放动画
-                     * 支持图文混合显示
-                     * 自定义标题样式和富文本
-                     * 动态数字显示和角标支持
-                     * 圆点装饰和自定义布局
-                     * RTL语言支持和自适应布局
-                     * 列表容器联动与平滑动画
-                     * 所有组件的丰富自定义选项
-                     * 全面的示例项目和文档
-                     * 高效的内存管理
-                     * Swift 5.0+ 和 iOS 15.0+ 优化
+                     * 12+ 指示器样式（Line/DoubleLine/Dot/Triangle/Rainbow/Background/
+                       Gradient/GradientLine/Image/Capsule/ElasticLine/Blur/Symbol）
+                     * 标题渐变、图文混合、富文本、动态数字、角标、圆点
+                     * 拖拽重排、Context Menu、Long Press 钩子、触感反馈
+                     * 可访问性：自动订阅 Reduce Motion、accessibilityValue/hint、
+                       WCAG 对比度校验
+                     * UICollectionViewDiffableDataSource 开关 / os_signpost 诊断
+                     * Combine Publishers + async selectItem(at:animated:)
+                     * SwiftUI：TFYSwiftSegmentedView 与 TFYSwiftPagingContainer
+                     * GitHub Actions CI（build / test-spm / lint / pod-lint）
+                     * Swift 5.9 / 6.0 · iOS 15+
                      DESC
 
   spec.homepage     = "https://github.com/13662049573/TFYSwiftSegmentedUilt"
@@ -50,7 +50,8 @@ Pod::Spec.new do |spec|
                           'TFYSwiftTitleGradient',
                           'TFYSwiftTitleImage',
                           'TFYSwiftTitleOrImage',
-                          'TFYSwiftPagingView'
+                          'TFYSwiftPagingView',
+                          'TFYSwiftSwiftUI'
   
   # Tool 模块（其他模块都依赖它）
   spec.subspec 'TFYSwiftTool' do |tool|
@@ -119,6 +120,15 @@ Pod::Spec.new do |spec|
     paging.dependency 'TFYSwiftSegmentedKit/TFYSwiftTool'
     paging.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
     paging.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
+  end
+
+  # SwiftUI 封装层：TFYSwiftSegmentedView + TFYSwiftPagingContainer
+  spec.subspec 'TFYSwiftSwiftUI' do |swui|
+    swui.source_files = 'TFYSwiftSegmentedUilt/TFYSwiftSegmentedKit/TFYSwiftSwiftUI/**/*.swift'
+    swui.dependency 'TFYSwiftSegmentedKit/TFYSwiftBase'
+    swui.dependency 'TFYSwiftSegmentedKit/TFYSwiftTitle'
+    swui.dependency 'TFYSwiftSegmentedKit/TFYSwiftIndicator'
+    swui.weak_frameworks = 'SwiftUI', 'Combine'
   end
 
   spec.framework    = "UIKit"

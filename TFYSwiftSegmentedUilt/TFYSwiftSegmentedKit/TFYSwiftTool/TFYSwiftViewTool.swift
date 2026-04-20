@@ -105,4 +105,46 @@ public final class TFYSwiftViewTool {
             return interpolateColor(from: resolvedFrom, to: resolvedTo, percent: percent)
         }
     }
+
+    /// 计算两个颜色的 WCAG 2.1 对比度比例（1~21）。
+    ///
+    /// 实际 UI 文本可读性要求：
+    /// - 正文： ≥ 4.5
+    /// - 大号文字（18pt+）：≥ 3.0
+    /// - UI 图形/图标：≥ 3.0
+    ///
+    /// 本方法在 Debug 构建下也会附带一个 console warning（调用 `warnIfContrastTooLow`）。
+    public static func contrastRatio(_ lhs: UIColor, _ rhs: UIColor) -> CGFloat {
+        func relativeLuminance(_ c: UIColor) -> CGFloat {
+            func channel(_ x: CGFloat) -> CGFloat {
+                let v = x < 0.03928 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4)
+                return v
+            }
+            let r = channel(c.ge_red)
+            let g = channel(c.ge_green)
+            let b = channel(c.ge_blue)
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b
+        }
+        let l1 = relativeLuminance(lhs)
+        let l2 = relativeLuminance(rhs)
+        let (light, dark) = (Swift.max(l1, l2), Swift.min(l1, l2))
+        return (light + 0.05) / (dark + 0.05)
+    }
+
+    /// Debug 辅助：当 `foreground/background` 对比度小于 `minimum` 时在 console 输出警告。
+    /// - Parameter minimum: 默认 3.0（图形/大号文字阈值）。
+    public static func warnIfContrastTooLow(foreground: UIColor,
+                                            background: UIColor,
+                                            minimum: CGFloat = 3.0,
+                                            file: StaticString = #file,
+                                            line: UInt = #line) {
+        #if DEBUG
+        let ratio = contrastRatio(foreground, background)
+        if ratio < minimum {
+            let msg = String(format: "⚠️ TFYSwiftSegmentedKit: contrast %.2f < %.2f at %@:%d",
+                             Double(ratio), Double(minimum), "\(file)", line)
+            print(msg)
+        }
+        #endif
+    }
 }

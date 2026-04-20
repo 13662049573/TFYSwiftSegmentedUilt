@@ -85,11 +85,23 @@
 		363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3C212D44FDC400BC628D /* SceneDelegate.swift */; };
 		363B3CFF2D44FDC400BC628D /* TFYSwiftTextMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */; };
 		363B3D012D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D002D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift */; };
+		363B3D052D44FDC400BC628E /* TFYSwiftScrollDelegateMultiplexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D042D44FDC400BC628E /* TFYSwiftScrollDelegateMultiplexer.swift */; };
+		363B3D062D44FDC400BC628E /* TFYSwiftDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D072D44FDC400BC628E /* TFYSwiftDiagnostics.swift */; };
+		363B3D082D44FDC400BC628E /* TFYSwiftIndicatorCapsuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D0C2D44FDC400BC628E /* TFYSwiftIndicatorCapsuleView.swift */; };
+		363B3D092D44FDC400BC628E /* TFYSwiftIndicatorElasticLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D0D2D44FDC400BC628E /* TFYSwiftIndicatorElasticLineView.swift */; };
+		363B3D0A2D44FDC400BC628E /* TFYSwiftIndicatorBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D0E2D44FDC400BC628E /* TFYSwiftIndicatorBlurView.swift */; };
+		363B3D0B2D44FDC400BC628E /* TFYSwiftIndicatorSymbolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D0F2D44FDC400BC628E /* TFYSwiftIndicatorSymbolView.swift */; };
+		363B3D102D44FDC400BC628E /* TFYSwiftHapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */; };
+		363B3D122D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */; };
+		363B3E002D44FDC400BC628E /* TFYSwiftListContainerBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */; };
+		363B3E022D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3E032D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift */; };
 		3D68BB452D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */; };
 		3D68BB462D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */; };
 		3D68BB472D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */; };
 		3D68BB482D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB422D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift */; };
 		3D68BB492D62CE8700A244A7 /* TFYSwiftPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB432D62CE8700A244A7 /* TFYSwiftPagingView.swift */; };
+		846DA8822F96201400336533 /* Modern2_0Demos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846DA87F2F96201400336533 /* Modern2_0Demos.swift */; };
+		846DA8832F96201400336533 /* Modern2_0ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846DA8802F96201400336533 /* Modern2_0ListViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -173,11 +185,23 @@
 		363B3C212D44FDC400BC628D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftTextMeasure.swift; sourceTree = "<group>"; };
 		363B3D002D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftSegmentedRepresentable.swift; sourceTree = "<group>"; };
+		363B3D042D44FDC400BC628E /* TFYSwiftScrollDelegateMultiplexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftScrollDelegateMultiplexer.swift; sourceTree = "<group>"; };
+		363B3D072D44FDC400BC628E /* TFYSwiftDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftDiagnostics.swift; sourceTree = "<group>"; };
+		363B3D0C2D44FDC400BC628E /* TFYSwiftIndicatorCapsuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftIndicatorCapsuleView.swift; sourceTree = "<group>"; };
+		363B3D0D2D44FDC400BC628E /* TFYSwiftIndicatorElasticLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftIndicatorElasticLineView.swift; sourceTree = "<group>"; };
+		363B3D0E2D44FDC400BC628E /* TFYSwiftIndicatorBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftIndicatorBlurView.swift; sourceTree = "<group>"; };
+		363B3D0F2D44FDC400BC628E /* TFYSwiftIndicatorSymbolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftIndicatorSymbolView.swift; sourceTree = "<group>"; };
+		363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftHapticEngine.swift; sourceTree = "<group>"; };
+		363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftBadgeConfiguration.swift; sourceTree = "<group>"; };
+		363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftListContainerBase.swift; sourceTree = "<group>"; };
+		363B3E032D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftViewEventHandlers.swift; sourceTree = "<group>"; };
 		3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
 		3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
 		3D68BB412D62CE8700A244A7 /* TFYSwiftPagingMainTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingMainTableView.swift; sourceTree = "<group>"; };
 		3D68BB422D62CE8700A244A7 /* TFYSwiftPagingSmoothView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingSmoothView.swift; sourceTree = "<group>"; };
 		3D68BB432D62CE8700A244A7 /* TFYSwiftPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingView.swift; sourceTree = "<group>"; };
+		846DA87F2F96201400336533 /* Modern2_0Demos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modern2_0Demos.swift; sourceTree = "<group>"; };
+		846DA8802F96201400336533 /* Modern2_0ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modern2_0ListViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -345,6 +369,7 @@
 		363B3BE22D44FDC400BC628D /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				846DA8812F96201400336533 /* Modern */,
 				363B3BBA2D44FDC400BC628D /* Common */,
 				363B3BBF2D44FDC400BC628D /* Custom */,
 				363B3BE02D44FDC400BC628D /* Special */,
@@ -373,6 +398,7 @@
 				363B3BEB2D44FDC400BC628D /* TFYSwiftIndicatorParams.swift */,
 				363B3BEC2D44FDC400BC628D /* TFYSwiftIndicatorProtocol.swift */,
 				363B3BED2D44FDC400BC628D /* TFYSwiftView.swift */,
+				363B3E032D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift */,
 			);
 			path = TFYSwiftBase;
 			sourceTree = "<group>";
@@ -392,6 +418,10 @@
 			children = (
 				363B3BF32D44FDC400BC628D /* TFYSwiftComponetGradientView.swift */,
 				363B3BF42D44FDC400BC628D /* TFYSwiftIndicatorBackgroundView.swift */,
+				363B3D0C2D44FDC400BC628E /* TFYSwiftIndicatorCapsuleView.swift */,
+				363B3D0D2D44FDC400BC628E /* TFYSwiftIndicatorElasticLineView.swift */,
+				363B3D0E2D44FDC400BC628E /* TFYSwiftIndicatorBlurView.swift */,
+				363B3D0F2D44FDC400BC628E /* TFYSwiftIndicatorSymbolView.swift */,
 				363B3BF52D44FDC400BC628D /* TFYSwiftIndicatorBaseView.swift */,
 				363B3BF62D44FDC400BC628D /* TFYSwiftIndicatorDotLineView.swift */,
 				363B3BF72D44FDC400BC628D /* TFYSwiftIndicatorDoubleLineView.swift */,
@@ -464,6 +494,11 @@
 				363B3C162D44FDC400BC628D /* TFYSwiftRTLLayout.swift */,
 				363B3C172D44FDC400BC628D /* TFYSwiftViewTool.swift */,
 				363B3CFE2D44FDC400BC628D /* TFYSwiftTextMeasure.swift */,
+				363B3D042D44FDC400BC628E /* TFYSwiftScrollDelegateMultiplexer.swift */,
+				363B3D072D44FDC400BC628E /* TFYSwiftDiagnostics.swift */,
+				363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */,
+				363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */,
+				363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */,
 			);
 			path = TFYSwiftTool;
 			sourceTree = "<group>";
@@ -522,6 +557,15 @@
 			path = TFYSwiftPagingView;
 			sourceTree = "<group>";
 		};
+		846DA8812F96201400336533 /* Modern */ = {
+			isa = PBXGroup;
+			children = (
+				846DA87F2F96201400336533 /* Modern2_0Demos.swift */,
+				846DA8802F96201400336533 /* Modern2_0ListViewController.swift */,
+			);
+			path = Modern;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -552,7 +596,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					363B3AE72D44FC5500BC628D = {
 						CreatedOnToolsVersion = 16.2;
@@ -633,16 +677,23 @@
 				363B3C4E2D44FDC400BC628D /* TFYSwiftIndicatorParams.swift in Sources */,
 				363B3C4F2D44FDC400BC628D /* TFYSwiftIndicatorProtocol.swift in Sources */,
 				363B3C502D44FDC400BC628D /* TFYSwiftView.swift in Sources */,
+				363B3E022D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift in Sources */,
 				363B3C512D44FDC400BC628D /* TFYSwiftDotCell.swift in Sources */,
 				363B3C522D44FDC400BC628D /* TFYSwiftDotDataSource.swift in Sources */,
 				363B3C532D44FDC400BC628D /* TFYSwiftDotItemModel.swift in Sources */,
 				363B3C542D44FDC400BC628D /* TFYSwiftComponetGradientView.swift in Sources */,
 				363B3C552D44FDC400BC628D /* TFYSwiftIndicatorBackgroundView.swift in Sources */,
+				363B3D082D44FDC400BC628E /* TFYSwiftIndicatorCapsuleView.swift in Sources */,
+				363B3D092D44FDC400BC628E /* TFYSwiftIndicatorElasticLineView.swift in Sources */,
+				363B3D0A2D44FDC400BC628E /* TFYSwiftIndicatorBlurView.swift in Sources */,
+				363B3D0B2D44FDC400BC628E /* TFYSwiftIndicatorSymbolView.swift in Sources */,
 				363B3C562D44FDC400BC628D /* TFYSwiftIndicatorBaseView.swift in Sources */,
 				363B3C572D44FDC400BC628D /* TFYSwiftIndicatorDotLineView.swift in Sources */,
 				363B3C582D44FDC400BC628D /* TFYSwiftIndicatorDoubleLineView.swift in Sources */,
 				363B3C592D44FDC400BC628D /* TFYSwiftIndicatorGradientLineView.swift in Sources */,
 				363B3C5A2D44FDC400BC628D /* TFYSwiftIndicatorGradientView.swift in Sources */,
+				846DA8822F96201400336533 /* Modern2_0Demos.swift in Sources */,
+				846DA8832F96201400336533 /* Modern2_0ListViewController.swift in Sources */,
 				363B3C5B2D44FDC400BC628D /* TFYSwiftIndicatorImageView.swift in Sources */,
 				363B3C5C2D44FDC400BC628D /* TFYSwiftIndicatorLineView.swift in Sources */,
 				363B3C5D2D44FDC400BC628D /* TFYSwiftIndicatorRainbowLineView.swift in Sources */,
@@ -673,6 +724,11 @@
 				363B3C712D44FDC400BC628D /* TFYSwiftRTLLayout.swift in Sources */,
 				363B3C722D44FDC400BC628D /* TFYSwiftViewTool.swift in Sources */,
 				363B3CFF2D44FDC400BC628D /* TFYSwiftTextMeasure.swift in Sources */,
+				363B3D052D44FDC400BC628E /* TFYSwiftScrollDelegateMultiplexer.swift in Sources */,
+				363B3D062D44FDC400BC628E /* TFYSwiftDiagnostics.swift in Sources */,
+				363B3D102D44FDC400BC628E /* TFYSwiftHapticEngine.swift in Sources */,
+				363B3D122D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift in Sources */,
+				363B3E002D44FDC400BC628E /* TFYSwiftListContainerBase.swift in Sources */,
 				363B3D012D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift in Sources */,
 				363B3C732D44FDC400BC628D /* AppDelegate.swift in Sources */,
 				363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */,
@@ -708,7 +764,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = QH95759TSS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TFYSwiftSegmentedUilt/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -725,6 +780,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = coms.TFYSwiftSegmentedUilt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -737,7 +793,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = QH95759TSS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TFYSwiftSegmentedUilt/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -754,6 +809,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = coms.TFYSwiftSegmentedUilt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = targeted;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -794,6 +850,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = QH95759TSS;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -817,6 +874,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -857,6 +915,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = QH95759TSS;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -873,6 +932,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

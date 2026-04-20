@@ -63,7 +63,7 @@ public protocol TFYSwiftListContainerViewDataSource {
     @objc optional func scrollViewClass(in listContainerView: TFYSwiftListContainerView) -> AnyClass
 }
 
-open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwiftViewRTLCompatible {
+open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwiftViewRTLCompatible, TFYSwiftListContainerBase {
     open private(set) var type: TFYSwiftListContainerType
     open private(set) weak var dataSource: TFYSwiftListContainerViewDataSource?
     open private(set) var scrollView: UIScrollView!

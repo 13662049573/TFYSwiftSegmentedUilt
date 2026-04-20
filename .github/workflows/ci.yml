@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-app:
+    name: Build (iOS Simulator)
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app || sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Show Xcode
+        run: xcodebuild -version
+
+      - name: Pick simulator
+        id: sim
+        run: |
+          NAME=$(xcrun simctl list devices available | awk '/^-- iOS/{flag=1; next} /^--/{flag=0} flag && /iPhone/' | head -1 | sed -E 's/^[[:space:]]*(iPhone[^ (]*( [^ (]+)?).*/\1/' | xargs)
+          if [ -z "$NAME" ]; then NAME="iPhone 16"; fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Picked simulator: $NAME"
+
+      - name: xcodebuild build
+        run: |
+          xcodebuild \
+            -project TFYSwiftSegmentedUilt.xcodeproj \
+            -scheme TFYSwiftSegmentedUilt \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            build | xcpretty || exit 1
+
+  test-spm:
+    name: SPM Tests
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app || sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Pick simulator
+        id: sim
+        run: |
+          NAME=$(xcrun simctl list devices available | awk '/^-- iOS/{flag=1; next} /^--/{flag=0} flag && /iPhone/' | head -1 | sed -E 's/^[[:space:]]*(iPhone[^ (]*( [^ (]+)?).*/\1/' | xargs)
+          if [ -z "$NAME" ]; then NAME="iPhone 16"; fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: xcodebuild test (workspace)
+        run: |
+          xcodebuild \
+            -workspace TFYSwiftSegmentedKit.xcworkspace \
+            -scheme TFYSwiftSegmentedKit \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" \
+            -skipPackagePluginValidation \
+            test | xcpretty || exit 1
+
+  lint:
+    name: SwiftLint
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Run SwiftLint
+        run: swiftlint lint --reporter github-actions-logging
+
+  pod-lint:
+    name: CocoaPods Lint
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+      - name: Install CocoaPods
+        run: gem install cocoapods --no-document
+      - name: pod lib lint
+        run: pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings --fail-fast

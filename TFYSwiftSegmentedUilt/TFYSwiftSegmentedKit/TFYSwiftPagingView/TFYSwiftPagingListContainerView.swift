@@ -81,7 +81,7 @@ public protocol TFYSwiftPagingListContainerViewDataSource {
     @objc optional func listContainerView(_ listContainerView: TFYSwiftPagingListContainerView, listDidAppearAt index: Int)
 }
 
-open class TFYSwiftPagingListContainerView: UIView {
+open class TFYSwiftPagingListContainerView: UIView, TFYSwiftListContainerBase {
     public private(set) var type: TFYSwiftPagingListContainerType
     public private(set) weak var dataSource: TFYSwiftPagingListContainerViewDataSource?
     public private(set) var scrollView: UIScrollView!

@@ -119,4 +119,71 @@ public struct TFYSwiftSegmentedView: UIViewRepresentable {
     }
 }
 
+// MARK: - TFYSwiftPagingContainer (SwiftUI ViewBuilder 分页容器)
+
+/// SwiftUI 风格的分页容器：顶部是 `TFYSwiftSegmentedView`，下方是一组 SwiftUI 页面。
+/// 页面通过 `ViewBuilder` 声明，会被依次装载到 UIScrollView 上，整体与 SwiftUI 的
+/// 响应式布局配合得更自然，不再需要手动配 `TFYSwiftListContainerView` 与
+/// `TFYSwiftViewListContainer` 协议。
+///
+/// Usage:
+/// ```swift
+/// @State private var index = 0
+/// TFYSwiftPagingContainer(
+///     titles: ["Home", "Trending", "Library"],
+///     selectedIndex: $index
+/// ) {
+///     HomePage()
+///     TrendingPage()
+///     LibraryPage()
+/// }
+/// ```
+@available(iOS 15.0, *)
+public struct TFYSwiftPagingContainer<Pages: View>: View {
+    @Binding private var selectedIndex: Int
+    private let titles: [String]
+    private let segmentedHeight: CGFloat
+    private let showsIndicator: Bool
+    private let customizer: TFYSwiftSegmentedView.Customizer?
+    private let pages: Pages
+
+    public init(titles: [String],
+                selectedIndex: Binding<Int>,
+                segmentedHeight: CGFloat = 44,
+                showsIndicator: Bool = true,
+                customizer: TFYSwiftSegmentedView.Customizer? = nil,
+                @ViewBuilder pages: () -> Pages) {
+        self.titles = titles
+        self._selectedIndex = selectedIndex
+        self.segmentedHeight = segmentedHeight
+        self.showsIndicator = showsIndicator
+        self.customizer = customizer
+        self.pages = pages()
+    }
+
+    public var body: some View {
+        VStack(spacing: 0) {
+            TFYSwiftSegmentedView(titles: titles,
+                                  selectedIndex: $selectedIndex,
+                                  showsIndicator: showsIndicator,
+                                  customizer: customizer)
+                .frame(height: segmentedHeight)
+            TabView(selection: $selectedIndex) {
+                _VariadicView.Tree(PagesLayout()) {
+                    pages
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+    }
+
+    private struct PagesLayout: _VariadicView_UnaryViewRoot {
+        func body(children: _VariadicView.Children) -> some View {
+            ForEach(Array(children.enumerated()), id: \.offset) { offset, child in
+                child.tag(offset)
+            }
+        }
+    }
+}
+
 #endif

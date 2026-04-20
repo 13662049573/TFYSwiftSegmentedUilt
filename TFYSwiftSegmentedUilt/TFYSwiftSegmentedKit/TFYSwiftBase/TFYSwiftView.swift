@@ -210,6 +210,75 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     /// 默认 0，完全保留历史行为；调大（例如 0.002）可降低 ProMotion 设备下的 CPU 占用。
     open var contentScrollViewTransitionEpsilon: CGFloat = 0
 
+    /// 是否在 reloadData 阶段使用 `UICollectionViewDiffableDataSource` 作为底层驱动（默认 false）。
+    ///
+    /// 启用后内部会将 `collectionView.dataSource` 切换为一个只读的 diffable snapshot，cellProvider
+    /// 仍会走 `TFYSwiftViewDataSource` 的 `cellForItemAt`，以保持现有 cell 注册和样式兼容。
+    /// 如遇兼容性问题，可动态 toggle 到 false 回退到旧的 `UICollectionViewDataSource` 路径。
+    ///
+    /// 注意：当前版本 diffable 仅用于替代 reloadData 的“段位刷新”，所有自定义 frame/insets 仍由
+    /// `TFYSwiftViewFlowLayout`/`TFYSwiftView` 自身计算。
+    open var isDiffableDataSourceEnabled: Bool = false {
+        didSet {
+            guard oldValue != isDiffableDataSourceEnabled else { return }
+            tfy_installDiffableDataSourceIfNeeded()
+            reloadData()
+        }
+    }
+
+    private enum TFYSwiftDiffableSection: Int, Hashable { case main }
+    private var diffableDataSource: UICollectionViewDiffableDataSource<TFYSwiftDiffableSection, Int>?
+
+    /// 是否启用点击/滚动吸附切换时的触感反馈（`UISelectionFeedbackGenerator`）。默认 false。
+    open var isHapticEnabled: Bool = false
+
+    /// 是否尊重 `UIAccessibility.isReduceMotionEnabled`：启用后，在系统 Reduce Motion 场景会
+    /// 自动将 `contentScrollView` 切换动画禁用，并把指示器的默认 `scrollAnimationDuration` 设为 0。
+    /// 默认 true，符合 iOS HIG 建议。
+    open var isRespectReduceMotionEnabled: Bool = true
+
+    /// 是否启用 Context Menu（长按菜单）。需同时设置 `contextMenuProvider`。
+    open var isContextMenuEnabled: Bool = false
+
+    /// Context Menu 生成器；返回 nil 表示该 index 不展示菜单。
+    ///
+    /// 示例：
+    /// ```swift
+    /// segmentedView.isContextMenuEnabled = true
+    /// segmentedView.contextMenuProvider = { index, model in
+    ///     UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+    ///         UIMenu(title: "", children: [
+    ///             UIAction(title: "Pin", image: UIImage(systemName: "pin")) { _ in /* ... */ }
+    ///         ])
+    ///     }
+    /// }
+    /// ```
+    public var contextMenuProvider: ((_ index: Int, _ itemModel: TFYSwiftBaseItemModel) -> UIContextMenuConfiguration?)? = nil
+
+    /// 是否启用 cell 的拖拽重排。启用后用户长按一个分段并拖动即可调整顺序，拖放结束时
+    /// 会回调 `didReorderItem`，业务方需要同步更新自己的数据源并 `reloadData()`。
+    ///
+    /// - Important: 底层使用 `UICollectionView.beginInteractiveMovementForItem(at:)` 系列 API，
+    ///              要求数据源最终也要产生与重排一致的顺序，否则下一次 reloadData 会回退。
+    open var isReorderingEnabled: Bool = false {
+        didSet {
+            guard oldValue != isReorderingEnabled else { return }
+            collectionView.reorderingCadence = .immediate
+            installReorderGestureIfNeeded()
+            reorderLongPressGesture?.isEnabled = isReorderingEnabled
+        }
+    }
+
+    /// 长按触发拖拽的最小时长（秒）。默认 0.35，业务方可按需调整。
+    open var reorderMinimumPressDuration: TimeInterval = 0.35 {
+        didSet { reorderLongPressGesture?.minimumPressDuration = reorderMinimumPressDuration }
+    }
+
+    /// 拖拽重排结束后的回调：`(fromIndex, toIndex)`。
+    public var didReorderItem: ((_ fromIndex: Int, _ toIndex: Int) -> Void)? = nil
+
+    private weak var reorderLongPressGesture: UILongPressGestureRecognizer?
+
     private var itemDataSource = [TFYSwiftBaseItemModel]()
     private var innerItemSpacing: CGFloat = 0
     private var lastContentOffset: CGPoint = CGPoint.zero
@@ -446,7 +515,36 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             }
         }
         collectionView.collectionViewLayout.invalidateLayout()
-        collectionView.reloadData()
+        if isDiffableDataSourceEnabled, let diff = diffableDataSource {
+            var snapshot = NSDiffableDataSourceSnapshot<TFYSwiftDiffableSection, Int>()
+            snapshot.appendSections([.main])
+            snapshot.appendItems(Array(0..<itemDataSource.count), toSection: .main)
+            diff.apply(snapshot, animatingDifferences: false)
+        } else {
+            collectionView.reloadData()
+        }
+    }
+
+    /// 安装或卸载 diffable data source。切换后 collectionView.dataSource 会在两个实现间切换。
+    private func tfy_installDiffableDataSourceIfNeeded() {
+        if isDiffableDataSourceEnabled {
+            if diffableDataSource != nil { return }
+            let diff = UICollectionViewDiffableDataSource<TFYSwiftDiffableSection, Int>(collectionView: collectionView) { [weak self] (_, indexPath, index) -> UICollectionViewCell? in
+                guard let self = self else { return nil }
+                guard let ds = self.dataSource, index < self.itemDataSource.count else {
+                    return self.collectionView.dequeueReusableCell(withReuseIdentifier: "TFYSwiftViewInnerEmptyCell", for: indexPath)
+                }
+                let cell = ds.segmentedView(self, cellForItemAt: index)
+                let itemModel = self.itemDataSource[index]
+                cell.reloadData(itemModel: itemModel, selectedType: .unknown)
+                return cell
+            }
+            self.diffableDataSource = diff
+            collectionView.dataSource = diff
+        } else {
+            self.diffableDataSource = nil
+            collectionView.dataSource = self
+        }
     }
 
     /// 当前分段数量。
@@ -532,16 +630,24 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             return
         }
 
+        // 触发触感反馈：仅在 index 真正发生变化，且用户启用了开关时触发。
+        if isHapticEnabled && index != selectedIndex {
+            TFYSwiftHapticEngine.shared.selectionChanged()
+        }
+
         if index == selectedIndex {
             if selectedType == .code {
                 listContainer?.didClickSelectedItem(at: index)
             }else if selectedType == .click {
                 delegate?.segmentedView(self, didClickSelectedItemAt: index)
+                tfy_emit_didClickSelect(index: index)
                 listContainer?.didClickSelectedItem(at: index)
             }else if selectedType == .scroll {
                 delegate?.segmentedView(self, didScrollSelectedItemAt: index)
+                tfy_emit_didScrollSelect(index: index)
             }
             delegate?.segmentedView(self, didSelectedItemAt: index)
+            tfy_emit_didSelect(index: index)
             scrollingTargetIndex = -1
             return
         }
@@ -583,7 +689,11 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         }
 
         if let contentScrollView, (selectedType == .click || selectedType == .code), contentScrollView.bounds.size.width > 0 {
-            let animated = contentScrollViewAnimated ?? isContentScrollViewClickTransitionAnimationEnabled
+            var animated = contentScrollViewAnimated ?? isContentScrollViewClickTransitionAnimationEnabled
+            // 尊重 Reduce Motion：用户打开 Reduce Motion 时强制跳过过渡动画。
+            if isRespectReduceMotionEnabled && UIAccessibility.isReduceMotionEnabled {
+                animated = false
+            }
             contentScrollView.setContentOffset(CGPoint(x: contentScrollView.bounds.size.width*CGFloat(index), y: 0), animated: animated)
         }
 
@@ -611,11 +721,14 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             listContainer?.didClickSelectedItem(at: index)
         }else if selectedType == .click {
             delegate?.segmentedView(self, didClickSelectedItemAt: index)
+            tfy_emit_didClickSelect(index: index)
             listContainer?.didClickSelectedItem(at: index)
         }else if selectedType == .scroll {
             delegate?.segmentedView(self, didScrollSelectedItemAt: index)
+            tfy_emit_didScrollSelect(index: index)
         }
         delegate?.segmentedView(self, didSelectedItemAt: index)
+        tfy_emit_didSelect(index: index)
     }
 
     @discardableResult
@@ -835,6 +948,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         rightCell?.reloadData(itemModel: itemDataSource[rightIndex], selectedType: .unknown)
 
         delegate?.segmentedView(self, scrollingFrom: baseIndex, to: rightIndex, percent: remainderProgress)
+        tfy_emit_scrollingProgress(from: baseIndex, to: rightIndex, percent: remainderProgress)
 
         lastContentOffset = contentOffset
         lastTransitionProgress = progress
@@ -882,6 +996,84 @@ extension TFYSwiftView: UICollectionViewDelegate {
         if !isTransitionAnimating {
             //当前没有正在过渡的item，才允许点击选中
             clickSelectItemAt(index: indexPath.item)
+        }
+    }
+
+    /// Context Menu 钩子：外部通过 `contextMenuProvider` 闭包返回一个 `UIContextMenuConfiguration`
+    /// 即可启用标题的长按菜单。返回 nil 表示该 item 不展示菜单。
+    public func collectionView(_ collectionView: UICollectionView,
+                                contextMenuConfigurationForItemAt indexPath: IndexPath,
+                                point: CGPoint) -> UIContextMenuConfiguration? {
+        guard isContextMenuEnabled, let provider = contextMenuProvider else { return nil }
+        guard itemDataSource.indices.contains(indexPath.item) else { return nil }
+        return provider(indexPath.item, itemDataSource[indexPath.item])
+    }
+
+    public func collectionView(_ collectionView: UICollectionView,
+                                canMoveItemAt indexPath: IndexPath) -> Bool {
+        return isReorderingEnabled
+    }
+
+    public func collectionView(_ collectionView: UICollectionView,
+                                moveItemAt sourceIndexPath: IndexPath,
+                                to destinationIndexPath: IndexPath) {
+        guard isReorderingEnabled,
+              itemDataSource.indices.contains(sourceIndexPath.item),
+              itemDataSource.indices.contains(destinationIndexPath.item) else { return }
+        let moved = itemDataSource.remove(at: sourceIndexPath.item)
+        itemDataSource.insert(moved, at: destinationIndexPath.item)
+        // 更新 selectedIndex 跟随拖拽目标，避免高亮错位。
+        if selectedIndex == sourceIndexPath.item {
+            selectedIndex = destinationIndexPath.item
+        } else if sourceIndexPath.item < selectedIndex, destinationIndexPath.item >= selectedIndex {
+            selectedIndex -= 1
+        } else if sourceIndexPath.item > selectedIndex, destinationIndexPath.item <= selectedIndex {
+            selectedIndex += 1
+        }
+        rebuildItemStartXCacheAfterReorder()
+        didReorderItem?(sourceIndexPath.item, destinationIndexPath.item)
+    }
+
+    /// 外部只读：拖拽后给业务方看的顺序（按 itemModel.index 当前状态）。
+    private func rebuildItemStartXCacheAfterReorder() {
+        // 重新累积 x 起点，保持 indicator 位置正确；本身不是 public API。
+        for (i, model) in itemDataSource.enumerated() { model.index = i }
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+
+    // MARK: - Interactive reorder (long press)
+
+    private func installReorderGestureIfNeeded() {
+        guard reorderLongPressGesture == nil else { return }
+        let gr = UILongPressGestureRecognizer(target: self,
+                                              action: #selector(tfy_handleReorderLongPress(_:)))
+        gr.minimumPressDuration = reorderMinimumPressDuration
+        gr.cancelsTouchesInView = false
+        collectionView.addGestureRecognizer(gr)
+        reorderLongPressGesture = gr
+    }
+
+    @objc private func tfy_handleReorderLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard isReorderingEnabled else {
+            if gesture.state == .began { gesture.state = .cancelled }
+            return
+        }
+        switch gesture.state {
+        case .began:
+            let location = gesture.location(in: collectionView)
+            guard let indexPath = collectionView.indexPathForItem(at: location) else { return }
+            if !collectionView.beginInteractiveMovementForItem(at: indexPath) {
+                gesture.state = .cancelled
+            }
+        case .changed:
+            var location = gesture.location(in: collectionView)
+            // 横向 segmented 只关心 X 方向跟手，Y 锁死防止乱跳。
+            location.y = collectionView.bounds.midY
+            collectionView.updateInteractiveMovementTargetPosition(location)
+        case .ended:
+            collectionView.endInteractiveMovement()
+        default:
+            collectionView.cancelInteractiveMovement()
         }
     }
 }

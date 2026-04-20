@@ -16,6 +16,16 @@ class MainViewController: UITableViewController {
         tableView.rowHeight = 44
         title = "TFYSwiftView Example"
         configNavigationBar()
+
+        let bar = UIBarButtonItem(title: "2.0 新特性",
+                                  style: .plain,
+                                  target: self,
+                                  action: #selector(showModern2_0))
+        navigationItem.rightBarButtonItem = bar
+    }
+
+    @objc private func showModern2_0() {
+        navigationController?.pushViewController(Modern2_0ListViewController(), animated: true)
     }
     
     private func configNavigationBar() {

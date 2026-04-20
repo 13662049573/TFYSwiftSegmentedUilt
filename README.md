@@ -3,10 +3,31 @@
 [![Version](https://img.shields.io/cocoapods/v/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
 [![License](https://img.shields.io/cocoapods/l/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
 [![Platform](https://img.shields.io/cocoapods/p/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
-[![Swift](https://img.shields.io/badge/Swift-5.0-orange.svg)](https://swift.org)
-[![Email](https://img.shields.io/badge/Email-420144542@qq.com-blue.svg)](mailto:420144542@qq.com)
+[![Swift](https://img.shields.io/badge/Swift-5.9%20%7C%206.0-orange.svg)](https://swift.org)
+[![iOS](https://img.shields.io/badge/iOS-13.0%2B-blue.svg)](https://developer.apple.com/ios/)
+[![SPM](https://img.shields.io/badge/SPM-ready-brightgreen.svg)](https://swift.org/package-manager/)
+[![CI](https://img.shields.io/badge/CI-GitHub_Actions-blueviolet.svg)](.github/workflows/ci.yml)
 
-TFYSwiftSegmentedKit 是一个功能强大的 iOS 分段选择器框架，使用 Swift 编写。它提供了丰富的自定义选项和灵活的配置方式。
+> 🇨🇳 中文版（本节） · 🇺🇸 [English](#english)
+
+TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件库。从 2.0 起，框架彻底与 JXSegmentedView 解耦并全面现代化：提供了严格并发安全的底层、12+ 指示器、SwiftUI 封装、Combine 订阅、async API、拖拽重排、Context Menu、触感反馈以及开箱即用的 CI/Lint/测试闭环。
+
+## 目录
+
+- [预览](#预览)
+- [特性](#特性)
+- [安装](#安装)
+- [快速开始](#快速开始)
+- [2.0 新能力速览](#20-新能力速览)
+- [SwiftUI](#swiftui)
+- [Combine / async](#combine--async)
+- [指示器图库](#指示器图库)
+- [可访问性 / 触感 / 减弱动画](#可访问性--触感--减弱动画)
+- [Badge](#badge)
+- [性能与诊断](#性能与诊断)
+- [测试 & CI](#测试--ci)
+- [迁移到 2.0](#迁移到-20)
+- [许可](#许可)
 
 ## 预览
 
@@ -246,3 +267,159 @@ A: 框架内部已处理循环引用问题，使用时注意避免强引用即�
 ## 许可证
 
 TFYSwiftSegmentedKit 基于 MIT 许可证开源。详见 [LICENSE](LICENSE) 文件。
+
+## 2.0 新能力速览
+
+| 模块 | 新能力 |
+| --- | --- |
+| 并发 | `SWIFT_STRICT_CONCURRENCY=targeted`，`TFYSwiftTextMeasure` `@unchecked Sendable`，主线程 API 收敛 |
+| 性能 | `UICollectionViewDiffableDataSource` 开关、`TFYSwiftScrollDelegateMultiplexer` 多代理复用、`TFYSwiftDiagnostics` `os_signpost` |
+| 指示器 | 新增 **Capsule / ElasticLine / Blur / Symbol** 4 种，共 12+ |
+| 交互 | 拖拽重排（`isReorderingEnabled`）、Context Menu、Long Press 钩子、`TFYSwiftHapticEngine` |
+| 可访问性 | 自动订阅 `isReduceMotionEnabled`、`accessibilityValue`/`accessibilityHint`、`TFYSwiftViewTool.contrastRatio` |
+| API | `TFYSwiftViewEventHandlers`、`selectedIndexPublisher`、`scrollingProgressPublisher`、`async selectItem(at:animated:)` |
+| SwiftUI | `TFYSwiftSegmentedView`、`TFYSwiftPagingContainer(ViewBuilder)` |
+| 工具链 | SPM 工作区联合、XCTest 扩充、GitHub Actions CI（build / test-spm / lint / pod-lint） |
+
+## SwiftUI
+
+```swift
+@State private var index = 0
+
+TFYSwiftPagingContainer(titles: ["Home", "Trending", "Library"],
+                       selectedIndex: $index) {
+    HomePage()
+    TrendingPage()
+    LibraryPage()
+}
+```
+
+## Combine / async
+
+```swift
+view.selectedIndexPublisher
+    .sink { print("selected = \($0)") }
+    .store(in: &bag)
+
+Task {
+    await view.selectItem(at: 2, animated: true)
+    print("done")
+}
+```
+
+## 可访问性 / 触感 / 减弱动画
+
+```swift
+view.isHapticEnabled = true
+view.isRespectReduceMotionEnabled = true
+TFYSwiftViewTool.warnIfContrastTooLow(foreground: .white,
+                                      background: .systemBlue)
+```
+
+## Badge
+
+```swift
+titleCell.tfy_applyBadge(TFYSwiftBadgeConfiguration(style: .number(12),
+                                                   backgroundColor: .systemRed))
+```
+
+## 性能与诊断
+
+```swift
+TFYSwiftDiagnostics.shared.isSignpostEnabled = true
+TFYSwiftDiagnostics.shared.isVerboseLoggingEnabled = true
+view.isDiffableDataSourceEnabled = true
+```
+
+## 测试 & CI
+
+```bash
+xcodebuild test -workspace TFYSwiftSegmentedKit.xcworkspace \
+                -scheme TFYSwiftSegmentedKit \
+                -destination 'platform=iOS Simulator,name=iPhone 16'
+swiftlint lint
+pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
+```
+
+## 迁移到 2.0
+
+- 新代码请使用 `TFYSwiftListContainerBase` 协议接收容器，避免绑定具体类。
+- `itemContentWidth` 已标记 `@available(*, deprecated, renamed: "itemWidth")`，请切换为 `itemWidth`。
+- 具体变更详见 [MIGRATION.md](MIGRATION.md) 与 [CHANGELOG.md](CHANGELOG.md)。
+
+---
+
+<a name="english"></a>
+
+# TFYSwiftSegmentedKit (English)
+
+A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is fully independent from JXSegmentedView, with strict-concurrency-ready internals, 12+ indicators, a SwiftUI wrapper, Combine/async APIs, drag-to-reorder, context menus, haptics, and an out-of-the-box CI / lint / test pipeline.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [What's New in 2.0](#whats-new-in-20)
+- [SwiftUI](#swiftui-1)
+- [Combine & async](#combine--async)
+- [Indicators Gallery](#indicators-gallery)
+- [Accessibility · Haptics · Reduce Motion](#accessibility--haptics--reduce-motion)
+- [Badge](#badge-1)
+- [Diagnostics](#diagnostics)
+- [Testing & CI](#testing--ci)
+- [Migration Guide](#migration-guide)
+- [License](#license-1)
+
+## Features
+
+- 12+ indicator styles (Line / DoubleLine / Dot / Triangle / Rainbow / Background / Gradient / GradientLine / Image / Capsule / ElasticLine / Blur / Symbol)
+- Title / Title+Image / Image-over-Title / Attributed / Dot / Number / Gradient cells
+- RTL support, dynamic type, accessibility traits & values
+- Paging container + smooth paging variant
+- Drag-to-reorder, context menu, long-press hook, haptic feedback
+- SwiftUI: `TFYSwiftSegmentedView` and `TFYSwiftPagingContainer(ViewBuilder)`
+- Combine publishers (`selectedIndexPublisher`, `scrollingProgressPublisher`)
+- `async func selectItem(at:animated:)`
+- SPM, CocoaPods, Xcode 16+, iOS 13+
+
+## Installation
+
+### Swift Package Manager
+
+```swift
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.0")
+```
+
+### CocoaPods
+
+```ruby
+pod 'TFYSwiftSegmentedKit', '~> 2.0'
+```
+
+## Quick Start
+
+```swift
+let view = TFYSwiftView()
+let ds = TFYSwiftTitleDataSource()
+ds.titles = ["Home", "Trending", "Library"]
+view.dataSource = ds
+view.indicators = [TFYSwiftIndicatorLineView()]
+```
+
+## What's New in 2.0
+
+See the Chinese section above — all bullet points are identical in English. Highlights:
+
+- Strict concurrency-targeted code base, thread-safe text measurement cache.
+- `UICollectionViewDiffableDataSource` toggle, os_signpost diagnostics.
+- 4 new indicators: Capsule, Elastic Line, Blur, Symbol.
+- Drag-to-reorder, Context Menu, haptic & reduce-motion awareness.
+- Event-handlers struct + Combine publishers + `async` selection.
+- `TFYSwiftPagingContainer` SwiftUI ViewBuilder container.
+- Unified `TFYSwiftListContainerBase` protocol for both list containers.
+- GitHub Actions CI (build / test-spm / lint / pod-lint).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
