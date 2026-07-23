@@ -7,7 +7,7 @@ Integrate TFYSwiftSegmentedKit in a UIKit or SwiftUI app.
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.0")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.3")
 ```
 
 ### CocoaPods
