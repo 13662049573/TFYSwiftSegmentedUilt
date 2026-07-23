@@ -34,7 +34,19 @@ final class Modern2_0ListViewController: UITableViewController {
                 make: { PagingListRefreshDemoViewController() }),
             Row(title: "SwiftUI · TFYSwiftSegmentedView",
                 subtitle: "仅标题条 Representable（无分页容器）",
-                make: { Modern2_0SwiftUIBarViewController() })
+                make: { Modern2_0SwiftUIBarViewController() }),
+            Row(title: "左右 Accessory（筛选/更多）",
+                subtitle: "leadingAccessoryView / trailingAccessoryView",
+                make: { AccessoryChromeDemoViewController() }),
+            Row(title: "等宽 + 禁用态 + 反选",
+                subtitle: "itemWidthMode.equal / itemEnabledStates / allowsDeselection",
+                make: { EqualWidthEnabledDeselectDemoViewController() }),
+            Row(title: "混排 titleImageTypes",
+                subtitle: "按 index 指定图文布局类型",
+                make: { TitleImageTypesDemoViewController() }),
+            Row(title: "SwiftUI · ListPagingContainer",
+                subtitle: "真实 ListContainer 联动（指示器进度）",
+                make: { Modern2_0SwiftUIListPagingViewController() })
         ]),
         Section(header: "B · 性能与诊断", rows: [
             Row(title: "UICollectionViewDiffableDataSource",

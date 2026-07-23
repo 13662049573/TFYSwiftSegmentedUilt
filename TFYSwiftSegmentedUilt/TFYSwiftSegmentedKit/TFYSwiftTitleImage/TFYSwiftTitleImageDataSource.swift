@@ -19,6 +19,8 @@ public enum TFYSwiftTitleImageType {
 
 open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
     open var titleImageType: TFYSwiftTitleImageType = .rightImage
+    /// 按 index 指定图文类型；`nil` 或越界时回退到 `titleImageType`。
+    open var titleImageTypes: [TFYSwiftTitleImageType]?
     /// 数量需要和item的数量保持一致。可以是ImageName或者图片网络地址
     open var normalImageInfos: [String]?
     /// 数量需要和item的数量保持一致。可以是ImageName或者图片网络地址。如果不赋值，选中时就不会处理图片切换。
@@ -40,6 +42,13 @@ open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
         return TFYSwiftTitleImageItemModel()
     }
 
+    private func imageType(at index: Int) -> TFYSwiftTitleImageType {
+        if let types = titleImageTypes, types.indices.contains(index) {
+            return types[index]
+        }
+        return titleImageType
+    }
+
     open override func preferredRefreshItemModel(_ itemModel: TFYSwiftBaseItemModel, at index: Int, selectedIndex: Int) {
         super.preferredRefreshItemModel(itemModel, at: index, selectedIndex: selectedIndex)
 
@@ -47,7 +56,7 @@ open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
             return
         }
 
-        itemModel.titleImageType = titleImageType
+        itemModel.titleImageType = imageType(at: index)
         itemModel.normalImageInfo = normalImageInfos?[safe: index]
         itemModel.selectedImageInfo = selectedImageInfos?[safe: index]
         itemModel.loadImageClosure = loadImageClosure
@@ -67,7 +76,7 @@ open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
     open override func preferredSegmentedView(_ segmentedView: TFYSwiftView, widthForItemAt index: Int) -> CGFloat {
         var width = super.preferredSegmentedView(segmentedView, widthForItemAt: index)
         if itemWidth == TFYSwiftViewAutomaticDimension {
-            switch titleImageType {
+            switch imageType(at: index) {
             case .leftImage, .rightImage:
                 width += titleImageSpacing + imageSize.width
             case .topImage, .bottomImage:
@@ -85,7 +94,7 @@ open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
 
     public override func segmentedView(_ segmentedView: TFYSwiftView, widthForItemContentAt index: Int) -> CGFloat {
         var width = super.segmentedView(segmentedView, widthForItemContentAt: index)
-        switch titleImageType {
+        switch imageType(at: index) {
         case .leftImage, .rightImage:
             width += titleImageSpacing + imageSize.width
         case .topImage, .bottomImage:
@@ -131,5 +140,24 @@ open class TFYSwiftTitleImageDataSource: TFYSwiftTitleDataSource {
 
         myCurrentSelectedItemModel.imageCurrentZoomScale = myCurrentSelectedItemModel.imageNormalZoomScale
         myWillSelectedItemModel.imageCurrentZoomScale = myWillSelectedItemModel.imageSelectedZoomScale
+    }
+
+    open override func didReorderItem(from fromIndex: Int, to toIndex: Int) {
+        super.didReorderItem(from: fromIndex, to: toIndex)
+        if var types = titleImageTypes, types.indices.contains(fromIndex), toIndex >= 0, toIndex <= types.count {
+            let value = types.remove(at: fromIndex)
+            types.insert(value, at: min(toIndex, types.count))
+            titleImageTypes = types
+        }
+        if var normals = normalImageInfos, normals.indices.contains(fromIndex), toIndex >= 0, toIndex <= normals.count {
+            let value = normals.remove(at: fromIndex)
+            normals.insert(value, at: min(toIndex, normals.count))
+            normalImageInfos = normals
+        }
+        if var selecteds = selectedImageInfos, selecteds.indices.contains(fromIndex), toIndex >= 0, toIndex <= selecteds.count {
+            let value = selecteds.remove(at: fromIndex)
+            selecteds.insert(value, at: min(toIndex, selecteds.count))
+            selectedImageInfos = selecteds
+        }
     }
 }

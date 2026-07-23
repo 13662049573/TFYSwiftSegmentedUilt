@@ -220,4 +220,191 @@ public struct TFYSwiftPagingContainer: View {
     }
 }
 
+// MARK: - TFYSwiftListPagingContainer（真实 ListContainer 联动）
+
+/// 使用 `TFYSwiftView` + `TFYSwiftListContainerView` 的 SwiftUI 分页容器。
+/// 与 `TFYSwiftPagingContainer`（TabView 门面）不同，滑动时指示器进度与 UIKit 路径一致，并支持懒加载列表。
+///
+/// Usage:
+/// ```swift
+/// TFYSwiftListPagingContainer(titles: titles, selectedIndex: $index) { index in
+///     Text("Page \(index)")
+/// }
+/// ```
+@available(iOS 15.0, *)
+public struct TFYSwiftListPagingContainer<Page: View>: UIViewControllerRepresentable {
+    @Binding public var selectedIndex: Int
+    public let titles: [String]
+    public let segmentedHeight: CGFloat
+    public let showsIndicator: Bool
+    public let customizer: TFYSwiftSegmentedView.Customizer?
+    public let pageBuilder: (Int) -> Page
+
+    public init(titles: [String],
+                selectedIndex: Binding<Int>,
+                segmentedHeight: CGFloat = 44,
+                showsIndicator: Bool = true,
+                customizer: TFYSwiftSegmentedView.Customizer? = nil,
+                @ViewBuilder page: @escaping (Int) -> Page) {
+        self.titles = titles
+        self._selectedIndex = selectedIndex
+        self.segmentedHeight = segmentedHeight
+        self.showsIndicator = showsIndicator
+        self.customizer = customizer
+        self.pageBuilder = page
+    }
+
+    public func makeUIViewController(context: Context) -> TFYSwiftListPagingHostController<Page> {
+        TFYSwiftListPagingHostController(
+            titles: titles,
+            selectedIndex: selectedIndex,
+            segmentedHeight: segmentedHeight,
+            showsIndicator: showsIndicator,
+            customizer: customizer,
+            pageBuilder: pageBuilder
+        )
+    }
+
+    public func updateUIViewController(_ uiViewController: TFYSwiftListPagingHostController<Page>, context: Context) {
+        uiViewController.onIndexChange = { index in
+            DispatchQueue.main.async {
+                selectedIndex = index
+            }
+        }
+        uiViewController.update(titles: titles,
+                                selectedIndex: selectedIndex,
+                                showsIndicator: showsIndicator,
+                                customizer: customizer,
+                                pageBuilder: pageBuilder)
+    }
+}
+
+@available(iOS 15.0, *)
+public final class TFYSwiftListPagingHostController<Page: View>: UIViewController,
+                                                                  TFYSwiftListContainerViewDataSource,
+                                                                  TFYSwiftViewDelegate {
+    private let segmentedView = TFYSwiftView()
+    private let dataSource = TFYSwiftTitleDataSource()
+    private lazy var listContainerView = TFYSwiftListContainerView(dataSource: self)
+    private var titles: [String]
+    private var segmentedHeight: CGFloat
+    private var showsIndicator: Bool
+    private var customizer: TFYSwiftSegmentedView.Customizer?
+    private var pageBuilder: (Int) -> Page
+    private var lastAppliedIndex: Int = -1
+    var onIndexChange: ((Int) -> Void)?
+
+    public init(titles: [String],
+                selectedIndex: Int,
+                segmentedHeight: CGFloat,
+                showsIndicator: Bool,
+                customizer: TFYSwiftSegmentedView.Customizer?,
+                pageBuilder: @escaping (Int) -> Page) {
+        self.titles = titles
+        self.segmentedHeight = segmentedHeight
+        self.showsIndicator = showsIndicator
+        self.customizer = customizer
+        self.pageBuilder = pageBuilder
+        super.init(nibName: nil, bundle: nil)
+        dataSource.titles = titles
+        dataSource.isTitleDynamicTypeEnabled = true
+        segmentedView.dataSource = dataSource
+        segmentedView.delegate = self
+        segmentedView.defaultSelectedIndex = max(0, min(selectedIndex, max(titles.count - 1, 0)))
+        if showsIndicator {
+            segmentedView.indicators = [TFYSwiftIndicatorLineView()]
+        }
+        customizer?(segmentedView, dataSource)
+        segmentedView.listContainer = listContainerView
+    }
+
+    required public init?(coder: NSCoder) { fatalError() }
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        view.addSubview(segmentedView)
+        view.addSubview(listContainerView)
+        listContainerView.isScrollEnabled = true
+        segmentedView.reloadData()
+    }
+
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let top = view.safeAreaInsets.top
+        segmentedView.frame = CGRect(x: 0, y: top, width: view.bounds.width, height: segmentedHeight)
+        listContainerView.frame = CGRect(x: 0,
+                                         y: segmentedView.frame.maxY,
+                                         width: view.bounds.width,
+                                         height: view.bounds.height - segmentedView.frame.maxY)
+    }
+
+    func update(titles: [String],
+                selectedIndex: Int,
+                showsIndicator: Bool,
+                customizer: TFYSwiftSegmentedView.Customizer?,
+                pageBuilder: @escaping (Int) -> Page) {
+        self.pageBuilder = pageBuilder
+        self.customizer = customizer
+        self.showsIndicator = showsIndicator
+        if self.titles != titles {
+            self.titles = titles
+            dataSource.titles = titles
+            customizer?(segmentedView, dataSource)
+            segmentedView.reloadData()
+            listContainerView.reloadData()
+        }
+        let clamped = max(0, min(selectedIndex, max(titles.count - 1, 0)))
+        if clamped != lastAppliedIndex && clamped != segmentedView.selectedIndex {
+            lastAppliedIndex = clamped
+            segmentedView.selectItemAt(index: clamped, animated: true)
+        }
+    }
+
+    public func numberOfLists(in listContainerView: TFYSwiftListContainerView) -> Int {
+        titles.count
+    }
+
+    public func listContainerView(_ listContainerView: TFYSwiftListContainerView,
+                                  initListAt index: Int) -> TFYSwiftListContainerViewListDelegate {
+        // 不要在这里 addChild：ListContainer 会把返回的 UIViewController
+        // 正确地挂到 containerVC 下。提前挂到 self 会导致滑动初始化时
+        // UIHostingController 父子层级冲突闪退。
+        return TFYSwiftHostingListController(rootView: pageBuilder(index))
+    }
+
+    public func segmentedView(_ segmentedView: TFYSwiftView, didSelectedItemAt index: Int) {
+        lastAppliedIndex = index
+        onIndexChange?(index)
+    }
+}
+
+/// 作为 ListContainer 子 VC 的 SwiftUI 页面壳：自身可被 `addChild`，
+/// 内部再托管 `UIHostingController`，保证 view 层级与 VC 父子一致。
+@available(iOS 15.0, *)
+private final class TFYSwiftHostingListController<Page: View>: UIViewController,
+                                                                TFYSwiftListContainerViewListDelegate {
+    private let host: UIHostingController<Page>
+
+    init(rootView: Page) {
+        self.host = UIHostingController(rootView: rootView)
+        super.init(nibName: nil, bundle: nil)
+        host.view.backgroundColor = .clear
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .clear
+        addChild(host)
+        host.view.frame = view.bounds
+        host.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(host.view)
+        host.didMove(toParent: self)
+    }
+
+    func listView() -> UIView { view }
+}
+
 #endif

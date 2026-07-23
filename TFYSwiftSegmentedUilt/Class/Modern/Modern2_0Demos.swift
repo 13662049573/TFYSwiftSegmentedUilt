@@ -948,3 +948,144 @@ private final class RefreshDemoListView: UIView, TFYSwiftPagingViewListViewDeleg
         return cell
     }
 }
+
+// MARK: - A. Accessory / Equal / Enabled / ImageTypes / ListPaging
+
+final class AccessoryChromeDemoViewController: Modern2_0BaseViewController {
+    override func configure() {
+        super.configure()
+        let filter = UIButton(type: .system)
+        filter.setImage(UIImage(systemName: "line.3.horizontal.decrease.circle"), for: .normal)
+        filter.frame = CGRect(x: 0, y: 0, width: 36, height: 44)
+        filter.addTarget(self, action: #selector(onFilter), for: .touchUpInside)
+
+        let more = UIButton(type: .system)
+        more.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        more.frame = CGRect(x: 0, y: 0, width: 36, height: 44)
+        more.addTarget(self, action: #selector(onMore), for: .touchUpInside)
+
+        segmentedView.leadingAccessoryView = filter
+        segmentedView.trailingAccessoryView = more
+        segmentedView.accessorySpacing = 4
+        segmentedView.indicators = [TFYSwiftIndicatorLineView()]
+    }
+
+    @objc private func onFilter() {
+        let alert = UIAlertController(title: "筛选", message: "leadingAccessoryView 点击", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    @objc private func onMore() {
+        let alert = UIAlertController(title: "更多", message: "trailingAccessoryView 点击", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+final class EqualWidthEnabledDeselectDemoViewController: Modern2_0BaseViewController {
+    private let shortTitles = ["推荐", "关注", "同城", "直播"]
+
+    override func configure() {
+        let ds = TFYSwiftTitleDataSource()
+        ds.titles = shortTitles
+        ds.itemWidthMode = .equal
+        ds.itemSpacing = 0
+        ds.isItemSpacingAverageEnabled = false
+        ds.titleNormalColor = .secondaryLabel
+        ds.titleSelectedColor = .systemBlue
+        ds.titleNormalFont = .systemFont(ofSize: 15, weight: .medium)
+        ds.titleSelectedFont = .systemFont(ofSize: 15, weight: .semibold)
+        ds.itemEnabledStates = [true, true, false, true]
+        ds.applyNumberBadges([0, 3, 0, 1])
+        dataSourceStrongRef = ds
+        segmentedView.dataSource = ds
+        segmentedView.contentEdgeInsetLeft = 0
+        segmentedView.contentEdgeInsetRight = 0
+        segmentedView.allowsDeselection = true
+        segmentedView.isHapticEnabled = true
+
+        let bg = TFYSwiftIndicatorBackgroundView()
+        bg.indicatorHeight = 32
+        bg.indicatorWidthIncrement = 0
+        bg.indicatorColor = UIColor.systemBlue.withAlphaComponent(0.15)
+        segmentedView.indicators = [bg]
+    }
+
+    override func numberOfLists(in listContainerView: TFYSwiftListContainerView) -> Int {
+        shortTitles.count
+    }
+
+    override func listContainerView(_ listContainerView: TFYSwiftListContainerView,
+                                    initListAt index: Int) -> TFYSwiftListContainerViewListDelegate {
+        Modern2_0PageViewController(index: index, title: shortTitles[safe: index] ?? "")
+    }
+}
+
+final class TitleImageTypesDemoViewController: Modern2_0BaseViewController {
+    private let mixTitles = ["首页", "视频", "消息", "我"]
+
+    override func configure() {
+        let ds = TFYSwiftTitleImageDataSource()
+        ds.titles = mixTitles
+        ds.titleImageTypes = [.topImage, .leftImage, .onlyTitle, .onlyImage]
+        ds.normalImageInfos = ["house", "play.rectangle", "", "person"]
+        ds.selectedImageInfos = ["house.fill", "play.rectangle.fill", "", "person.fill"]
+        ds.loadImageClosure = { imageView, info in
+            imageView.image = UIImage(systemName: info)
+        }
+        ds.imageSize = CGSize(width: 18, height: 18)
+        ds.titleImageSpacing = 4
+        ds.titleNormalColor = .secondaryLabel
+        ds.titleSelectedColor = .label
+        dataSourceStrongRef = ds
+        segmentedView.dataSource = ds
+        segmentedView.indicators = [TFYSwiftIndicatorLineView()]
+    }
+
+    override func numberOfLists(in listContainerView: TFYSwiftListContainerView) -> Int {
+        mixTitles.count
+    }
+
+    override func listContainerView(_ listContainerView: TFYSwiftListContainerView,
+                                    initListAt index: Int) -> TFYSwiftListContainerViewListDelegate {
+        Modern2_0PageViewController(index: index, title: mixTitles[safe: index] ?? "")
+    }
+}
+
+final class Modern2_0SwiftUIListPagingViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        let host = UIHostingController(rootView: Modern2_0SwiftUIListPagingDemo())
+        addChild(host)
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(host.view)
+        NSLayoutConstraint.activate([
+            host.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        host.didMove(toParent: self)
+    }
+}
+
+private struct Modern2_0SwiftUIListPagingDemo: View {
+    @State private var index = 0
+    private let titles = ["发现", "关注", "同城", "直播"]
+
+    var body: some View {
+        TFYSwiftListPagingContainer(titles: titles, selectedIndex: $index) { page in
+            ZStack {
+                Color(hue: Double(page) * 0.18, saturation: 0.18, brightness: 0.96)
+                VStack(spacing: 8) {
+                    Text("ListContainer Page \(page)")
+                        .font(.title3.weight(.semibold))
+                    Text(titles[page])
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}

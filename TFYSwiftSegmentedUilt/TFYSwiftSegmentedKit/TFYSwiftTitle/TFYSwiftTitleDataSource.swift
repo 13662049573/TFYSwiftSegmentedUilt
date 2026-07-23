@@ -48,6 +48,14 @@ open class TFYSwiftTitleDataSource: TFYSwiftBaseDataSource {
         return titles.count
     }
 
+    open override func didReorderItem(from fromIndex: Int, to toIndex: Int) {
+        super.didReorderItem(from: fromIndex, to: toIndex)
+        guard titles.indices.contains(fromIndex),
+              toIndex >= 0, toIndex < titles.count else { return }
+        let title = titles.remove(at: fromIndex)
+        titles.insert(title, at: toIndex)
+    }
+
     open override func preferredItemModelInstance() -> TFYSwiftBaseItemModel {
         return TFYSwiftTitleItemModel()
     }

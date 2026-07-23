@@ -153,6 +153,8 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             if oldValue !== contentScrollView {
                 contentScrollObservation?.invalidate()
                 contentScrollObservation = nil
+                contentScrollDelegateMux?.uninstall()
+                contentScrollDelegateMux = nil
                 oldValue?.scrollsToTop = true
             }
             contentScrollView?.scrollsToTop = false
@@ -192,6 +194,32 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     open var contentEdgeInsetRight: CGFloat = TFYSwiftViewAutomaticDimension
     /// 点击切换的时候，contentScrollView的切换是否需要动画
     open var isContentScrollViewClickTransitionAnimationEnabled: Bool = true
+    /// 再次点击已选中 item 时是否允许取消选中（隐藏指示器、清除选中态）。默认 false。
+    open var allowsDeselection: Bool = false
+    /// 点击仅触发回调、不改变选中态（类似 `UISegmentedControl` momentary）。默认 false。
+    open var isMomentary: Bool = false
+    /// 左侧附属视图（筛选 / 返回等），会挤压 `collectionView` 可用宽度。
+    open var leadingAccessoryView: UIView? {
+        didSet {
+            oldValue?.removeFromSuperview()
+            if let leadingAccessoryView {
+                addSubview(leadingAccessoryView)
+            }
+            setNeedsLayout()
+        }
+    }
+    /// 右侧附属视图（更多 / 搜索等）。
+    open var trailingAccessoryView: UIView? {
+        didSet {
+            oldValue?.removeFromSuperview()
+            if let trailingAccessoryView {
+                addSubview(trailingAccessoryView)
+            }
+            setNeedsLayout()
+        }
+    }
+    /// 附属视图与 `collectionView` 之间的间距。
+    open var accessorySpacing: CGFloat = 8
     /// 滑动是否禁止
     open var isScrollEnabled:Bool = true {
         didSet {
@@ -286,6 +314,13 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     /// 正在滚动中的目标index。用于处理正在滚动列表的时候，立即点击item，会导致界面显示异常。
     private var scrollingTargetIndex: Int = -1
     private var isFirstLayoutSubviews = true
+    /// 当前是否处于“已取消选中”状态（`allowsDeselection`）。
+    private var isSelectionCleared = false
+    /// 代码/点击驱动 `contentScrollView.setContentOffset` 期间屏蔽 KVO 联动，
+    /// 避免跨多页动画中途误选中（尤其是中间有禁用 item 时指示器被“吃掉”）。
+    private var suppressContentScrollCallback = false
+    /// 转发 contentScrollView 的 willEndDragging，用于把禁用页的停靠目标改写到最近可选项。
+    private var contentScrollDelegateMux: TFYSwiftScrollDelegateMultiplexer?
 
     // MARK: - 布局缓存
     // 累积 item 起始 x 偏移缓存：itemStartXCache[i] = item i 的左边界（含 contentInset）
@@ -359,7 +394,31 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
 
         //部分使用者为了适配不同的手机屏幕尺寸，TFYSwiftView的宽高比要求保持一样。所以它的高度就会因为不同宽度的屏幕而不一样。计算出来的高度，有时候会是位数很长的浮点数，如果把这个高度设置给UICollectionView就会触发内部的一个错误。所以，为了规避这个问题，在这里对高度统一向下取整。
         //如果向下取整导致了你的页面异常，请自己重新设置TFYSwiftView的高度，保证为整数即可。
-        let targetFrame = CGRect(x: 0, y: 0, width: bounds.size.width, height: floor(bounds.size.height))
+        let height = floor(bounds.size.height)
+        var collectionX: CGFloat = 0
+        var collectionWidth = bounds.size.width
+
+        if let leading = leadingAccessoryView {
+            let size = leading.bounds.size == .zero
+                ? leading.systemLayoutSizeFitting(CGSize(width: UIView.layoutFittingCompressedSize.width,
+                                                        height: height))
+                : leading.bounds.size
+            let w = size.width > 0 ? size.width : height
+            leading.frame = CGRect(x: 0, y: 0, width: w, height: height)
+            collectionX = w + accessorySpacing
+            collectionWidth -= collectionX
+        }
+        if let trailing = trailingAccessoryView {
+            let size = trailing.bounds.size == .zero
+                ? trailing.systemLayoutSizeFitting(CGSize(width: UIView.layoutFittingCompressedSize.width,
+                                                         height: height))
+                : trailing.bounds.size
+            let w = size.width > 0 ? size.width : height
+            trailing.frame = CGRect(x: bounds.size.width - w, y: 0, width: w, height: height)
+            collectionWidth -= (w + accessorySpacing)
+        }
+        collectionWidth = max(collectionWidth, 0)
+        let targetFrame = CGRect(x: collectionX, y: 0, width: collectionWidth, height: height)
         if isFirstLayoutSubviews {
             isFirstLayoutSubviews = false
             collectionView.frame = targetFrame
@@ -370,7 +429,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
                 rebuildItemStartXCache()
                 collectionView.collectionViewLayout.invalidateLayout()
                 // 仅失效布局；避免 bounds 变化时整表 reloadData 造成闪烁与多余 cell 重建。
-                if !indicators.isEmpty, itemDataSource.indices.contains(selectedIndex) {
+                if !indicators.isEmpty, !isSelectionCleared, itemDataSource.indices.contains(selectedIndex) {
                     let selectedItemFrame = getSelectedItemFrameAt(index: selectedIndex)
                     let contentWidth = currentItemContentWidth(at: selectedIndex)
                     let params = TFYSwiftIndicatorSelectedParams(
@@ -457,13 +516,29 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         innerItemSpacing = dataSource?.itemSpacing ?? 0
         var totalItemWidth: CGFloat = 0
         var totalContentWidth: CGFloat = getContentEdgeInsetLeft()
+        let availableWidth = collectionView.bounds.width > 0 ? collectionView.bounds.width : bounds.size.width
+        let useEqualWidth = (dataSource as? TFYSwiftBaseDataSource)?.itemWidthMode == .equal
+            && availableWidth > 0
+            && !itemDataSource.isEmpty
+        let equalWidth: CGFloat = {
+            guard useEqualWidth else { return 0 }
+            let count = CGFloat(itemDataSource.count)
+            let spacingTotal = innerItemSpacing * max(count - 1, 0)
+            let insetTotal = getContentEdgeInsetLeft() + getContentEdgeInsetRight()
+            return max((availableWidth - spacingTotal - insetTotal) / count, 0)
+        }()
+
         for (index, itemModel) in itemDataSource.enumerated() {
             itemModel.index = index
-            itemModel.itemWidth = (dataSource?.segmentedView(self, widthForItemAt: index) ?? 0)
-            if dataSource?.isItemWidthZoomEnabled == true {
-                itemModel.itemWidth *= itemModel.itemWidthCurrentZoomScale
+            if useEqualWidth {
+                itemModel.itemWidth = equalWidth
+            } else {
+                itemModel.itemWidth = (dataSource?.segmentedView(self, widthForItemAt: index) ?? 0)
+                if dataSource?.isItemWidthZoomEnabled == true {
+                    itemModel.itemWidth *= itemModel.itemWidthCurrentZoomScale
+                }
             }
-            itemModel.isSelected = (index == selectedIndex)
+            itemModel.isSelected = !isSelectionCleared && (index == selectedIndex)
             totalItemWidth += itemModel.itemWidth
             if index == itemDataSource.count - 1 {
                 totalContentWidth += itemModel.itemWidth + getContentEdgeInsetRight()
@@ -472,9 +547,9 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             }
         }
 
-        if dataSource?.isItemSpacingAverageEnabled == true && totalContentWidth < bounds.size.width {
+        if !useEqualWidth, dataSource?.isItemSpacingAverageEnabled == true && totalContentWidth < availableWidth {
             var itemSpacingCount = itemDataSource.count - 1
-            var totalItemSpacingWidth = bounds.size.width - totalItemWidth
+            var totalItemSpacingWidth = availableWidth - totalItemWidth
             if contentEdgeInsetLeft == TFYSwiftViewAutomaticDimension {
                 itemSpacingCount += 1
             }else {
@@ -524,7 +599,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         }
 
         for indicator in indicators {
-            if itemDataSource.isEmpty {
+            if itemDataSource.isEmpty || isSelectionCleared {
                 indicator.isHidden = true
             }else {
                 indicator.isHidden = false
@@ -647,24 +722,189 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         guard delegate?.segmentedView(self, canClickItemAt: index) != false else {
             return
         }
+        guard itemDataSource[safe: index]?.isItemEnabled != false else {
+            return
+        }
         selectItemAt(index: index, selectedType: .click)
     }
 
     private func scrollSelectItemAt(index: Int) {
-        selectItemAt(index: index, selectedType: .scroll)
+        // 停靠瞬间 contentOffset 与 lastContentOffset 几乎相等，delta≈0 会误判方向；
+        // 优先用真实位移，否则用「落地页相对当前选中」推断滑动意图。
+        let offsetDelta = (contentScrollView?.contentOffset.x ?? lastContentOffset.x) - lastContentOffset.x
+        let direction: Int
+        if abs(offsetDelta) > 0.5 {
+            direction = offsetDelta > 0 ? 1 : -1
+        } else if index != selectedIndex {
+            direction = index > selectedIndex ? 1 : -1
+        } else if scrollingTargetIndex >= 0 {
+            direction = scrollingTargetIndex >= selectedIndex ? 1 : -1
+        } else {
+            direction = 0
+        }
+
+        // 禁用页：只跳到滑动方向上「相邻」的启用项，避免一次跨过关注落到推荐。
+        let target: Int
+        if itemDataSource.indices.contains(index), itemDataSource[index].isItemEnabled {
+            target = index
+        } else {
+            target = adjacentEnabledIndex(from: selectedIndex, direction: direction)
+                ?? nearestEnabledIndex(around: index, scrollDelta: CGFloat(direction))
+                ?? index
+        }
+
+        let needsContentSnap: Bool = {
+            guard let contentScrollView, contentScrollView.bounds.width > 0 else { return false }
+            let currentPage = Int(round(contentScrollView.contentOffset.x / contentScrollView.bounds.width))
+            return currentPage != target || target != index
+        }()
+        if needsContentSnap {
+            tfy_snapContentScroll(to: target, animated: false)
+        }
+        if target == selectedIndex && !isSelectionCleared {
+            tfy_refreshSelectedPresentation(at: target)
+            scrollingTargetIndex = -1
+            return
+        }
+        selectItemAt(index: target, selectedType: .scroll)
+    }
+
+    /// 清除当前选中态（配合 `allowsDeselection`）。
+    open func clearSelection() {
+        guard !isSelectionCleared, itemDataSource.indices.contains(selectedIndex) else {
+            isSelectionCleared = true
+            indicators.forEach { $0.isHidden = true }
+            return
+        }
+        let model = itemDataSource[selectedIndex]
+        model.isSelected = false
+        if let cell = collectionView.cellForItem(at: IndexPath(item: selectedIndex, section: 0)) as? TFYSwiftBaseCell {
+            cell.reloadData(itemModel: model, selectedType: .code)
+        }
+        indicators.forEach { $0.isHidden = true }
+        isSelectionCleared = true
+    }
+
+    /// 从 `from` 起沿 direction 找下一个启用项（只走一步，不跨多个启用项）。
+    private func adjacentEnabledIndex(from index: Int, direction: Int) -> Int? {
+        guard direction != 0 else { return nil }
+        if direction > 0 {
+            for i in (index + 1)..<itemDataSource.count where itemDataSource[i].isItemEnabled {
+                return i
+            }
+        } else {
+            for i in stride(from: index - 1, through: 0, by: -1) where itemDataSource[i].isItemEnabled {
+                return i
+            }
+        }
+        return nil
+    }
+
+    /// - Parameter scrollDelta: >0 表示向右翻页（更高 index），优先选右侧可选项。
+    private func nearestEnabledIndex(around index: Int, scrollDelta: CGFloat = 0) -> Int? {
+        guard itemDataSource.indices.contains(index) else { return nil }
+        if itemDataSource[index].isItemEnabled { return index }
+
+        if scrollDelta > 0 {
+            for i in (index + 1)..<itemDataSource.count where itemDataSource[i].isItemEnabled {
+                return i
+            }
+            for i in stride(from: index - 1, through: 0, by: -1) where itemDataSource[i].isItemEnabled {
+                return i
+            }
+        } else if scrollDelta < 0 {
+            for i in stride(from: index - 1, through: 0, by: -1) where itemDataSource[i].isItemEnabled {
+                return i
+            }
+            for i in (index + 1)..<itemDataSource.count where itemDataSource[i].isItemEnabled {
+                return i
+            }
+        } else {
+            for distance in 1..<itemDataSource.count {
+                let left = index - distance
+                let right = index + distance
+                if itemDataSource.indices.contains(left), itemDataSource[left].isItemEnabled {
+                    return left
+                }
+                if itemDataSource.indices.contains(right), itemDataSource[right].isItemEnabled {
+                    return right
+                }
+            }
+        }
+        return nil
+    }
+
+    /// 把内容列表吸附到指定页（用于跳过禁用项）。
+    private func tfy_snapContentScroll(to index: Int, animated: Bool) {
+        guard let contentScrollView, contentScrollView.bounds.width > 0 else { return }
+        let targetX = CGFloat(index) * contentScrollView.bounds.width
+        guard abs(contentScrollView.contentOffset.x - targetX) > 0.5 else { return }
+
+        suppressContentScrollCallback = true
+        // 正在拖/减速时直接 animated 跳页会被 UIKit 吃掉，先钉住当前 offset 打断惯性。
+        if contentScrollView.isDragging || contentScrollView.isDecelerating {
+            contentScrollView.setContentOffset(contentScrollView.contentOffset, animated: false)
+        }
+        contentScrollView.setContentOffset(CGPoint(x: targetX, y: 0), animated: animated)
+        lastContentOffset = CGPoint(x: targetX, y: 0)
+        lastTransitionProgress = CGFloat(index)
+        listContainer?.didClickSelectedItem(at: index)
+
+        if animated {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.suppressContentScrollCallback = false
+            }
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.suppressContentScrollCallback = false
+            }
+        }
+    }
+
+    /// 强制把标题栏选中态 / 指示器拉回指定已启用项（不改 selectedIndex）。
+    private func tfy_refreshSelectedPresentation(at index: Int) {
+        guard itemDataSource.indices.contains(index) else { return }
+        // 滑动半途的 percent 会改写左右 item 的颜色/缩放，这里整页刷回正常选中态。
+        for (i, model) in itemDataSource.enumerated() {
+            dataSource?.refreshItemModel(self, model, at: i, selectedIndex: index)
+            model.isSelected = (i == index)
+            if let cell = collectionView.cellForItem(at: IndexPath(item: i, section: 0)) as? TFYSwiftBaseCell {
+                cell.reloadData(itemModel: model, selectedType: .scroll)
+            }
+        }
+        tfy_pinIndicators(to: index)
     }
 
     private func selectItemAt(index: Int, selectedType: TFYSwiftViewItemSelectedType, collectionViewAnimated: Bool = true, contentScrollViewAnimated: Bool? = nil) {
         guard index >= 0 && index < itemDataSource.count else {
             return
         }
+        guard itemDataSource[index].isItemEnabled || selectedType == .scroll || selectedType == .code else {
+            return
+        }
+
+        // Momentary：只回调，不改变选中态 / 列表偏移。
+        if isMomentary && selectedType == .click {
+            if isHapticEnabled {
+                TFYSwiftHapticEngine.shared.selectionChanged()
+            }
+            delegate?.segmentedView(self, didClickSelectedItemAt: index)
+            tfy_emit_didClickSelect(index: index)
+            delegate?.segmentedView(self, didSelectedItemAt: index)
+            tfy_emit_didSelect(index: index)
+            return
+        }
 
         // 触发触感反馈：仅在 index 真正发生变化，且用户启用了开关时触发。
-        if isHapticEnabled && index != selectedIndex {
+        if isHapticEnabled && (index != selectedIndex || isSelectionCleared) {
             TFYSwiftHapticEngine.shared.selectionChanged()
         }
 
-        if index == selectedIndex {
+        if index == selectedIndex && !isSelectionCleared {
+            if selectedType == .click && allowsDeselection {
+                clearSelection()
+                return
+            }
             if selectedType == .code {
                 listContainer?.didClickSelectedItem(at: index)
             }else if selectedType == .click {
@@ -672,6 +912,8 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
                 tfy_emit_didClickSelect(index: index)
                 listContainer?.didClickSelectedItem(at: index)
             }else if selectedType == .scroll {
+                // 跨禁用页滑动后 selectedIndex 可能已提前更新，但指示器仍停在禁用项。
+                tfy_refreshSelectedPresentation(at: index)
                 delegate?.segmentedView(self, didScrollSelectedItemAt: index)
                 tfy_emit_didScrollSelect(index: index)
             }
@@ -680,6 +922,40 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             scrollingTargetIndex = -1
             return
         }
+
+        // 从 cleared 状态重新选中同一 index：当作正常选中流程。
+        if isSelectionCleared && index == selectedIndex {
+            isSelectionCleared = false
+            itemDataSource[index].isSelected = true
+            if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? TFYSwiftBaseCell {
+                cell.reloadData(itemModel: itemDataSource[index], selectedType: selectedType)
+            }
+            let selectedItemFrame = getSelectedItemFrameAt(index: index)
+            let params = TFYSwiftIndicatorSelectedParams(
+                currentSelectedIndex: index,
+                currentSelectedItemFrame: selectedItemFrame,
+                selectedType: selectedType,
+                currentItemContentWidth: currentItemContentWidth(at: index),
+                collectionViewContentSize: CGSize(width: totalContentWidthCache, height: bounds.size.height)
+            )
+            for indicator in indicators {
+                indicator.isHidden = false
+                indicator.selectItem(model: params)
+            }
+            tfy_setContentScrollOffset(to: index, selectedType: selectedType, animated: contentScrollViewAnimated)
+            if selectedType == .code {
+                listContainer?.didClickSelectedItem(at: index)
+            } else if selectedType == .click {
+                delegate?.segmentedView(self, didClickSelectedItemAt: index)
+                tfy_emit_didClickSelect(index: index)
+                listContainer?.didClickSelectedItem(at: index)
+            }
+            delegate?.segmentedView(self, didSelectedItemAt: index)
+            tfy_emit_didSelect(index: index)
+            return
+        }
+
+        isSelectionCleared = false
 
         guard
             let currentSelectedItemModel = itemDataSource[safe: selectedIndex],
@@ -717,25 +993,24 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             centerCollectionView(on: index, animated: collectionViewAnimated)
         }
 
-        if let contentScrollView, (selectedType == .click || selectedType == .code), contentScrollView.bounds.size.width > 0 {
-            var animated = contentScrollViewAnimated ?? isContentScrollViewClickTransitionAnimationEnabled
-            // 尊重 Reduce Motion：用户打开 Reduce Motion 时强制跳过过渡动画。
-            if isRespectReduceMotionEnabled && UIAccessibility.isReduceMotionEnabled {
-                animated = false
-            }
-            contentScrollView.setContentOffset(CGPoint(x: contentScrollView.bounds.size.width*CGFloat(index), y: 0), animated: animated)
-        }
+        tfy_setContentScrollOffset(to: index, selectedType: selectedType, animated: contentScrollViewAnimated)
 
         selectedIndex = index
 
         let currentSelectedItemFrame = getSelectedItemFrameAt(index: selectedIndex)
         for indicator in indicators {
+            indicator.isHidden = false
             let indicatorParams = TFYSwiftIndicatorSelectedParams(currentSelectedIndex: selectedIndex,
                                                                      currentSelectedItemFrame: currentSelectedItemFrame,
                                                                      selectedType: selectedType,
                                                                      currentItemContentWidth: dataSource?.segmentedView(self, widthForItemContentAt: selectedIndex) ?? 0,
                                                                      collectionViewContentSize: nil)
-            indicator.selectItem(model: indicatorParams)
+            // scroll 选中用 refresh 硬钉位置，避免跨禁用页后 selectItem 只改 x 仍留在错误位置。
+            if selectedType == .scroll {
+                indicator.refreshIndicatorState(model: indicatorParams)
+            } else {
+                indicator.selectItem(model: indicatorParams)
+            }
 
             if indicator.isIndicatorConvertToItemFrameEnabled {
                 var indicatorConvertToItemFrame = indicator.frame
@@ -758,6 +1033,42 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         }
         delegate?.segmentedView(self, didSelectedItemAt: index)
         tfy_emit_didSelect(index: index)
+    }
+
+    /// 程序化切换分页时屏蔽 contentOffset KVO，防止跨页动画中间态改写选中。
+    private func tfy_setContentScrollOffset(to index: Int,
+                                            selectedType: TFYSwiftViewItemSelectedType,
+                                            animated contentScrollViewAnimated: Bool?) {
+        guard let contentScrollView,
+              (selectedType == .click || selectedType == .code),
+              contentScrollView.bounds.size.width > 0 else { return }
+
+        var animated = contentScrollViewAnimated ?? isContentScrollViewClickTransitionAnimationEnabled
+        if isRespectReduceMotionEnabled && UIAccessibility.isReduceMotionEnabled {
+            animated = false
+        }
+
+        suppressContentScrollCallback = true
+        contentScrollView.setContentOffset(
+            CGPoint(x: contentScrollView.bounds.size.width * CGFloat(index), y: 0),
+            animated: animated
+        )
+        lastContentOffset = contentScrollView.contentOffset
+        lastTransitionProgress = CGFloat(index)
+
+        if animated {
+            let duration = (indicators.compactMap { ($0 as? TFYSwiftIndicatorBaseView)?.scrollAnimationDuration }.max() ?? 0.25)
+            DispatchQueue.main.asyncAfter(deadline: .now() + max(duration, 0.25) + 0.05) { [weak self] in
+                guard let self else { return }
+                self.suppressContentScrollCallback = false
+                self.lastContentOffset = contentScrollView.contentOffset
+                self.lastTransitionProgress = CGFloat(index)
+            }
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.suppressContentScrollCallback = false
+            }
+        }
     }
 
     @discardableResult
@@ -828,12 +1139,15 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     }
 
     /// 计算"选中态下"的 item frame。
-    /// 语义与旧版本一致：假设先于 index 的 item 回归到 dataSource 提供的原始宽度（即 normalZoom = 1 的视觉），
-    /// 目标 item 按 `itemWidthSelectedZoomScale` 放大。主要在 `selectItemAt` 结束后用于定位指示器。
-    /// 由于单次调用 O(n) 可接受，这里不使用累积缓存，避免状态耦合。
+    /// 无宽度缩放时直接使用真实布局缓存（含 `itemWidthMode.equal`），避免 `widthForItemAt`（内容宽）
+    /// 与 cell 实际宽度不一致导致指示器飞出可见区域。
+    /// 开启宽度缩放时：假设先于 index 的 item 回归 normal 宽度，目标 item 按 selectedZoom 放大。
     private func getSelectedItemFrameAt(index: Int) -> CGRect {
         guard itemDataSource.indices.contains(index) else {
             return .zero
+        }
+        if dataSource?.isItemWidthZoomEnabled != true {
+            return getItemFrameAt(index: index)
         }
         var x = getContentEdgeInsetLeft()
         for i in 0..<index {
@@ -848,7 +1162,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         } else {
             width = selectedItemModel.itemWidth
         }
-        return CGRect(x: x, y: 0, width: width, height: bounds.size.height)
+        return CGRect(x: x, y: 0, width: width, height: collectionView.bounds.size.height)
     }
 
     private func getContentEdgeInsetLeft() -> CGFloat {
@@ -868,22 +1182,95 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     }
 
     private func observeContentScrollViewIfNeeded() {
-        guard let contentScrollView else { return }
+        guard let contentScrollView else {
+            contentScrollDelegateMux?.uninstall()
+            contentScrollDelegateMux = nil
+            contentScrollObservation?.invalidate()
+            contentScrollObservation = nil
+            return
+        }
 
-        contentScrollObservation = contentScrollView.observe(\.contentOffset, options: [.new]) { [weak self, weak contentScrollView] _, change in
-            guard
-                let self,
-                let contentScrollView,
-                let contentOffset = change.newValue
-            else {
-                return
+        if contentScrollObservation == nil {
+            contentScrollObservation = contentScrollView.observe(\.contentOffset, options: [.new]) { [weak self, weak contentScrollView] _, change in
+                guard
+                    let self,
+                    let contentScrollView,
+                    let contentOffset = change.newValue
+                else {
+                    return
+                }
+
+                self.handleContentScrollViewDidScroll(in: contentScrollView, contentOffset: contentOffset)
             }
+        }
 
-            self.handleContentScrollViewDidScroll(in: contentScrollView, contentOffset: contentOffset)
+        // 已正确挂上 mux 时只确保自己在观察者列表；避免 uninstall 把 ListContainer delegate 清掉。
+        if let mux = contentScrollDelegateMux, contentScrollView.delegate === mux {
+            mux.addObserver(self)
+            return
+        }
+
+        // 保留 ListContainer 原有 delegate，并追加 willEndDragging / didEndDecelerating 以跳过禁用页。
+        let mux = TFYSwiftScrollDelegateMultiplexer()
+        mux.install(on: contentScrollView, preserveExistingDelegate: true)
+        mux.addObserver(self)
+        contentScrollDelegateMux = mux
+    }
+
+    /// 若内容页停在禁用项上，强制弹到滑动方向最近的可选项。
+    private func tfy_ensureContentNotOnDisabledPage(scrollDelta: CGFloat = 0) {
+        guard let contentScrollView, contentScrollView.bounds.width > 0, !itemDataSource.isEmpty else {
+            // 即使内容已在启用页，也钉一次指示器（兜底跨禁用页残留）。
+            if itemDataSource.indices.contains(selectedIndex), itemDataSource[selectedIndex].isItemEnabled {
+                tfy_pinIndicators(to: selectedIndex)
+            }
+            return
+        }
+        let page = Int(round(contentScrollView.contentOffset.x / contentScrollView.bounds.width))
+        if itemDataSource.indices.contains(page), !itemDataSource[page].isItemEnabled {
+            let target = nearestEnabledIndex(around: page, scrollDelta: scrollDelta) ?? page
+            guard target != page else { return }
+            tfy_snapContentScroll(to: target, animated: false)
+            if target == selectedIndex && !isSelectionCleared {
+                tfy_refreshSelectedPresentation(at: target)
+                scrollingTargetIndex = -1
+            } else {
+                selectItemAt(index: target, selectedType: .scroll)
+            }
+            return
+        }
+        if itemDataSource.indices.contains(selectedIndex), itemDataSource[selectedIndex].isItemEnabled {
+            tfy_pinIndicators(to: selectedIndex)
         }
     }
 
+    /// 把内容滚动进度映射到「仅启用项」之间的过渡，避免指示器停在禁用项上。
+    /// 例如进度 1→3（中间 2 禁用）时，指示器在 1 与 3 的 frame 之间插值。
+    private func mapProgressToEnabledTransition(_ progress: CGFloat) -> (left: Int, right: Int, percent: CGFloat)? {
+        let enabled = itemDataSource.indices.filter { itemDataSource[$0].isItemEnabled }
+        guard let first = enabled.first, let last = enabled.last else { return nil }
+        let p = max(0, min(CGFloat(itemDataSource.count - 1), progress))
+        if p <= CGFloat(first) { return (first, first, 0) }
+        if p >= CGFloat(last) { return (last, last, 0) }
+
+        for i in 0..<(enabled.count - 1) {
+            let left = enabled[i]
+            let right = enabled[i + 1]
+            if p >= CGFloat(left) && p <= CGFloat(right) {
+                let span = CGFloat(right - left)
+                let percent = span > 0 ? (p - CGFloat(left)) / span : 0
+                return (left, right, min(1, max(0, percent)))
+            }
+        }
+        return (last, last, 0)
+    }
+
     private func handleContentScrollViewDidScroll(in contentScrollView: UIScrollView, contentOffset: CGPoint) {
+        // 程序化 setContentOffset 期间完全屏蔽，避免跨多页动画误改 selectedIndex。
+        if suppressContentScrollCallback {
+            lastContentOffset = contentOffset
+            return
+        }
         // 仅在 tracking/decelerating 场景参与联动，避免 setContentOffset 动画期间误触发。
         guard contentScrollView.isTracking || contentScrollView.isDecelerating else {
             return
@@ -912,7 +1299,6 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         progress = max(0, min(CGFloat(itemDataSource.count - 1), progress))
         let baseIndex = Int(floor(progress))
         let remainderProgress = progress - CGFloat(baseIndex)
-        let rightIndex = min(baseIndex + 1, itemDataSource.count - 1)
 
         // Epsilon 节流：仅在进度变化超过阈值，或者跨越整数 index 边界时继续处理。
         if contentScrollViewTransitionEpsilon > 0,
@@ -924,45 +1310,92 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             return
         }
 
-        let leftItemFrame = getItemFrameAt(index: baseIndex)
-        let rightItemFrame = getItemFrameAt(index: rightIndex)
-        let indicatorParams = TFYSwiftIndicatorTransitionParams(currentSelectedIndex: selectedIndex,
-                                                               leftIndex: baseIndex,
-                                                               leftItemFrame: leftItemFrame,
-                                                               leftItemContentWidth: currentItemContentWidth(at: baseIndex),
-                                                               rightIndex: rightIndex,
-                                                               rightItemFrame: rightItemFrame,
-                                                               rightItemContentWidth: currentItemContentWidth(at: rightIndex),
-                                                               percent: remainderProgress)
-
+        // 整页停靠：按原始页处理（禁用页会在 scrollSelectItemAt 里吸附走开）。
         if remainderProgress == 0 {
-            if !(lastContentOffset.x == contentOffset.x && selectedIndex == baseIndex) {
-                scrollSelectItemAt(index: baseIndex)
+            scrollSelectItemAt(index: baseIndex)
+            if itemDataSource.indices.contains(selectedIndex),
+               itemDataSource[selectedIndex].isItemEnabled {
+                tfy_pinIndicators(to: selectedIndex)
             }
             lastContentOffset = contentOffset
             lastTransitionProgress = progress
             return
         }
 
-        guard rightIndex < itemDataSource.count else {
-            lastContentOffset = contentOffset
+        // 内容页落在禁用项上：禁止指示器插值。
+        // 手指拖动中不抢 contentOffset（过早吸附容易带着惯性冲过「关注」落到「推荐」）；
+        // 减速时再跳到滑动方向上的相邻启用页。
+        if !itemDataSource[baseIndex].isItemEnabled {
+            let direction = progress > CGFloat(selectedIndex) ? 1 : -1
+            let target = adjacentEnabledIndex(from: selectedIndex, direction: direction)
+                ?? nearestEnabledIndex(around: baseIndex, scrollDelta: CGFloat(direction))
+                ?? selectedIndex
+
+            if contentScrollView.isTracking {
+                tfy_pinIndicators(to: target)
+                lastContentOffset = contentOffset
+                lastTransitionProgress = progress
+                return
+            }
+
+            if Int(round(contentOffset.x / pageWidth)) != target || target != selectedIndex {
+                tfy_snapContentScroll(to: target, animated: false)
+                if target == selectedIndex && !isSelectionCleared {
+                    tfy_refreshSelectedPresentation(at: target)
+                } else {
+                    selectItemAt(index: target, selectedType: .scroll)
+                }
+            } else {
+                tfy_pinIndicators(to: target)
+            }
+            lastContentOffset = contentScrollView.contentOffset
+            lastTransitionProgress = CGFloat(selectedIndex)
             return
         }
 
-        if abs(progress - CGFloat(selectedIndex)) > 1 {
-            let targetIndex = progress < CGFloat(selectedIndex) ? rightIndex : baseIndex
-            scrollSelectItemAt(index: targetIndex)
+        // 过渡态：指示器 / 标题渐变只在启用项之间插值。
+        guard let transition = mapProgressToEnabledTransition(progress) else {
+            lastContentOffset = contentOffset
+            return
         }
-        scrollingTargetIndex = (selectedIndex == baseIndex) ? rightIndex : baseIndex
+        let leftIndex = transition.left
+        let rightIndex = transition.right
+        let transitionPercent = transition.percent
 
-        dataSource?.refreshItemModel(self, leftItemModel: itemDataSource[baseIndex], rightItemModel: itemDataSource[rightIndex], percent: remainderProgress)
+        if abs(progress - CGFloat(selectedIndex)) > 1 {
+            // 只推进到相邻启用项，不能用 progress 映射的 leftIndex（可能直接掉到推荐）。
+            let direction = progress < CGFloat(selectedIndex) ? -1 : 1
+            let targetIndex = adjacentEnabledIndex(from: selectedIndex, direction: direction)
+                ?? (direction < 0 ? leftIndex : rightIndex)
+            scrollSelectItemAt(index: targetIndex)
+            tfy_pinIndicators(to: selectedIndex)
+            lastContentOffset = contentScrollView.contentOffset
+            lastTransitionProgress = CGFloat(selectedIndex)
+            return
+        }
+        scrollingTargetIndex = (selectedIndex == leftIndex) ? rightIndex : leftIndex
+
+        let leftItemFrame = getItemFrameAt(index: leftIndex)
+        let rightItemFrame = getItemFrameAt(index: rightIndex)
+        let indicatorParams = TFYSwiftIndicatorTransitionParams(currentSelectedIndex: selectedIndex,
+                                                               leftIndex: leftIndex,
+                                                               leftItemFrame: leftItemFrame,
+                                                               leftItemContentWidth: currentItemContentWidth(at: leftIndex),
+                                                               rightIndex: rightIndex,
+                                                               rightItemFrame: rightItemFrame,
+                                                               rightItemContentWidth: currentItemContentWidth(at: rightIndex),
+                                                               percent: transitionPercent)
+
+        if leftIndex != rightIndex {
+            dataSource?.refreshItemModel(self, leftItemModel: itemDataSource[leftIndex], rightItemModel: itemDataSource[rightIndex], percent: transitionPercent)
+        }
 
         for indicator in indicators {
             indicator.contentScrollViewDidScroll(model: indicatorParams)
             if indicator.isIndicatorConvertToItemFrameEnabled {
                 var leftIndicatorConvertToItemFrame = indicator.frame
                 leftIndicatorConvertToItemFrame.origin.x -= leftItemFrame.origin.x
-                itemDataSource[baseIndex].indicatorConvertToItemFrame = leftIndicatorConvertToItemFrame
+                itemDataSource[leftIndex].indicatorConvertToItemFrame = leftIndicatorConvertToItemFrame
 
                 var rightIndicatorConvertToItemFrame = indicator.frame
                 rightIndicatorConvertToItemFrame.origin.x -= rightItemFrame.origin.x
@@ -970,17 +1403,34 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
             }
         }
 
-        let leftCell = collectionView.cellForItem(at: IndexPath(item: baseIndex, section: 0)) as? TFYSwiftBaseCell
-        leftCell?.reloadData(itemModel: itemDataSource[baseIndex], selectedType: .unknown)
+        let leftCell = collectionView.cellForItem(at: IndexPath(item: leftIndex, section: 0)) as? TFYSwiftBaseCell
+        leftCell?.reloadData(itemModel: itemDataSource[leftIndex], selectedType: .unknown)
 
         let rightCell = collectionView.cellForItem(at: IndexPath(item: rightIndex, section: 0)) as? TFYSwiftBaseCell
         rightCell?.reloadData(itemModel: itemDataSource[rightIndex], selectedType: .unknown)
 
-        delegate?.segmentedView(self, scrollingFrom: baseIndex, to: rightIndex, percent: remainderProgress)
-        tfy_emit_scrollingProgress(from: baseIndex, to: rightIndex, percent: remainderProgress)
+        delegate?.segmentedView(self, scrollingFrom: leftIndex, to: rightIndex, percent: transitionPercent)
+        tfy_emit_scrollingProgress(from: leftIndex, to: rightIndex, percent: transitionPercent)
 
         lastContentOffset = contentOffset
         lastTransitionProgress = progress
+    }
+
+    /// 把指示器硬钉到指定选中项（使用 refreshIndicatorState，避免 selectItem 只改 x/width 的残留）。
+    private func tfy_pinIndicators(to index: Int) {
+        guard itemDataSource.indices.contains(index) else { return }
+        let selectedItemFrame = getSelectedItemFrameAt(index: index)
+        let params = TFYSwiftIndicatorSelectedParams(
+            currentSelectedIndex: index,
+            currentSelectedItemFrame: selectedItemFrame,
+            selectedType: .scroll,
+            currentItemContentWidth: currentItemContentWidth(at: index),
+            collectionViewContentSize: CGSize(width: totalContentWidthCache, height: bounds.size.height)
+        )
+        for indicator in indicators {
+            indicator.isHidden = false
+            indicator.refreshIndicatorState(model: params)
+        }
     }
 
     private func currentItemContentWidth(at index: Int) -> CGFloat {
@@ -990,6 +1440,47 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
     private func centerCollectionView(on index: Int, animated: Bool) {
         guard itemDataSource.indices.contains(index) else { return }
         collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: .centeredHorizontally, animated: animated)
+    }
+}
+
+extension TFYSwiftView: UIScrollViewDelegate {
+    /// 松手时若系统准备停在禁用页，改写到滑动方向上「相邻」的启用页（只跳一步）。
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView,
+                                          withVelocity velocity: CGPoint,
+                                          targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        guard scrollView === contentScrollView,
+              scrollView.bounds.width > 0,
+              !itemDataSource.isEmpty else { return }
+
+        let pageWidth = scrollView.bounds.width
+        var page = Int((targetContentOffset.pointee.x / pageWidth).rounded())
+        page = max(0, min(itemDataSource.count - 1, page))
+        guard itemDataSource.indices.contains(page),
+              !itemDataSource[page].isItemEnabled else { return }
+
+        // velocity.x > 0：向更高 contentOffset / 更大 index 翻页
+        let direction: Int
+        if abs(velocity.x) > 0.01 {
+            direction = velocity.x > 0 ? 1 : -1
+        } else {
+            let delta = targetContentOffset.pointee.x - scrollView.contentOffset.x
+            direction = delta >= 0 ? 1 : -1
+        }
+        let target = adjacentEnabledIndex(from: selectedIndex, direction: direction)
+            ?? nearestEnabledIndex(around: page, scrollDelta: CGFloat(direction))
+        guard let target else { return }
+        targetContentOffset.pointee.x = CGFloat(target) * pageWidth
+    }
+
+    /// 兜底：惯性结束后若仍停在禁用页（willEndDragging 未生效时），立即弹开。
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard scrollView === contentScrollView else { return }
+        tfy_ensureContentNotOnDisabledPage()
+    }
+
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard scrollView === contentScrollView, !decelerate else { return }
+        tfy_ensureContentNotOnDisabledPage()
     }
 }
 
@@ -1060,6 +1551,9 @@ extension TFYSwiftView: UICollectionViewDelegate {
             selectedIndex += 1
         }
         rebuildItemStartXCacheAfterReorder()
+        if let baseDS = dataSource as? TFYSwiftBaseDataSource {
+            baseDS.didReorderItem(from: sourceIndexPath.item, to: destinationIndexPath.item)
+        }
         didReorderItem?(sourceIndexPath.item, destinationIndexPath.item)
     }
 

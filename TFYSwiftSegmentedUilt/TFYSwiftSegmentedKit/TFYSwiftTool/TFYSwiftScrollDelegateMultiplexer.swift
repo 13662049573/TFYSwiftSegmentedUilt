@@ -97,6 +97,19 @@ public final class TFYSwiftScrollDelegateMultiplexer: NSObject, UIScrollViewDele
         }
     }
 
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView,
+                                           withVelocity velocity: CGPoint,
+                                           targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        // forwardingTarget 可能把带 inout 指针的方法转丢；multiplexer 显式转发更稳。
+        for obs in observers.allObjects {
+            (obs as? UIScrollViewDelegate)?.scrollViewWillEndDragging?(
+                scrollView,
+                withVelocity: velocity,
+                targetContentOffset: targetContentOffset
+            )
+        }
+    }
+
     // Default implementations forward `responds(to:)` so UIKit sees only the
     // selectors at least one observer implements. This avoids paying the cost
     // of sending events to observers that don't care.
@@ -109,6 +122,10 @@ public final class TFYSwiftScrollDelegateMultiplexer: NSObject, UIScrollViewDele
     }
 
     public override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        // willEndDragging 已显式实现，避免指针参数转发异常。
+        if aSelector == #selector(scrollViewWillEndDragging(_:withVelocity:targetContentOffset:)) {
+            return nil
+        }
         for obs in observers.allObjects where (obs as AnyObject).responds(to: aSelector) {
             return obs
         }

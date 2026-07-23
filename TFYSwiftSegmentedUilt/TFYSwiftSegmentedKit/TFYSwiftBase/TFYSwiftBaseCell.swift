@@ -118,6 +118,14 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
             }
         }
         tfy_applyBadge(itemModel.badgeConfiguration)
+        contentView.alpha = itemModel.isItemEnabled ? 1 : itemModel.disabledAlpha
+        isUserInteractionEnabled = itemModel.isItemEnabled
+        if itemModel.isItemEnabled {
+            accessibilityTraits.remove(.notEnabled)
+        } else {
+            accessibilityTraits.insert(.notEnabled)
+            accessibilityHint = nil
+        }
     }
 
     open override func layoutSubviews() {

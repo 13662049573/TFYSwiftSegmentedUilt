@@ -305,11 +305,17 @@ open class TFYSwiftPagingListContainerView: UIView, TFYSwiftListContainerBase {
             case .scrollView:
                 list.listView().frame = CGRect(x: CGFloat(index)*scrollView.bounds.size.width, y: 0, width: scrollView.bounds.size.width, height: scrollView.bounds.size.height)
                 scrollView.addSubview(list.listView())
+                if let vc = list as? UIViewController {
+                    vc.didMove(toParent: containerVC)
+                }
             case .collectionView:
                 if let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) {
                     cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                     list.listView().frame = cell.contentView.bounds
                     cell.contentView.addSubview(list.listView())
+                    if let vc = list as? UIViewController {
+                        vc.didMove(toParent: containerVC)
+                    }
                 }
         }
     }
@@ -342,6 +348,9 @@ open class TFYSwiftPagingListContainerView: UIView, TFYSwiftListContainerBase {
                 if list.listView().superview == nil {
                     list.listView().frame = CGRect(x: CGFloat(index)*scrollView.bounds.size.width, y: 0, width: scrollView.bounds.size.width, height: scrollView.bounds.size.height)
                     scrollView.addSubview(list.listView())
+                    if let vc = list as? UIViewController {
+                        vc.didMove(toParent: containerVC)
+                    }
                 }
                 list.listWillAppear?()
                 if let vc = list as? UIViewController {
@@ -352,6 +361,9 @@ open class TFYSwiftPagingListContainerView: UIView, TFYSwiftListContainerBase {
                 cell?.contentView.subviews.forEach { $0.removeFromSuperview() }
                 list.listView().frame = cell?.contentView.bounds ?? CGRect.zero
                 cell?.contentView.addSubview(list.listView())
+                if let vc = list as? UIViewController {
+                    vc.didMove(toParent: containerVC)
+                }
                 list.listWillAppear?()
                 if let vc = list as? UIViewController {
                     vc.beginAppearanceTransition(true, animated: false)

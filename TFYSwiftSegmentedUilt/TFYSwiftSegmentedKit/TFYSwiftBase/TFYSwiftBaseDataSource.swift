@@ -9,10 +9,20 @@ import Foundation
 import  UIKit
 
 open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
+    /// item 宽度分配策略。
+    public enum ItemWidthMode {
+        /// 沿用 `itemWidth`（`TFYSwiftViewAutomaticDimension` 时按内容）。
+        case automatic
+        /// 在可用宽度内等分（类似 `UISegmentedControl`）。
+        case equal
+    }
+
     /// 最终传递给TFYSwiftView的数据源数组
     open var dataSource = [TFYSwiftBaseItemModel]()
     /// cell的宽度。为TFYSwiftViewAutomaticDimension时就以内容计算的宽度为准，否则以itemWidth的具体值为准。
     open var itemWidth: CGFloat = TFYSwiftViewAutomaticDimension
+    /// 宽度分配模式。`.equal` 时会在 `reloadData` 阶段覆盖各 item 的宽度。
+    open var itemWidthMode: ItemWidthMode = .automatic
     /// 真实的item宽度 = itemWidth + itemWidthIncrement。
     open var itemWidthIncrement: CGFloat = 0
     /// item之前的间距
@@ -33,6 +43,8 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
     open var itemWidthSelectedZoomScale: CGFloat = 1.5
     /// 可选角标配置，按 index 对齐；`nil` 或越界表示不显示。
     open var badges: [TFYSwiftBadgeConfiguration?] = []
+    /// 可选启用态，按 index 对齐；空数组表示全部可点。
+    open var itemEnabledStates: [Bool] = []
 
     @available(*, deprecated, renamed: "itemWidth")
     open var itemContentWidth: CGFloat = TFYSwiftViewAutomaticDimension {
@@ -49,6 +61,46 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
     }
 
     public init() {
+    }
+
+    /// 将数字角标快捷写入 `badges`（兼容 Number 风格，0 按 hidesWhenZero 隐藏）。
+    open func applyNumberBadges(_ numbers: [Int],
+                                hidesWhenZero: Bool = true,
+                                backgroundColor: UIColor = .systemRed,
+                                textColor: UIColor = .white) {
+        badges = numbers.map { n in
+            TFYSwiftBadgeConfiguration(style: .number(n),
+                                       backgroundColor: backgroundColor,
+                                       textColor: textColor,
+                                       hidesWhenZero: hidesWhenZero)
+        }
+    }
+
+    /// 将红点状态快捷写入 `badges`。
+    open func applyDotBadges(_ states: [Bool],
+                             backgroundColor: UIColor = .systemRed) {
+        badges = states.map { on in
+            on ? TFYSwiftBadgeConfiguration(style: .dot, backgroundColor: backgroundColor) : nil
+        }
+    }
+
+    /// 拖拽重排后同步内部数组；子类应覆写以同步 `titles` 等业务数组。
+    open func didReorderItem(from fromIndex: Int, to toIndex: Int) {
+        guard dataSource.indices.contains(fromIndex),
+              toIndex >= 0, toIndex < dataSource.count else { return }
+        let moved = dataSource.remove(at: fromIndex)
+        dataSource.insert(moved, at: toIndex)
+        if badges.count == preferredItemCount() || badges.count == dataSource.count {
+            let badge = badges.indices.contains(fromIndex) ? badges.remove(at: fromIndex) : nil
+            let insertAt = min(max(toIndex, 0), badges.count)
+            badges.insert(badge, at: insertAt)
+        }
+        if itemEnabledStates.count == preferredItemCount() || itemEnabledStates.count == dataSource.count {
+            let state = itemEnabledStates.indices.contains(fromIndex) ? itemEnabledStates.remove(at: fromIndex) : true
+            let insertAt = min(max(toIndex, 0), itemEnabledStates.count)
+            itemEnabledStates.insert(state, at: insertAt)
+        }
+        for (i, model) in dataSource.enumerated() { model.index = i }
     }
 
     /// 配置完各种属性之后，需要手动调用该方法，更新数据源
@@ -100,6 +152,11 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
             itemModel.itemWidthCurrentZoomScale = itemModel.itemWidthNormalZoomScale
         }
         itemModel.badgeConfiguration = badges.indices.contains(index) ? badges[index] : nil
+        if itemEnabledStates.isEmpty {
+            itemModel.isItemEnabled = true
+        } else {
+            itemModel.isItemEnabled = itemEnabledStates.indices.contains(index) ? itemEnabledStates[index] : true
+        }
     }
 
     //MARK: - TFYSwiftViewDataSource

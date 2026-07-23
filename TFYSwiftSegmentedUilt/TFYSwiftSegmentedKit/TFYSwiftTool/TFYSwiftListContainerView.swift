@@ -255,9 +255,12 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
         }
         validListDict.values.forEach { (list) in
             if let listVC = list as? UIViewController {
+                listVC.willMove(toParent: nil)
+                listVC.view.removeFromSuperview()
                 listVC.removeFromParent()
+            } else {
+                list.listView().removeFromSuperview()
             }
-            list.listView().removeFromSuperview()
         }
         validListDict.removeAll()
         if type == .scrollView {
@@ -291,6 +294,9 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
         if type == .scrollView {
             list.listView().frame = CGRect(x: CGFloat(index)*scrollView.bounds.size.width, y: 0, width: scrollView.bounds.size.width, height: scrollView.bounds.size.height)
             scrollView.addSubview(list.listView())
+            if let vc = list as? UIViewController {
+                vc.didMove(toParent: containerVC)
+            }
             
             if segmentedViewShouldRTLLayout() {
                 segmentedView(horizontalFlipForView: list.listView())
@@ -300,6 +306,9 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             cell?.contentView.subviews.forEach { $0.removeFromSuperview() }
             list.listView().frame = cell?.contentView.bounds ?? CGRect.zero
             cell?.contentView.addSubview(list.listView())
+            if let vc = list as? UIViewController {
+                vc.didMove(toParent: containerVC)
+            }
         }
     }
 
@@ -331,6 +340,9 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
                 if list.listView().superview == nil {
                     list.listView().frame = CGRect(x: CGFloat(index)*scrollView.bounds.size.width, y: 0, width: scrollView.bounds.size.width, height: scrollView.bounds.size.height)
                     scrollView.addSubview(list.listView())
+                    if let vc = list as? UIViewController {
+                        vc.didMove(toParent: containerVC)
+                    }
                     
                     if segmentedViewShouldRTLLayout() {
                         segmentedView(horizontalFlipForView: list.listView())
@@ -345,6 +357,9 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
                 cell?.contentView.subviews.forEach { $0.removeFromSuperview() }
                 list.listView().frame = cell?.contentView.bounds ?? CGRect.zero
                 cell?.contentView.addSubview(list.listView())
+                if let vc = list as? UIViewController {
+                    vc.didMove(toParent: containerVC)
+                }
                 list.listWillAppear?()
                 if let vc = list as? UIViewController {
                     vc.beginAppearanceTransition(true, animated: false)

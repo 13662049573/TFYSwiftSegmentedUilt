@@ -30,6 +30,10 @@ open class TFYSwiftBaseItemModel {
     open var accessibilityHintText: String? = nil
     /// 角标配置；由 `TFYSwiftBaseDataSource.badges` 在 reload 时写入，cell 在 `reloadData` / layout 时应用。
     open var badgeConfiguration: TFYSwiftBadgeConfiguration? = nil
+    /// 是否可交互选中。`false` 时点击被忽略，cell 会以 `disabledAlpha` 变淡。
+    open var isItemEnabled: Bool = true
+    /// 禁用态透明度。默认 0.4。
+    open var disabledAlpha: CGFloat = 0.4
 
     public init() {
     }
