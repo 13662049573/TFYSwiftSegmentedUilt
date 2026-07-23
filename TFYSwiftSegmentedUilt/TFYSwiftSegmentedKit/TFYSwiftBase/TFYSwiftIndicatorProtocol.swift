@@ -13,6 +13,10 @@ public protocol TFYSwiftIndicatorProtocol: UIView {
     /// 如果添加了多个indicator，仅能有一个indicator的isIndicatorConvertToItemFrameEnabled为true。
     /// 如果有多个indicator的isIndicatorConvertToItemFrameEnabled为true，则以最后一个isIndicatorConvertToItemFrameEnabled为true的indicator为准。
     var isIndicatorConvertToItemFrameEnabled: Bool { get }
+
+    /// 点击选中时指示器滚动动画时长。默认 0.25。
+    /// 声明在 Base 协议中，避免 `TFYSwiftBase` 子规格依赖 `TFYSwiftIndicator` 模块。
+    var scrollAnimationDuration: TimeInterval { get }
     
     /// 视图重置状态时调用，已当前选中的index更新状态
     /// param selectedIndex 当前选中的index
@@ -37,5 +41,9 @@ public protocol TFYSwiftIndicatorProtocol: UIView {
     /// param selectedType 选中的类型
     /// - Parameter model: model description
     func selectItem(model: TFYSwiftIndicatorSelectedParams)
+}
+
+public extension TFYSwiftIndicatorProtocol {
+    var scrollAnimationDuration: TimeInterval { 0.25 }
 }
 

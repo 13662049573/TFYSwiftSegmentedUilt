@@ -1057,7 +1057,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         lastTransitionProgress = CGFloat(index)
 
         if animated {
-            let duration = (indicators.compactMap { ($0 as? TFYSwiftIndicatorBaseView)?.scrollAnimationDuration }.max() ?? 0.25)
+            let duration = indicators.map(\.scrollAnimationDuration).max() ?? 0.25
             DispatchQueue.main.asyncAfter(deadline: .now() + max(duration, 0.25) + 0.05) { [weak self] in
                 guard let self else { return }
                 self.suppressContentScrollCallback = false
