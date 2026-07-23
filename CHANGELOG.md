@@ -5,6 +5,37 @@ All notable changes to **TFYSwiftSegmentedKit** will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-07-23
+
+### Fixed
+
+- CocoaPods 分 subspec 编译：`TFYSwiftBase` 不再强依赖 `TFYSwiftIndicatorBaseView`。
+  `scrollAnimationDuration` 提升到 `TFYSwiftIndicatorProtocol`，`pod lib lint` /
+  `pod trunk push` 可通过。
+- 禁用项滑动：跳过禁用页时标题 / 指示器 / 内容页保持同步；跨禁用页只落到滑动方向
+  **相邻**启用项（避免直播→关注却冲到推荐）；拖动中不抢 `contentOffset`。
+
+### Added
+
+- `itemWidthMode`（`.automatic` / `.equal`）
+- `itemEnabledStates` / `isItemEnabled`（点击拦截 + 滑动跳过禁用页）
+- `allowsDeselection` / `isMomentary` / `clearSelection()`
+- `leadingAccessoryView` / `trailingAccessoryView` / `accessorySpacing`
+- `applyNumberBadges` / `applyDotBadges`、`titleImageTypes`
+- SwiftUI：`TFYSwiftListPagingContainer`、公开 `TFYSwiftPagingPagesBuilder`
+
+## [2.0.2] - 2026-07
+
+### Added
+
+- 2.0 增量能力合入与 Demo 扩充（含「等宽 + 禁用态 + 反选」等）。
+
+## [2.0.1] - 2026-05
+
+### Fixed
+
+- 2.0 发布后的稳定性与示例工程修补。
+
 ## [2.0.0] - 2026-04-20
 
 ### Highlights

@@ -19,6 +19,7 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [安装](#安装)
 - [快速开始](#快速开始)
 - [2.0 新能力速览](#20-新能力速览)
+- [2.0.3 增量](#203-增量)
 - [SwiftUI](#swiftui)
 - [Combine / async](#combine--async)
 - [指示器图库](#指示器图库)
@@ -27,7 +28,8 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [性能与诊断](#性能与诊断)
 - [测试 & CI](#测试--ci)
 - [迁移到 2.0](#迁移到-20)
-- [许可](#许可)
+- [更新日志](#更新日志)
+- [许可证](#许可证)
 
 
 
@@ -48,7 +50,10 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [x] 支持RTL布局
 - [x] 支持自适应布局
 - [x] 支持列表容器联动
-- [x] 支持 Swift Package Manager
+- [x] 支持等宽布局 / item 禁用态 / 反选 / Momentary
+- [x] 支持左右 Accessory、一等公民 Badge API
+- [x] 支持 SwiftUI（SegmentedView / PagingContainer / ListPagingContainer）
+- [x] 支持 Swift Package Manager / CocoaPods
 - [x] 支持图片资源自定义 Bundle
 - [x] 支持可访问性选中状态
 - [x] 支持安全单项/批量刷新
@@ -78,6 +83,8 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 | TitleGradient  | 标题渐变  | 文字颜色渐变     |
 | TitleOrImage   | 标题或图片 | 可切换的图文显示   |
 | AttributeTitle | 富文本标题 | 复杂文本样式     |
+| PagingView     | 分页联动  | 主从表 / SmoothPaging |
+| SwiftUI        | SwiftUI | Segmented / Paging / ListPaging |
 | Tool           | 工具    | 辅助功能       |
 
 
@@ -108,8 +115,8 @@ import TFYSwiftSegmentedKit
 1. 在 Podfile 中添加依赖：
 
 ```ruby
-# 完整安装
-pod 'TFYSwiftSegmentedKit'
+# 完整安装（默认含全部 subspec，含 SwiftUI）
+pod 'TFYSwiftSegmentedKit', '~> 2.0.3'
 
 # 按需安装
 pod 'TFYSwiftSegmentedKit/TFYSwiftBase'        # 核心功能
@@ -122,7 +129,8 @@ pod 'TFYSwiftSegmentedKit/TFYSwiftTitleGradient' # 标题渐变
 pod 'TFYSwiftSegmentedKit/TFYSwiftTitleOrImage'  # 标题或图片
 pod 'TFYSwiftSegmentedKit/TFYSwiftAttributeTitle' # 富文本标题
 pod 'TFYSwiftSegmentedKit/TFYSwiftTool'          # 工具
-pod 'TFYSwiftSegmentedKit/TFYSwiftPagingView'    # Paging联动
+pod 'TFYSwiftSegmentedKit/TFYSwiftPagingView'    # Paging 联动
+pod 'TFYSwiftSegmentedKit/TFYSwiftSwiftUI'       # SwiftUI 封装
 ```
 
 1. 执行安装：
@@ -316,8 +324,50 @@ TFYSwiftSegmentedKit 基于 MIT 许可证开源。详见 [LICENSE](LICENSE) 文�
 | 交互      | 拖拽重排（`isReorderingEnabled`）、Context Menu、Long Press 钩子、`TFYSwiftHapticEngine`                                         |
 | 可访问性    | 自动订阅 `isReduceMotionEnabled`、`accessibilityValue`/`accessibilityHint`、`TFYSwiftViewTool.contrastRatio`                |
 | API     | `TFYSwiftViewEventHandlers`、`selectedIndexPublisher`、`scrollingProgressPublisher`、`async selectItem(at:animated:)`    |
-| SwiftUI | `TFYSwiftSegmentedView`、`TFYSwiftPagingContainer(ViewBuilder)`                                                        |
+| SwiftUI | `TFYSwiftSegmentedView`、`TFYSwiftPagingContainer(ViewBuilder)`、`TFYSwiftListPagingContainer` |
+| 布局 / 交互 | `itemWidthMode`、`itemEnabledStates`、`allowsDeselection` / `isMomentary`、左右 Accessory |
 | 工具链     | SPM 工作区联合、XCTest 扩充、GitHub Actions CI（build / test-spm / lint / pod-lint）                                             |
+
+
+
+
+## 2.0.3 增量
+
+当前推荐版本：**2.0.3**（2026-07-23）。相对 2.0.0 的主要增量：
+
+### 等宽 · 禁用 · 反选
+
+```swift
+let ds = TFYSwiftTitleDataSource()
+ds.titles = ["推荐", "关注", "同城", "直播"]
+ds.itemWidthMode = .equal
+ds.itemEnabledStates = [true, true, false, true] // 「同城」禁用：点击拦截，滑动自动跳过
+ds.applyNumberBadges([0, 3, 0, 1])
+
+segmentedView.allowsDeselection = true   // 再点已选中项可取消选中
+segmentedView.isMomentary = false
+segmentedView.clearSelection()           // 代码清除选中态
+```
+
+滑动经过禁用项时：内容页与指示器只会落到滑动方向上的**相邻启用项**（例如直播 → 关注，不会一次冲到推荐），且标题 / 指示器 / 内容保持同步。
+
+### Accessory
+
+```swift
+segmentedView.leadingAccessoryView = filterButton
+segmentedView.trailingAccessoryView = moreButton
+segmentedView.accessorySpacing = 8
+```
+
+### SwiftUI ListPaging
+
+```swift
+TFYSwiftListPagingContainer(titles: titles, selectedIndex: $index) {
+    // 真实 ListContainer 联动，而非仅 TabView 包裹
+}
+```
+
+完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 
 
@@ -400,6 +450,10 @@ pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
 - `itemContentWidth` 已标记 `@available(*, deprecated, renamed: "itemWidth")`，请切换为 `itemWidth`。
 - 具体变更详见 [MIGRATION.md](MIGRATION.md) 与 [CHANGELOG.md](CHANGELOG.md)。
 
+## 更新日志
+
+详见 [CHANGELOG.md](CHANGELOG.md)。最新发布：**2.0.3**。
+
 ---
 
 
@@ -414,6 +468,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [What's New in 2.0](#whats-new-in-20)
+- [What's New in 2.0.3](#whats-new-in-203)
 - [SwiftUI](#swiftui-1)
 - [Combine & async](#combine--async)
 - [Indicators Gallery](#indicators-gallery)
@@ -422,6 +477,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - [Diagnostics](#diagnostics)
 - [Testing & CI](#testing--ci)
 - [Migration Guide](#migration-guide)
+- [Changelog](#changelog-1)
 - [License](#license-1)
 
 
@@ -433,10 +489,12 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - RTL support, dynamic type, accessibility traits & values
 - Paging container + smooth paging variant
 - Drag-to-reorder, context menu, long-press hook, haptic feedback
-- SwiftUI: `TFYSwiftSegmentedView` and `TFYSwiftPagingContainer(ViewBuilder)`
+- SwiftUI: `TFYSwiftSegmentedView`, `TFYSwiftPagingContainer`, `TFYSwiftListPagingContainer`
+- Equal-width layout, per-item enabled states (swipe skips disabled pages), deselection / momentary
+- Leading / trailing accessories, first-class badge helpers
 - Combine publishers (`selectedIndexPublisher`, `scrollingProgressPublisher`)
 - `async func selectItem(at:animated:)`
-- SPM, CocoaPods, Xcode 16+, iOS 13+
+- SPM, CocoaPods, Xcode 16+, iOS 15+
 
 
 
@@ -447,7 +505,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.2")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.3")
 ```
 
 
@@ -455,7 +513,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### CocoaPods
 
 ```ruby
-pod 'TFYSwiftSegmentedKit', '~> 2.0.2'
+pod 'TFYSwiftSegmentedKit', '~> 2.0.3'
 ```
 
 
@@ -484,6 +542,27 @@ See the Chinese section above — all bullet points are identical in English. Hi
 - `TFYSwiftPagingContainer` SwiftUI ViewBuilder container.
 - Unified `TFYSwiftListContainerBase` protocol for both list containers.
 - GitHub Actions CI (build / test-spm / lint / pod-lint).
+
+
+
+## What's New in 2.0.3
+
+Recommended version: **2.0.3** (2026-07-23).
+
+- `itemWidthMode`, `itemEnabledStates` (tap blocked + swipe skips disabled pages, one adjacent enabled step at a time)
+- `allowsDeselection` / `isMomentary` / `clearSelection()`
+- Leading / trailing accessories
+- Badge helpers + `titleImageTypes`
+- SwiftUI `TFYSwiftListPagingContainer`
+- Pod modular build fix: `scrollAnimationDuration` lives on `TFYSwiftIndicatorProtocol` (Base), so `TFYSwiftBase` lint no longer needs Indicator
+
+Full notes: [CHANGELOG.md](CHANGELOG.md).
+
+
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md). Latest: **2.0.3**.
 
 
 
