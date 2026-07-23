@@ -408,35 +408,25 @@ final class Modern2_0BadgeViewController: Modern2_0BaseViewController {
         ds.titleSelectedFont = .systemFont(ofSize: 15, weight: .semibold)
         ds.itemSpacing = 24
         ds.isTitleZoomEnabled = true
+        ds.badges = titles.indices.map { i -> TFYSwiftBadgeConfiguration? in
+            switch i % 3 {
+            case 0:
+                return TFYSwiftBadgeConfiguration(style: .dot, backgroundColor: .systemRed)
+            case 1:
+                return TFYSwiftBadgeConfiguration(style: .number(i + 3),
+                                                 backgroundColor: .systemRed,
+                                                 textColor: .white,
+                                                 font: .systemFont(ofSize: 10, weight: .semibold))
+            default:
+                return TFYSwiftBadgeConfiguration(style: .text("NEW"),
+                                                 backgroundColor: .systemOrange,
+                                                 textColor: .white,
+                                                 font: .systemFont(ofSize: 10, weight: .bold))
+            }
+        }
         dataSourceStrongRef = ds
         segmentedView.dataSource = ds
         segmentedView.indicators = [TFYSwiftIndicatorLineView()]
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        applyBadges()
-    }
-
-    private func applyBadges() {
-        for i in 0..<segmentedView.itemCount {
-            guard let cell = segmentedView.collectionView.cellForItem(at: IndexPath(item: i, section: 0)) else { continue }
-            switch i % 3 {
-            case 0:
-                cell.tfy_applyBadge(TFYSwiftBadgeConfiguration(style: .dot,
-                                                               backgroundColor: .systemRed))
-            case 1:
-                cell.tfy_applyBadge(TFYSwiftBadgeConfiguration(style: .number(i + 3),
-                                                               backgroundColor: .systemRed,
-                                                               textColor: .white,
-                                                               font: .systemFont(ofSize: 10, weight: .semibold)))
-            default:
-                cell.tfy_applyBadge(TFYSwiftBadgeConfiguration(style: .text("NEW"),
-                                                               backgroundColor: .systemOrange,
-                                                               textColor: .white,
-                                                               font: .systemFont(ofSize: 10, weight: .bold)))
-            }
-        }
     }
 }
 
@@ -664,5 +654,297 @@ private struct Modern2_0SwiftUIPage: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+// MARK: - A. SwiftUI 仅标题条
+
+final class Modern2_0SwiftUIBarViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        let host = UIHostingController(rootView: Modern2_0SwiftUIBarDemo())
+        addChild(host)
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(host.view)
+        NSLayoutConstraint.activate([
+            host.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            host.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            host.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        host.didMove(toParent: self)
+    }
+}
+
+private struct Modern2_0SwiftUIBarDemo: View {
+    @State private var index = 0
+    private let titles = ["发现", "关注", "同城", "直播"]
+
+    var body: some View {
+        VStack(spacing: 16) {
+            TFYSwiftSegmentedView(titles: titles, selectedIndex: $index) { view, ds in
+                ds.titleNormalColor = .secondaryLabel
+                ds.titleSelectedColor = .systemPink
+                ds.isTitleZoomEnabled = true
+                let line = TFYSwiftIndicatorLineView()
+                line.indicatorColor = .systemPink
+                line.indicatorWidth = 20
+                view.indicators = [line]
+                view.isHapticEnabled = true
+            }
+            .frame(height: 44)
+
+            Text("选中：\(titles[index]) (#\(index))")
+                .font(.headline)
+                .foregroundStyle(.primary)
+            Spacer()
+        }
+        .padding(.top, 12)
+    }
+}
+
+// MARK: - A. RTL
+
+final class RTLSegmentedDemoViewController: Modern2_0BaseViewController {
+    private let rtlTitles = ["الرئيسية", "رائج", "مفضل", "إعدادات"]
+
+    override func configure() {
+        view.semanticContentAttribute = .forceRightToLeft
+        segmentedView.semanticContentAttribute = .forceRightToLeft
+
+        let ds = TFYSwiftTitleDataSource()
+        ds.titles = rtlTitles
+        ds.titleNormalColor = .secondaryLabel
+        ds.titleSelectedColor = .label
+        ds.titleNormalFont = .systemFont(ofSize: 15)
+        ds.titleSelectedFont = .systemFont(ofSize: 15, weight: .semibold)
+        ds.isTitleColorGradientEnabled = true
+        dataSourceStrongRef = ds
+        segmentedView.dataSource = ds
+
+        let indicator = TFYSwiftIndicatorLineView()
+        indicator.indicatorColor = .systemTeal
+        segmentedView.indicators = [indicator]
+        segmentedView.isHapticEnabled = true
+    }
+
+    override func numberOfLists(in listContainerView: TFYSwiftListContainerView) -> Int {
+        rtlTitles.count
+    }
+
+    override func listContainerView(_ listContainerView: TFYSwiftListContainerView,
+                                    initListAt index: Int) -> TFYSwiftListContainerViewListDelegate {
+        Modern2_0PageViewController(index: index, title: rtlTitles[safe: index] ?? "")
+    }
+}
+
+// MARK: - A. PagingSmoothView
+
+final class PagingSmoothDemoViewController: UIViewController {
+    private var pagingView: TFYSwiftPagingSmoothView!
+    private let titles = ["动态", "作品", "喜欢"]
+    private lazy var segmentedDataSource: TFYSwiftTitleDataSource = {
+        let ds = TFYSwiftTitleDataSource()
+        ds.titles = titles
+        ds.titleNormalColor = .secondaryLabel
+        ds.titleSelectedColor = .label
+        ds.isTitleZoomEnabled = true
+        return ds
+    }()
+    private lazy var segmentedView: TFYSwiftView = {
+        let view = TFYSwiftView()
+        view.dataSource = segmentedDataSource
+        view.isContentScrollViewClickTransitionAnimationEnabled = false
+        let line = TFYSwiftIndicatorLineView()
+        line.indicatorColor = .systemBlue
+        line.indicatorWidth = 28
+        view.indicators = [line]
+        return view
+    }()
+    private lazy var headerView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .systemIndigo
+        let label = UILabel()
+        label.text = "Smooth Paging Header"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        v.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: v.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: v.centerYAnchor)
+        ])
+        return v
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        pagingView = TFYSwiftPagingSmoothView(dataSource: self)
+        pagingView.delegate = self
+        view.addSubview(pagingView)
+        segmentedView.listContainer = nil
+        // Smooth 自己管理横向列表；手动同步选中态
+        segmentedView.contentScrollView = pagingView.listCollectionView
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pagingView.frame = view.bounds
+    }
+}
+
+extension PagingSmoothDemoViewController: TFYSwiftPagingSmoothViewDataSource {
+    func heightForPagingHeader(in pagingView: TFYSwiftPagingSmoothView) -> CGFloat { 180 }
+    func viewForPagingHeader(in pagingView: TFYSwiftPagingSmoothView) -> UIView { headerView }
+    func heightForPinHeader(in pagingView: TFYSwiftPagingSmoothView) -> CGFloat { 50 }
+    func viewForPinHeader(in pagingView: TFYSwiftPagingSmoothView) -> UIView {
+        segmentedView.backgroundColor = .systemBackground
+        return segmentedView
+    }
+    func numberOfLists(in pagingView: TFYSwiftPagingSmoothView) -> Int { titles.count }
+    func pagingView(_ pagingView: TFYSwiftPagingSmoothView, initListAtIndex index: Int) -> TFYSwiftPagingSmoothViewListViewDelegate {
+        let list = SmoothDemoListView()
+        list.dataSource = (0..<30).map { "Smooth List \(index) · Row \($0)" }
+        return list
+    }
+}
+
+extension PagingSmoothDemoViewController: TFYSwiftPagingSmoothViewDelegate {
+    func pagingSmoothViewDidScroll(_ scrollView: UIScrollView) {}
+}
+
+private final class SmoothDemoListView: UIView, TFYSwiftPagingSmoothViewListViewDelegate, UITableViewDataSource, UITableViewDelegate {
+    var dataSource: [String] = []
+    private let tableView = UITableView(frame: .zero, style: .plain)
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        addSubview(tableView)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        tableView.frame = bounds
+    }
+    func listView() -> UIView { self }
+    func listScrollView() -> UIScrollView { tableView }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { dataSource.count }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = dataSource[indexPath.row]
+        return cell
+    }
+}
+
+// MARK: - A. PagingListRefreshView
+
+final class PagingListRefreshDemoViewController: UIViewController {
+    private var pagingView: TFYSwiftPagingListRefreshView!
+    private let titles = ["关注", "推荐", "附近"]
+    private lazy var segmentedDataSource: TFYSwiftTitleDataSource = {
+        let ds = TFYSwiftTitleDataSource()
+        ds.titles = titles
+        ds.titleNormalColor = .secondaryLabel
+        ds.titleSelectedColor = .systemOrange
+        ds.isTitleColorGradientEnabled = true
+        return ds
+    }()
+    private lazy var segmentedView: TFYSwiftView = {
+        let v = TFYSwiftView()
+        v.dataSource = segmentedDataSource
+        v.isContentScrollViewClickTransitionAnimationEnabled = false
+        let line = TFYSwiftIndicatorLineView()
+        line.indicatorColor = .systemOrange
+        v.indicators = [line]
+        return v
+    }()
+    private lazy var headerContainer: UIView = {
+        let v = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 160))
+        v.backgroundColor = .systemOrange.withAlphaComponent(0.85)
+        let label = UILabel()
+        label.text = "下拉刷新 Header"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        v.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: v.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: v.centerYAnchor)
+        ])
+        return v
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        pagingView = TFYSwiftPagingListRefreshView(delegate: self)
+        view.addSubview(pagingView)
+        segmentedView.listContainer = pagingView.listContainerView
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pagingView.frame = view.bounds
+    }
+}
+
+extension PagingListRefreshDemoViewController: TFYSwiftPagingViewDelegate {
+    func tableHeaderViewHeight(in pagingView: TFYSwiftPagingView) -> Int { 160 }
+    func tableHeaderView(in pagingView: TFYSwiftPagingView) -> UIView { headerContainer }
+    func heightForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> Int { 50 }
+    func viewForPinSectionHeader(in pagingView: TFYSwiftPagingView) -> UIView {
+        segmentedView.backgroundColor = .systemBackground
+        return segmentedView
+    }
+    func numberOfLists(in pagingView: TFYSwiftPagingView) -> Int { titles.count }
+    func pagingView(_ pagingView: TFYSwiftPagingView, initListAtIndex index: Int) -> TFYSwiftPagingViewListViewDelegate {
+        let list = RefreshDemoListView()
+        list.dataSource = (0..<40).map { "Refresh List \(index) · \($0)" }
+        list.beginFirstRefresh()
+        return list
+    }
+}
+
+private final class RefreshDemoListView: UIView, TFYSwiftPagingViewListViewDelegate, UITableViewDataSource, UITableViewDelegate {
+    var dataSource: [String] = []
+    private var scrollCallback: ((UIScrollView) -> Void)?
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let refresh = UIRefreshControl()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        refresh.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
+        tableView.refreshControl = refresh
+        addSubview(tableView)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        tableView.frame = bounds
+    }
+    func beginFirstRefresh() { tableView.reloadData() }
+    @objc private func onRefresh() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.refresh.endRefreshing()
+            self?.tableView.reloadData()
+        }
+    }
+    func listView() -> UIView { self }
+    func listScrollView() -> UIScrollView { tableView }
+    func listViewDidScrollCallback(callback: @escaping (UIScrollView) -> ()) { scrollCallback = callback }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) { scrollCallback?(scrollView) }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { dataSource.count }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = dataSource[indexPath.row]
+        return cell
     }
 }

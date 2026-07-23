@@ -23,6 +23,7 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
 
         animator?.stop()
         animator = nil
+        tfy_applyBadge(nil)
     }
 
     public override init(frame: CGRect) {
@@ -115,6 +116,15 @@ open class TFYSwiftBaseCell: UICollectionViewCell, TFYSwiftViewRTLCompatible {
                 animator?.stop()
                 animator = nil
             }
+        }
+        tfy_applyBadge(itemModel.badgeConfiguration)
+    }
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        // 复用 / bounds 变化后重新锚定角标到右上角。
+        if let config = itemModel?.badgeConfiguration {
+            tfy_applyBadge(config)
         }
     }
     

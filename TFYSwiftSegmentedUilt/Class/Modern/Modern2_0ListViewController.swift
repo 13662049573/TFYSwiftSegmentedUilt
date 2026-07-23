@@ -22,6 +22,20 @@ final class Modern2_0ListViewController: UITableViewController {
     }
 
     private let sections: [Section] = [
+        Section(header: "A · 布局与分页补齐", rows: [
+            Row(title: "RTL 从右到左",
+                subtitle: "强制 RTL semanticAttribute + 阿拉伯语标题",
+                make: { RTLSegmentedDemoViewController() }),
+            Row(title: "PagingSmoothView 平滑嵌套",
+                subtitle: "Header + Pin + 列表联动（Smooth）",
+                make: { PagingSmoothDemoViewController() }),
+            Row(title: "PagingListRefreshView 下拉刷新",
+                subtitle: "悬浮头 + 列表 UIRefreshControl",
+                make: { PagingListRefreshDemoViewController() }),
+            Row(title: "SwiftUI · TFYSwiftSegmentedView",
+                subtitle: "仅标题条 Representable（无分页容器）",
+                make: { Modern2_0SwiftUIBarViewController() })
+        ]),
         Section(header: "B · 性能与诊断", rows: [
             Row(title: "UICollectionViewDiffableDataSource",
                 subtitle: "isDiffableDataSourceEnabled = true，带降级开关",
@@ -52,8 +66,8 @@ final class Modern2_0ListViewController: UITableViewController {
             Row(title: "拖拽重排（可选）",
                 subtitle: "isReorderingEnabled + didReorderItem",
                 make: { Modern2_0ReorderViewController() }),
-            Row(title: "Badge 角标",
-                subtitle: "TFYSwiftBadgeConfiguration + tfy_applyBadge",
+            Row(title: "Badge 角标（DataSource.badges）",
+                subtitle: "TFYSwiftBadgeConfiguration 一等公民，随 cell 复用",
                 make: { Modern2_0BadgeViewController() }),
             Row(title: "对比度校验（Debug）",
                 subtitle: "TFYSwiftViewTool.contrastRatio / warnIfContrastTooLow",
@@ -70,7 +84,7 @@ final class Modern2_0ListViewController: UITableViewController {
                 subtitle: "await view.selectItem(at:animated:)",
                 make: { Modern2_0AsyncSelectViewController() }),
             Row(title: "SwiftUI · TFYSwiftPagingContainer",
-                subtitle: "ViewBuilder 分页容器",
+                subtitle: "ViewBuilder 分页容器（公开 PagesBuilder）",
                 make: { Modern2_0SwiftUIContainerViewController() })
         ])
     ]

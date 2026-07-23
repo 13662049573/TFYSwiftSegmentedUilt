@@ -25,7 +25,7 @@ class ContentBaseViewController: UIViewController {
         
         view.addSubview(segmentedView)
 
-        listContainerView.isScrollEnabled = false
+        listContainerView.isScrollEnabled = true
         segmentedView.listContainer = listContainerView
         view.addSubview(listContainerView)
 

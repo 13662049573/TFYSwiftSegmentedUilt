@@ -129,6 +129,7 @@ public extension UIView {
         }
         badge.apply(config)
         let size = badge.intrinsicSize()
+        badge.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
         badge.frame = CGRect(x: bounds.width - size.width + config.offset.x,
                              y: config.offset.y,
                              width: size.width,

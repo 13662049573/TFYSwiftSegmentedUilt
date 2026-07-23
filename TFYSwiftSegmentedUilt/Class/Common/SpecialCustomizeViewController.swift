@@ -77,15 +77,15 @@ class SpecialCustomizeViewController: UITableViewController {
             navigationController?.pushViewController(vc, animated: true)
         case "导航栏自定义返回item手势处理":
             let vc = NaviItemCustomViewController()
-            vc.title = title
+            vc.title = itemTitle
             navigationController?.pushViewController(vc, animated: true)
         case "自定义：网格cell":
             let vc = GridCellExampleViewController()
-            vc.title = title
+            vc.title = itemTitle
             navigationController?.pushViewController(vc, animated: true)
         case "列表缓存":
             let vc = ListCacheViewController()
-            vc.title = title
+            vc.title = itemTitle
             navigationController?.pushViewController(vc, animated: true)
         default: break
         }

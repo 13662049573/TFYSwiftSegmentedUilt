@@ -28,6 +28,8 @@ open class TFYSwiftBaseItemModel {
     open var itemWidthSelectedZoomScale: CGFloat = 0
     /// VoiceOver 读出 "双击切换" 的 hint；数据源可按需覆盖。
     open var accessibilityHintText: String? = nil
+    /// 角标配置；由 `TFYSwiftBaseDataSource.badges` 在 reload 时写入，cell 在 `reloadData` / layout 时应用。
+    open var badgeConfiguration: TFYSwiftBadgeConfiguration? = nil
 
     public init() {
     }

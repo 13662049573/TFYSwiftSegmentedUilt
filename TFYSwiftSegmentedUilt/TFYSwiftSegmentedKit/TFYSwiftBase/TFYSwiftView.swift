@@ -207,8 +207,8 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         }
     }
     /// KVO 联动过渡时的最小变化阈值（百分比）。小于该值的微小偏移变化会被忽略，降低高频重绘压力。
-    /// 默认 0，完全保留历史行为；调大（例如 0.002）可降低 ProMotion 设备下的 CPU 占用。
-    open var contentScrollViewTransitionEpsilon: CGFloat = 0
+    /// 默认 `0.001`，在 ProMotion 设备上过滤亚像素抖动；设为 `0` 可恢复逐帧回调。
+    open var contentScrollViewTransitionEpsilon: CGFloat = 0.001
 
     /// 是否在 reloadData 阶段使用 `UICollectionViewDiffableDataSource` 作为底层驱动（默认 false）。
     ///
@@ -332,22 +332,17 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
 
         // Dynamic Type：系统字号变化时自动重排。数据源开启 `isTitleDynamicTypeEnabled` 才实际影响字号，
         // 但 reload 是无损操作，放在基类里对所有数据源都安全。
+        // 文本宽度缓存与字号强绑定，必须在同一回调里失效，避免截断。
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(tfy_handleContentSizeCategoryDidChange),
             name: UIContentSizeCategory.didChangeNotification,
             object: nil
         )
-        // 共享文本宽度缓存与字号强绑定，字号变更后必须失效，否则会继续返回旧宽度导致截断。
-        NotificationCenter.default.addObserver(
-            forName: UIContentSizeCategory.didChangeNotification,
-            object: nil,
-            queue: .main) { _ in
-                TFYSwiftTextMeasure.shared.invalidate()
-            }
     }
 
     @objc private func tfy_handleContentSizeCategoryDidChange() {
+        TFYSwiftTextMeasure.shared.invalidate()
         // superview 还没挂载时不急着刷新，避免不必要的 layout。
         guard superview != nil, dataSource != nil else { return }
         reloadData()
@@ -372,8 +367,23 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         }else {
             if collectionView.frame != targetFrame {
                 collectionView.frame = targetFrame
+                rebuildItemStartXCache()
                 collectionView.collectionViewLayout.invalidateLayout()
-                collectionView.reloadData()
+                // 仅失效布局；避免 bounds 变化时整表 reloadData 造成闪烁与多余 cell 重建。
+                if !indicators.isEmpty, itemDataSource.indices.contains(selectedIndex) {
+                    let selectedItemFrame = getSelectedItemFrameAt(index: selectedIndex)
+                    let contentWidth = currentItemContentWidth(at: selectedIndex)
+                    let params = TFYSwiftIndicatorSelectedParams(
+                        currentSelectedIndex: selectedIndex,
+                        currentSelectedItemFrame: selectedItemFrame,
+                        selectedType: .unknown,
+                        currentItemContentWidth: contentWidth,
+                        collectionViewContentSize: CGSize(width: totalContentWidthCache, height: bounds.size.height)
+                    )
+                    for indicator in indicators {
+                        indicator.refreshIndicatorState(model: params)
+                    }
+                }
             }
         }
     }
@@ -402,7 +412,26 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
         listContainer?.reloadData()
     }
 
+    /// 过渡过程中 item 宽度变化时调用：重建起点缓存，并尽量只失效相关 item 的布局。
+    /// - Parameter indices: 宽度发生变化的 item 索引；为空时整表失效。
+    open func invalidateItemLayout(at indices: [Int]) {
+        rebuildItemStartXCache()
+        let paths = indices
+            .filter { itemDataSource.indices.contains($0) }
+            .map { IndexPath(item: $0, section: 0) }
+        if paths.isEmpty {
+            collectionView.collectionViewLayout.invalidateLayout()
+            return
+        }
+        let context = UICollectionViewFlowLayoutInvalidationContext()
+        context.invalidateItems(at: paths)
+        context.invalidateFlowLayoutDelegateMetrics = true
+        collectionView.collectionViewLayout.invalidateLayout(with: context)
+    }
+
     open func reloadDataWithoutListContainer() {
+        let signpost = TFYSwiftDiagnostics.shared.beginSignpost(name: "reloadData", message: "selected=\(selectedIndex)")
+        defer { TFYSwiftDiagnostics.shared.endSignpost(name: "reloadData", id: signpost) }
         dataSource?.reloadData(selectedIndex: selectedIndex)
         itemDataSource = dataSource?.itemDataSource(in: self) ?? []
 
@@ -1034,11 +1063,25 @@ extension TFYSwiftView: UICollectionViewDelegate {
         didReorderItem?(sourceIndexPath.item, destinationIndexPath.item)
     }
 
-    /// 外部只读：拖拽后给业务方看的顺序（按 itemModel.index 当前状态）。
+    /// 拖拽重排后重建起点缓存并刷新指示器，避免 `getItemFrameAt` 读到陈旧 x。
     private func rebuildItemStartXCacheAfterReorder() {
-        // 重新累积 x 起点，保持 indicator 位置正确；本身不是 public API。
         for (i, model) in itemDataSource.enumerated() { model.index = i }
+        rebuildItemStartXCache()
         collectionView.collectionViewLayout.invalidateLayout()
+        if itemDataSource.indices.contains(selectedIndex) {
+            let selectedItemFrame = getSelectedItemFrameAt(index: selectedIndex)
+            let contentWidth = currentItemContentWidth(at: selectedIndex)
+            let params = TFYSwiftIndicatorSelectedParams(
+                currentSelectedIndex: selectedIndex,
+                currentSelectedItemFrame: selectedItemFrame,
+                selectedType: .code,
+                currentItemContentWidth: contentWidth,
+                collectionViewContentSize: CGSize(width: totalContentWidthCache, height: bounds.size.height)
+            )
+            for indicator in indicators {
+                indicator.selectItem(model: params)
+            }
+        }
     }
 
     // MARK: - Interactive reorder (long press)

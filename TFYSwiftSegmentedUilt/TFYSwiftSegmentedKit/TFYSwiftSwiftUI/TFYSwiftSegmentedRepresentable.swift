@@ -119,12 +119,39 @@ public struct TFYSwiftSegmentedView: UIViewRepresentable {
     }
 }
 
-// MARK: - TFYSwiftPagingContainer (SwiftUI ViewBuilder 分页容器)
+// MARK: - Pages builder（公开 API，避免依赖私有 `_VariadicView`）
+
+@available(iOS 15.0, *)
+@resultBuilder
+public enum TFYSwiftPagingPagesBuilder {
+    public static func buildExpression<V: View>(_ expression: V) -> AnyView {
+        AnyView(expression)
+    }
+
+    public static func buildBlock(_ components: AnyView...) -> [AnyView] {
+        Array(components)
+    }
+
+    public static func buildArray(_ components: [[AnyView]]) -> [AnyView] {
+        components.flatMap { $0 }
+    }
+
+    public static func buildOptional(_ component: [AnyView]?) -> [AnyView] {
+        component ?? []
+    }
+
+    public static func buildEither(first component: [AnyView]) -> [AnyView] {
+        component
+    }
+
+    public static func buildEither(second component: [AnyView]) -> [AnyView] {
+        component
+    }
+}
+
+// MARK: - TFYSwiftPagingContainer (SwiftUI 分页容器)
 
 /// SwiftUI 风格的分页容器：顶部是 `TFYSwiftSegmentedView`，下方是一组 SwiftUI 页面。
-/// 页面通过 `ViewBuilder` 声明，会被依次装载到 UIScrollView 上，整体与 SwiftUI 的
-/// 响应式布局配合得更自然，不再需要手动配 `TFYSwiftListContainerView` 与
-/// `TFYSwiftViewListContainer` 协议。
 ///
 /// Usage:
 /// ```swift
@@ -139,26 +166,41 @@ public struct TFYSwiftSegmentedView: UIViewRepresentable {
 /// }
 /// ```
 @available(iOS 15.0, *)
-public struct TFYSwiftPagingContainer<Pages: View>: View {
+public struct TFYSwiftPagingContainer: View {
     @Binding private var selectedIndex: Int
     private let titles: [String]
     private let segmentedHeight: CGFloat
     private let showsIndicator: Bool
     private let customizer: TFYSwiftSegmentedView.Customizer?
-    private let pages: Pages
+    private let pages: [AnyView]
 
     public init(titles: [String],
                 selectedIndex: Binding<Int>,
                 segmentedHeight: CGFloat = 44,
                 showsIndicator: Bool = true,
                 customizer: TFYSwiftSegmentedView.Customizer? = nil,
-                @ViewBuilder pages: () -> Pages) {
+                @TFYSwiftPagingPagesBuilder pages: () -> [AnyView]) {
         self.titles = titles
         self._selectedIndex = selectedIndex
         self.segmentedHeight = segmentedHeight
         self.showsIndicator = showsIndicator
         self.customizer = customizer
         self.pages = pages()
+    }
+
+    /// 显式传入页面数组的便捷初始化。
+    public init(titles: [String],
+                selectedIndex: Binding<Int>,
+                segmentedHeight: CGFloat = 44,
+                showsIndicator: Bool = true,
+                customizer: TFYSwiftSegmentedView.Customizer? = nil,
+                pages: [AnyView]) {
+        self.titles = titles
+        self._selectedIndex = selectedIndex
+        self.segmentedHeight = segmentedHeight
+        self.showsIndicator = showsIndicator
+        self.customizer = customizer
+        self.pages = pages
     }
 
     public var body: some View {
@@ -169,19 +211,11 @@ public struct TFYSwiftPagingContainer<Pages: View>: View {
                                   customizer: customizer)
                 .frame(height: segmentedHeight)
             TabView(selection: $selectedIndex) {
-                _VariadicView.Tree(PagesLayout()) {
-                    pages
+                ForEach(Array(pages.enumerated()), id: \.offset) { offset, page in
+                    page.tag(offset)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-        }
-    }
-
-    private struct PagesLayout: _VariadicView_UnaryViewRoot {
-        func body(children: _VariadicView.Children) -> some View {
-            ForEach(Array(children.enumerated()), id: \.offset) { offset, child in
-                child.tag(offset)
-            }
         }
     }
 }

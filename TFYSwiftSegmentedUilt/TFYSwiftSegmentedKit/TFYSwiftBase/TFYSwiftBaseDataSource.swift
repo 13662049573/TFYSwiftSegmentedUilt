@@ -31,6 +31,8 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
     open var isItemWidthZoomAnimable: Bool = true
     /// item宽度选中时的scale
     open var itemWidthSelectedZoomScale: CGFloat = 1.5
+    /// 可选角标配置，按 index 对齐；`nil` 或越界表示不显示。
+    open var badges: [TFYSwiftBadgeConfiguration?] = []
 
     @available(*, deprecated, renamed: "itemWidth")
     open var itemContentWidth: CGFloat = TFYSwiftViewAutomaticDimension {
@@ -97,6 +99,7 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
             itemModel.isSelected = false
             itemModel.itemWidthCurrentZoomScale = itemModel.itemWidthNormalZoomScale
         }
+        itemModel.badgeConfiguration = badges.indices.contains(index) ? badges[index] : nil
     }
 
     //MARK: - TFYSwiftViewDataSource
@@ -138,7 +141,7 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
                     currentSelectedItemModel.itemWidth = self.itemWidthWithZoom(in: segmentedView, at: currentSelectedItemModel.index, model: currentSelectedItemModel)
                     willSelectedItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: willSelectedItemModel.itemWidthNormalZoomScale, to: willSelectedItemModel.itemWidthSelectedZoomScale, percent: percent)
                     willSelectedItemModel.itemWidth = self.itemWidthWithZoom(in: segmentedView, at: willSelectedItemModel.index, model: willSelectedItemModel)
-                    segmentedView.collectionView.collectionViewLayout.invalidateLayout()
+                    segmentedView.invalidateItemLayout(at: [currentSelectedItemModel.index, willSelectedItemModel.index])
                 }
                 if isItemWidthZoomAnimable {
                     animator?.start()
@@ -162,7 +165,7 @@ open class TFYSwiftBaseDataSource: TFYSwiftViewDataSource {
             leftItemModel.itemWidth = itemWidthWithZoom(in: segmentedView, at: leftItemModel.index, model: leftItemModel)
             rightItemModel.itemWidthCurrentZoomScale = TFYSwiftViewTool.interpolate(from: rightItemModel.itemWidthNormalZoomScale, to: rightItemModel.itemWidthSelectedZoomScale, percent: percent)
             rightItemModel.itemWidth = itemWidthWithZoom(in: segmentedView, at: rightItemModel.index, model: rightItemModel)
-            segmentedView.collectionView.collectionViewLayout.invalidateLayout()
+            segmentedView.invalidateItemLayout(at: [leftItemModel.index, rightItemModel.index])
         }
     }
 

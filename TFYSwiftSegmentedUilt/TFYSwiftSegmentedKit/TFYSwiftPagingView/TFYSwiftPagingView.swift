@@ -353,7 +353,10 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDataSource {
     }
 
     public func listContainerView(_ listContainerView: TFYSwiftPagingListContainerView, initListAt index: Int) -> TFYSwiftPagingViewListViewDelegate {
-        guard let delegate = delegate else { preconditionFailure("TFYSwiftPagingView.delegate must not be nil") }
+        guard let delegate = delegate else {
+            assertionFailure("TFYSwiftPagingView.delegate must not be nil")
+            return TFYSwiftPagingEmptyListView()
+        }
         var list = validListDict[index]
         if list == nil {
             list = delegate.pagingView(self, initListAtIndex: index)
@@ -366,7 +369,8 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDataSource {
             }
         }
         guard let list else {
-            preconditionFailure("Failed to initialize list at index \(index)")
+            assertionFailure("Failed to initialize list at index \(index)")
+            return TFYSwiftPagingEmptyListView()
         }
         return list
     }
@@ -398,4 +402,28 @@ extension TFYSwiftPagingView: TFYSwiftPagingListContainerViewDelegate {
             }
         }
     }
+}
+
+/// 列表初始化失败时的空占位，避免 `preconditionFailure` 在生产环境直接崩溃。
+private final class TFYSwiftPagingEmptyListView: UIView, TFYSwiftPagingViewListViewDelegate {
+    private let scrollView = UIScrollView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        addSubview(scrollView)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        scrollView.frame = bounds
+    }
+
+    func listView() -> UIView { self }
+    func listScrollView() -> UIScrollView { scrollView }
+    func listViewDidScrollCallback(callback: @escaping (UIScrollView) -> ()) {}
 }

@@ -94,12 +94,12 @@ class IndicatorCustomizeViewController: UITableViewController {
             let indicator = TFYSwiftIndicatorTriangleView()
             vc.segmentedView.indicators = [indicator]
         case "BallView小红点":
-            //配置数据源
-            let dataSource = TFYSwiftTitleDataSource()
+            // 历史 storyboard 残留入口：用 DotDataSource + Background 指示器演示小红点效果。
+            let dataSource = TFYSwiftDotDataSource()
             dataSource.isTitleColorGradientEnabled = true
             dataSource.titles = titles
+            dataSource.dotStates = titles.indices.map { $0 % 2 == 0 }
             vc.segmentedDataSource = dataSource
-            //配置指示器
             let indicator = TFYSwiftIndicatorBackgroundView()
             indicator.indicatorHeight = 30
             vc.segmentedView.indicators = [indicator]
