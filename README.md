@@ -1,12 +1,12 @@
 # TFYSwiftSegmentedKit
 
-[![Version](https://img.shields.io/cocoapods/v/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
-[![License](https://img.shields.io/cocoapods/l/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
-[![Platform](https://img.shields.io/cocoapods/p/TFYSwiftSegmentedKit.svg?style=flat)](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
-[![Swift](https://img.shields.io/badge/Swift-5.9%20%7C%206.0-orange.svg)](https://swift.org)
-[![iOS](https://img.shields.io/badge/iOS-13.0%2B-blue.svg)](https://developer.apple.com/ios/)
-[![SPM](https://img.shields.io/badge/SPM-ready-brightgreen.svg)](https://swift.org/package-manager/)
-[![CI](https://img.shields.io/badge/CI-GitHub_Actions-blueviolet.svg)](.github/workflows/ci.yml)
+[Version](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
+[License](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
+[Platform](https://cocoapods.org/pods/TFYSwiftSegmentedKit)
+[Swift](https://swift.org)
+[iOS](https://developer.apple.com/ios/)
+[SPM](https://swift.org/package-manager/)
+[CI](.github/workflows/ci.yml)
 
 > 🇨🇳 中文版（本节） · 🇺🇸 [English](#english)
 
@@ -29,9 +29,11 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [迁移到 2.0](#迁移到-20)
 - [许可](#许可)
 
+
+
 ## 预览
 
-<img src="Resources/preview1.gif" width="200"> <img src="Resources/preview2.gif" width="200"> <img src="Resources/preview3.gif" width="200">
+  
 
 ## 特性
 
@@ -52,28 +54,38 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [x] 支持安全单项/批量刷新
 - [x] 完整的示例代码
 
+
+
 ## 要求
 
 - iOS 15.0+
 - Swift 5.0+
 - Xcode 14.0+
 
+
+
 ## 功能列表
 
-| 模块 | 说明 | 示例 |
-|------|------|------|
-| Base | 核心功能 | 基础布局和配置 |
-| Title | 标题样式 | 普通文本展示 |
-| Indicator | 指示器 | 下划线、背景等指示器 |
-| Number | 数字显示 | 角标、计数器等 |
-| Dot | 点状装饰 | 小红点、徽标等 |
-| TitleImage | 图文混排 | 图标+文字组合 |
-| TitleGradient | 标题渐变 | 文字颜色渐变 |
-| TitleOrImage | 标题或图片 | 可切换的图文显示 |
-| AttributeTitle | 富文本标题 | 复杂文本样式 |
-| Tool | 工具 | 辅助功能 |
+
+| 模块             | 说明    | 示例         |
+| -------------- | ----- | ---------- |
+| Base           | 核心功能  | 基础布局和配置    |
+| Title          | 标题样式  | 普通文本展示     |
+| Indicator      | 指示器   | 下划线、背景等指示器 |
+| Number         | 数字显示  | 角标、计数器等    |
+| Dot            | 点状装饰  | 小红点、徽标等    |
+| TitleImage     | 图文混排  | 图标+文字组合    |
+| TitleGradient  | 标题渐变  | 文字颜色渐变     |
+| TitleOrImage   | 标题或图片 | 可切换的图文显示   |
+| AttributeTitle | 富文本标题 | 复杂文本样式     |
+| Tool           | 工具    | 辅助功能       |
+
+
+
 
 ## 安装
+
+
 
 ### Swift Package Manager
 
@@ -88,6 +100,8 @@ https://github.com/13662049573/TFYSwiftSegmentedUilt.git
 ```swift
 import TFYSwiftSegmentedKit
 ```
+
+
 
 ### CocoaPods
 
@@ -111,11 +125,13 @@ pod 'TFYSwiftSegmentedKit/TFYSwiftTool'          # 工具
 pod 'TFYSwiftSegmentedKit/TFYSwiftPagingView'    # Paging联动
 ```
 
-2. 执行安装：
+1. 执行安装：
 
 ```bash
 pod install
 ```
+
+
 
 ## 快速开始
 
@@ -125,7 +141,7 @@ pod install
 import TFYSwiftSegmentedKit
 ```
 
-2. 创建分段选择器：
+1. 创建分段选择器：
 
 ```swift
 class ViewController: UIViewController {
@@ -148,7 +164,7 @@ class ViewController: UIViewController {
 }
 ```
 
-3. 实现数据源和代理：
+1. 实现数据源和代理：
 
 ```swift
 extension ViewController: TFYSwiftViewDataSource {
@@ -177,7 +193,11 @@ extension ViewController: TFYSwiftViewDelegate {
 }
 ```
 
+
+
 ## 自定义样式
+
+
 
 ### 指示器样式
 
@@ -188,6 +208,8 @@ lineView.indicatorWidth = 20
 segmentedView.indicators = [lineView]
 ```
 
+
+
 ### 标题渐变
 
 ```swift
@@ -196,6 +218,8 @@ itemModel.titleNormalColor = .gray
 itemModel.titleSelectedColor = .red
 itemModel.isTitleZoomEnabled = true
 ```
+
+
 
 ### 图文混排
 
@@ -217,6 +241,8 @@ dataSource.selectedImageInfos = ["home_selected", "message_selected"]
 dataSource.imageBundle = Bundle(for: ResourceMarker.self)
 ```
 
+
+
 ### 运行时刷新
 
 ```swift
@@ -226,6 +252,8 @@ segmentedView.selectItemAt(index: 2, animated: false)
 segmentedView.scrollToSelectedItem(animated: true)
 ```
 
+
+
 ### 列表容器联动
 
 ```swift
@@ -233,6 +261,8 @@ let listContainerView = TFYSwiftListContainerView(dataSource: self)
 view.addSubview(listContainerView)
 segmentedView.listContainer = listContainerView
 ```
+
+
 
 ## 示例项目
 
@@ -245,20 +275,27 @@ pod install
 open TFYSwiftSegmentedUilt.xcworkspace
 ```
 
+
+
 ## 常见问题
 
+
+
 ### Q: 如何自定义指示器样式？
+
 A: 继承 TFYSwiftIndicatorProtocol 协议，实现自定义指示器。
 
 ### Q: 如何实现自定义布局？
+
 A: 通过实现 TFYSwiftViewDataSource 的相关方法自定义布局参数。
 
 ### Q: 如何处理内存管理？
+
 A: 框架内部已处理循环引用问题，使用时注意避免强引用即可。
 
 ## 作者
 
-田风有, 420144542@qq.com
+田风有, [420144542@qq.com](mailto:420144542@qq.com)
 
 ## 贡献
 
@@ -270,16 +307,20 @@ TFYSwiftSegmentedKit 基于 MIT 许可证开源。详见 [LICENSE](LICENSE) 文�
 
 ## 2.0 新能力速览
 
-| 模块 | 新能力 |
-| --- | --- |
-| 并发 | `SWIFT_STRICT_CONCURRENCY=targeted`，`TFYSwiftTextMeasure` `@unchecked Sendable`，主线程 API 收敛 |
-| 性能 | `UICollectionViewDiffableDataSource` 开关、`TFYSwiftScrollDelegateMultiplexer` 多代理复用、`TFYSwiftDiagnostics` `os_signpost` |
-| 指示器 | 新增 **Capsule / ElasticLine / Blur / Symbol** 4 种，共 12+ |
-| 交互 | 拖拽重排（`isReorderingEnabled`）、Context Menu、Long Press 钩子、`TFYSwiftHapticEngine` |
-| 可访问性 | 自动订阅 `isReduceMotionEnabled`、`accessibilityValue`/`accessibilityHint`、`TFYSwiftViewTool.contrastRatio` |
-| API | `TFYSwiftViewEventHandlers`、`selectedIndexPublisher`、`scrollingProgressPublisher`、`async selectItem(at:animated:)` |
-| SwiftUI | `TFYSwiftSegmentedView`、`TFYSwiftPagingContainer(ViewBuilder)` |
-| 工具链 | SPM 工作区联合、XCTest 扩充、GitHub Actions CI（build / test-spm / lint / pod-lint） |
+
+| 模块      | 新能力                                                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------------------------------- |
+| 并发      | `SWIFT_STRICT_CONCURRENCY=targeted`，`TFYSwiftTextMeasure` `@unchecked Sendable`，主线程 API 收敛                            |
+| 性能      | `UICollectionViewDiffableDataSource` 开关、`TFYSwiftScrollDelegateMultiplexer` 多代理复用、`TFYSwiftDiagnostics` `os_signpost` |
+| 指示器     | 新增 **Capsule / ElasticLine / Blur / Symbol** 4 种，共 12+                                                                |
+| 交互      | 拖拽重排（`isReorderingEnabled`）、Context Menu、Long Press 钩子、`TFYSwiftHapticEngine`                                         |
+| 可访问性    | 自动订阅 `isReduceMotionEnabled`、`accessibilityValue`/`accessibilityHint`、`TFYSwiftViewTool.contrastRatio`                |
+| API     | `TFYSwiftViewEventHandlers`、`selectedIndexPublisher`、`scrollingProgressPublisher`、`async selectItem(at:animated:)`    |
+| SwiftUI | `TFYSwiftSegmentedView`、`TFYSwiftPagingContainer(ViewBuilder)`                                                        |
+| 工具链     | SPM 工作区联合、XCTest 扩充、GitHub Actions CI（build / test-spm / lint / pod-lint）                                             |
+
+
+
 
 ## SwiftUI
 
@@ -294,6 +335,8 @@ TFYSwiftPagingContainer(titles: ["Home", "Trending", "Library"],
 }
 ```
 
+
+
 ## Combine / async
 
 ```swift
@@ -307,6 +350,8 @@ Task {
 }
 ```
 
+
+
 ## 可访问性 / 触感 / 减弱动画
 
 ```swift
@@ -316,12 +361,16 @@ TFYSwiftViewTool.warnIfContrastTooLow(foreground: .white,
                                       background: .systemBlue)
 ```
 
+
+
 ## Badge
 
 ```swift
 titleCell.tfy_applyBadge(TFYSwiftBadgeConfiguration(style: .number(12),
                                                    backgroundColor: .systemRed))
 ```
+
+
 
 ## 性能与诊断
 
@@ -330,6 +379,8 @@ TFYSwiftDiagnostics.shared.isSignpostEnabled = true
 TFYSwiftDiagnostics.shared.isVerboseLoggingEnabled = true
 view.isDiffableDataSourceEnabled = true
 ```
+
+
 
 ## 测试 & CI
 
@@ -341,6 +392,8 @@ swiftlint lint
 pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
 ```
 
+
+
 ## 迁移到 2.0
 
 - 新代码请使用 `TFYSwiftListContainerBase` 协议接收容器，避免绑定具体类。
@@ -349,7 +402,7 @@ pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
 
 ---
 
-<a name="english"></a>
+
 
 # TFYSwiftSegmentedKit (English)
 
@@ -371,6 +424,8 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - [Migration Guide](#migration-guide)
 - [License](#license-1)
 
+
+
 ## Features
 
 - 12+ indicator styles (Line / DoubleLine / Dot / Triangle / Rainbow / Background / Gradient / GradientLine / Image / Capsule / ElasticLine / Blur / Symbol)
@@ -383,19 +438,27 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - `async func selectItem(at:animated:)`
 - SPM, CocoaPods, Xcode 16+, iOS 13+
 
+
+
 ## Installation
+
+
 
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.0")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.2")
 ```
+
+
 
 ### CocoaPods
 
 ```ruby
-pod 'TFYSwiftSegmentedKit', '~> 2.0'
+pod 'TFYSwiftSegmentedKit', '~> 2.0.2'
 ```
+
+
 
 ## Quick Start
 
@@ -406,6 +469,8 @@ ds.titles = ["Home", "Trending", "Library"]
 view.dataSource = ds
 view.indicators = [TFYSwiftIndicatorLineView()]
 ```
+
+
 
 ## What's New in 2.0
 
@@ -419,6 +484,8 @@ See the Chinese section above — all bullet points are identical in English. Hi
 - `TFYSwiftPagingContainer` SwiftUI ViewBuilder container.
 - Unified `TFYSwiftListContainerBase` protocol for both list containers.
 - GitHub Actions CI (build / test-spm / lint / pod-lint).
+
+
 
 ## License
 

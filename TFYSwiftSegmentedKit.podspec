@@ -2,12 +2,12 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "2.0.1"
+  spec.version      = "2.0.2"
 
   spec.summary      = "一个功能强大且高度可定制的iOS分段控制框架，具有丰富的特性。"
 
   spec.description  = <<-DESC
-                     TFYSwiftSegmentedKit 2.0 — 纯 Swift、与 JXSegmentedView 解耦的
+                     TFYSwiftSegmentedKit  — 纯 Swift、与 JXSegmentedView 解耦的
                      分段控件 / 分页标签组件库。
                      功能特点：
                      * 12+ 指示器样式（Line/DoubleLine/Dot/Triangle/Rainbow/Background/
