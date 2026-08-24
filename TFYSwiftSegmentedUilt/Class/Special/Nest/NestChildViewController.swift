@@ -43,6 +43,7 @@ class NestChildViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
+        segmentedView.frame = CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 50)
         listContainerView.frame = CGRect(x: 0, y: 50, width: view.bounds.size.width, height: view.bounds.size.height - 50)
     }
 }

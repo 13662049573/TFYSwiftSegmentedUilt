@@ -43,6 +43,10 @@ class SpecialCustomizeViewController: UITableViewController {
             let vc = NestViewController()
             vc.title = itemTitle
             navigationController?.pushViewController(vc, animated: true)
+        case "嵌套·超长标签":
+            let vc = NestLongTitleViewController()
+            vc.title = itemTitle
+            navigationController?.pushViewController(vc, animated: true)
         case "刷新数据+TFYSwiftListContainerView":
             let vc = LoadDataViewController()
             vc.title = itemTitle

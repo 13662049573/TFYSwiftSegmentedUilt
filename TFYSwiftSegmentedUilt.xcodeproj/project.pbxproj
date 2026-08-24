@@ -30,6 +30,7 @@
 		363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */; };
 		363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */; };
 		363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD02D44FDC400BC628D /* NestViewController.swift */; };
+		846DA8922F96A10100336534 /* NestLongTitleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846DA8912F96A10100336534 /* NestLongTitleViewController.swift */; };
 		363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */; };
 		363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */; };
 		363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3BDA2D44FDC400BC628D /* PagingViewController.swift */; };
@@ -126,6 +127,7 @@
 		363B3BCD2D44FDC400BC628D /* NaviItemCustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaviItemCustomViewController.swift; sourceTree = "<group>"; };
 		363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestChildViewController.swift; sourceTree = "<group>"; };
 		363B3BD02D44FDC400BC628D /* NestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestViewController.swift; sourceTree = "<group>"; };
+		846DA8912F96A10100336534 /* NestLongTitleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestLongTitleViewController.swift; sourceTree = "<group>"; };
 		363B3BD82D44FDC400BC628D /* PagingListBaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseCell.swift; sourceTree = "<group>"; };
 		363B3BD92D44FDC400BC628D /* PagingListBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingListBaseView.swift; sourceTree = "<group>"; };
 		363B3BDA2D44FDC400BC628D /* PagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingViewController.swift; sourceTree = "<group>"; };
@@ -329,6 +331,7 @@
 			children = (
 				363B3BCF2D44FDC400BC628D /* NestChildViewController.swift */,
 				363B3BD02D44FDC400BC628D /* NestViewController.swift */,
+				846DA8912F96A10100336534 /* NestLongTitleViewController.swift */,
 			);
 			path = Nest;
 			sourceTree = "<group>";
@@ -660,6 +663,7 @@
 				363B3C382D44FDC400BC628D /* NaviItemCustomViewController.swift in Sources */,
 				363B3C392D44FDC400BC628D /* NestChildViewController.swift in Sources */,
 				363B3C3A2D44FDC400BC628D /* NestViewController.swift in Sources */,
+				846DA8922F96A10100336534 /* NestLongTitleViewController.swift in Sources */,
 				363B3C402D44FDC400BC628D /* PagingListBaseCell.swift in Sources */,
 				363B3C412D44FDC400BC628D /* PagingListBaseView.swift in Sources */,
 				363B3C422D44FDC400BC628D /* PagingViewController.swift in Sources */,

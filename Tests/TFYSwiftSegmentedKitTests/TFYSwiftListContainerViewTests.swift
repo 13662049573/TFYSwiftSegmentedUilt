@@ -54,5 +54,85 @@ final class TFYSwiftListContainerViewTests: XCTestCase {
         container.layoutIfNeeded()
         XCTAssertEqual(ds.instantiatedViews, 0)
     }
+
+    @MainActor
+    func testDefaultScrollViewIsNestSafeSubclass() {
+        let ds = MockListContainerDataSource()
+        let scrollContainer = TFYSwiftListContainerView(dataSource: ds, type: .scrollView)
+        XCTAssertTrue(scrollContainer.contentScrollView() is TFYSwiftListContainerScrollView)
+
+        let collectionContainer = TFYSwiftListContainerView(dataSource: ds, type: .collectionView)
+        XCTAssertTrue(collectionContainer.contentScrollView() is TFYSwiftListContainerCollectionView)
+    }
+}
+
+final class TFYSwiftNestedHorizontalPanTests: XCTestCase {
+
+    private func makeOverflowScrollView(offsetX: CGFloat) -> UIScrollView {
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 50))
+        scrollView.contentSize = CGSize(width: 800, height: 50)
+        scrollView.contentOffset = CGPoint(x: offsetX, y: 0)
+        return scrollView
+    }
+
+    @MainActor
+    func testCanAbsorb_whenContentFits_returnsFalse() {
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 50))
+        scrollView.contentSize = CGSize(width: 320, height: 50)
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: -10))
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 10))
+    }
+
+    @MainActor
+    func testCanAbsorb_whenOverflowAndMidContent_returnsTrue() {
+        let scrollView = makeOverflowScrollView(offsetX: 100)
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: -10))
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 10))
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 0))
+    }
+
+    @MainActor
+    func testCanAbsorb_atLeadingEdge_onlyAbsorbsTrailingPan() {
+        let scrollView = makeOverflowScrollView(offsetX: 0)
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: -10))
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 10))
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 0))
+    }
+
+    @MainActor
+    func testCanAbsorb_atTrailingEdge_onlyAbsorbsLeadingPan() {
+        let scrollView = makeOverflowScrollView(offsetX: 480)
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: -10))
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 10))
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: 0))
+    }
+
+    @MainActor
+    func testCanAbsorb_whenScrollDisabled_returnsFalse() {
+        let scrollView = makeOverflowScrollView(offsetX: 100)
+        scrollView.isScrollEnabled = false
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.canAbsorb(in: scrollView, moveX: -10))
+    }
+
+    @MainActor
+    func testShouldOuterPanBegin_yieldsToOverflowNestedScrollView() {
+        let outer = TFYSwiftListContainerScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 480))
+        let nested = UIScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 50))
+        nested.contentSize = CGSize(width: 800, height: 50)
+        nested.contentOffset = CGPoint(x: 100, y: 0)
+        outer.addSubview(nested)
+
+        XCTAssertFalse(TFYSwiftNestedHorizontalPan.shouldOuterPanBegin(outer.panGestureRecognizer, in: outer))
+    }
+
+    @MainActor
+    func testShouldOuterPanBegin_whenNestedContentFits_allowsOuter() {
+        let outer = TFYSwiftListContainerScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 480))
+        let nested = UIScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 50))
+        nested.contentSize = CGSize(width: 320, height: 50)
+        outer.addSubview(nested)
+
+        XCTAssertTrue(TFYSwiftNestedHorizontalPan.shouldOuterPanBegin(outer.panGestureRecognizer, in: outer))
+    }
 }
 #endif

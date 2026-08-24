@@ -101,7 +101,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
         if let collectionViewClass = dataSource?.scrollViewClass?(in: self) as? UICollectionView.Type {
             return collectionViewClass.init(frame: CGRect.zero, collectionViewLayout: layout)
         }else {
-            return UICollectionView.init(frame: CGRect.zero, collectionViewLayout: layout)
+            return TFYSwiftListContainerCollectionView.init(frame: CGRect.zero, collectionViewLayout: layout)
         }
     }()
     private lazy var containerVC = TFYSwiftListContainerViewController()
@@ -139,7 +139,7 @@ open class TFYSwiftListContainerView: UIView, TFYSwiftViewListContainer, TFYSwif
             if let scrollViewClass = dataSource?.scrollViewClass?(in: self) as? UIScrollView.Type {
                 scrollView = scrollViewClass.init()
             }else {
-                scrollView = UIScrollView.init()
+                scrollView = TFYSwiftListContainerScrollView.init()
             }
             scrollView.delegate = self
             scrollView.isPagingEnabled = true
@@ -529,6 +529,28 @@ extension TFYSwiftListContainerView: UICollectionViewDataSource, UICollectionVie
             willDisappearIndex = -1
             willAppearIndex = -1
         }
+    }
+}
+
+/// 默认列表容器滚动视图：内层横向 ScrollView（超长标签栏等）还能跟手时，外层分页不抢手势。
+/// 自定义 `scrollViewClass` 时请继承此类以保留嵌套手势处理。
+open class TFYSwiftListContainerScrollView: UIScrollView {
+    open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer,
+           !TFYSwiftNestedHorizontalPan.shouldOuterPanBegin(pan, in: self) {
+            return false
+        }
+        return super.gestureRecognizerShouldBegin(gestureRecognizer)
+    }
+}
+
+open class TFYSwiftListContainerCollectionView: UICollectionView {
+    open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let pan = gestureRecognizer as? UIPanGestureRecognizer,
+           !TFYSwiftNestedHorizontalPan.shouldOuterPanBegin(pan, in: self) {
+            return false
+        }
+        return super.gestureRecognizerShouldBegin(gestureRecognizer)
     }
 }
 

@@ -66,8 +66,8 @@ extension NestViewController: TFYSwiftListContainerViewDataSource {
     func listContainerView(_ listContainerView: TFYSwiftListContainerView, initListAt index: Int) -> TFYSwiftListContainerViewListDelegate {
         let vc = NestChildViewController()
         if index == 0 {
-           vc.titles = ["吃鸡🍗", "吃西瓜🍉", "吃热狗🌭"]
-        }else if index == 1 {
+            vc.titles = ["吃鸡🍗", "吃西瓜🍉", "吃热狗🌭"]
+        } else if index == 1 {
             vc.titles = ["高尔夫🏌", "滑雪⛷", "自行车🚴"]
         }
         return vc
