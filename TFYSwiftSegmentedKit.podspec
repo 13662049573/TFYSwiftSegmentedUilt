@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "2.0.4"
+  spec.version      = "2.1.0"
 
   spec.summary      = "纯 Swift 分段控件 / 分页标签组件库，支持等宽、禁用态、反选与 SwiftUI。"
 
@@ -22,7 +22,7 @@ Pod::Spec.new do |spec|
                      * Combine Publishers + async selectItem(at:animated:)
                      * SwiftUI：TFYSwiftSegmentedView / PagingContainer / ListPagingContainer
                      * GitHub Actions CI（build / test-spm / lint / pod-lint）
-                     * Swift 5.9 / 6.0 · iOS 15+
+                     * Swift 5.9 / 6.0 · iOS 16+
                      DESC
 
   spec.homepage     = "https://github.com/13662049573/TFYSwiftSegmentedUilt"
@@ -32,7 +32,7 @@ Pod::Spec.new do |spec|
   
   spec.author       = { "田风有" => "420144542@qq.com" }
   
-  spec.platform     = :ios, "15.0"
+  spec.platform     = :ios, "16.0"
   
   spec.swift_version = "5.0"
 

@@ -385,8 +385,7 @@ open class TFYSwiftView: UIView, TFYSwiftViewRTLCompatible {
 
     open override func willMove(toSuperview newSuperview: UIView?) {
         super.willMove(toSuperview: newSuperview)
-        // 早期 iOS 版本（< 11）需要关闭父 VC 的 automaticallyAdjustsScrollViewInsets 以避免 inset 偏移。
-        // 本库最低支持 iOS 15，因此保留空实现仅用于未来扩展钩子。
+        // 本库最低支持 iOS 16，保留空实现作为未来扩展钩子。
     }
 
     open override func layoutSubviews() {

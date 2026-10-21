@@ -6,7 +6,7 @@
 //  Swift / SwiftUI 客户端以更简洁的方式订阅事件，且与现有 delegate 完全共存。
 //  两者的回调时机相同（同步派发），可一起使用。
 //
-//  同时提供 Combine Publisher（iOS 13+）以及一个 `async` 版本的 `selectItem(at:animated:)`，
+//  同时提供 Combine Publisher 以及一个 `async` 版本的 `selectItem(at:animated:)`，
 //  使得调用方可以通过 `await view.selectItem(at: 2)` 等待一次动画完成。
 //
 
@@ -64,7 +64,6 @@ extension TFYSwiftView {
     }
 
     /// 提供 selectedIndex 变化的 Publisher（初始值订阅时会立刻发送当前值）。
-    @available(iOS 13.0, tvOS 13.0, *)
     public var selectedIndexPublisher: AnyPublisher<Int, Never> {
         let subject: CurrentValueSubject<Int, Never>
         if let existing = objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.selectedIndexSubject) as? CurrentValueSubject<Int, Never> {
@@ -77,7 +76,6 @@ extension TFYSwiftView {
     }
 
     /// 提供实时滚动进度（from, to, percent）的 Publisher。
-    @available(iOS 13.0, tvOS 13.0, *)
     public var scrollingProgressPublisher: AnyPublisher<(from: Int, to: Int, percent: CGFloat), Never> {
         let subject: PassthroughSubject<(from: Int, to: Int, percent: CGFloat), Never>
         if let existing = objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.scrollingProgressSubject) as? PassthroughSubject<(from: Int, to: Int, percent: CGFloat), Never> {
@@ -92,7 +90,6 @@ extension TFYSwiftView {
     /// 异步版本的 `selectItemAt(index:animated:)`。调用方可以用 `await` 等待过渡动画结束。
     ///
     /// 动画时长等同于 `dataSource?.selectedAnimationDuration`；若关闭动画则立即返回。
-    @available(iOS 13.0, tvOS 13.0, *)
     public func selectItem(at index: Int, animated: Bool = true) async {
         selectItemAt(index: index, animated: animated)
         guard animated, let duration = dataSource?.selectedAnimationDuration, duration > 0 else { return }
@@ -104,9 +101,7 @@ extension TFYSwiftView {
     @_spi(TFYSwiftEvents)
     public func tfy_emit_didSelect(index: Int) {
         eventHandlers.didSelect?(self, index)
-        if #available(iOS 13.0, tvOS 13.0, *) {
-            (objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.selectedIndexSubject) as? CurrentValueSubject<Int, Never>)?.send(index)
-        }
+        (objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.selectedIndexSubject) as? CurrentValueSubject<Int, Never>)?.send(index)
     }
 
     @_spi(TFYSwiftEvents)
@@ -122,8 +117,6 @@ extension TFYSwiftView {
     @_spi(TFYSwiftEvents)
     public func tfy_emit_scrollingProgress(from: Int, to: Int, percent: CGFloat) {
         eventHandlers.scrollingProgress?(self, from, to, percent)
-        if #available(iOS 13.0, tvOS 13.0, *) {
-            (objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.scrollingProgressSubject) as? PassthroughSubject<(from: Int, to: Int, percent: CGFloat), Never>)?.send((from, to, percent))
-        }
+        (objc_getAssociatedObject(self, &TFYSwiftViewEventKeys.scrollingProgressSubject) as? PassthroughSubject<(from: Int, to: Int, percent: CGFloat), Never>)?.send((from, to, percent))
     }
 }

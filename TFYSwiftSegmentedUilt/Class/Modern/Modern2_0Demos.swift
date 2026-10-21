@@ -5,7 +5,7 @@
 //  TFYSwiftSegmentedKit 2.0 新能力的可运行 Demo 合集。
 //  每个 ViewController 都可以独立 push 使用，配合 Modern2_0ListViewController 使用。
 //
-//  iOS 15+ / Swift 5.9+。
+//  iOS 16+ / Swift 5.9+。
 //
 
 import Combine
