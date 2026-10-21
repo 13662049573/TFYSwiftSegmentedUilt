@@ -95,6 +95,7 @@
 		363B3D102D44FDC400BC628E /* TFYSwiftHapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */; };
 		363B3D122D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */; };
 		363B3E002D44FDC400BC628E /* TFYSwiftListContainerBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */; };
+		9629D2FF8833B6B248038F7A /* TFYSwiftNestedHorizontalPan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9629D2FF8833B6B248038F79 /* TFYSwiftNestedHorizontalPan.swift */; };
 		363B3E022D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363B3E032D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift */; };
 		3D68BB452D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */; };
 		3D68BB462D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */; };
@@ -196,6 +197,7 @@
 		363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftHapticEngine.swift; sourceTree = "<group>"; };
 		363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftBadgeConfiguration.swift; sourceTree = "<group>"; };
 		363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftListContainerBase.swift; sourceTree = "<group>"; };
+		9629D2FF8833B6B248038F79 /* TFYSwiftNestedHorizontalPan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftNestedHorizontalPan.swift; sourceTree = "<group>"; };
 		363B3E032D44FDC400BC628E /* TFYSwiftViewEventHandlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftViewEventHandlers.swift; sourceTree = "<group>"; };
 		3D68BB3F2D62CE8700A244A7 /* TFYSwiftPagingListContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListContainerView.swift; sourceTree = "<group>"; };
 		3D68BB402D62CE8700A244A7 /* TFYSwiftPagingListRefreshView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TFYSwiftPagingListRefreshView.swift; sourceTree = "<group>"; };
@@ -502,6 +504,7 @@
 				363B3D112D44FDC400BC628E /* TFYSwiftHapticEngine.swift */,
 				363B3D132D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift */,
 				363B3E012D44FDC400BC628E /* TFYSwiftListContainerBase.swift */,
+				9629D2FF8833B6B248038F79 /* TFYSwiftNestedHorizontalPan.swift */,
 			);
 			path = TFYSwiftTool;
 			sourceTree = "<group>";
@@ -733,6 +736,7 @@
 				363B3D102D44FDC400BC628E /* TFYSwiftHapticEngine.swift in Sources */,
 				363B3D122D44FDC400BC628E /* TFYSwiftBadgeConfiguration.swift in Sources */,
 				363B3E002D44FDC400BC628E /* TFYSwiftListContainerBase.swift in Sources */,
+				9629D2FF8833B6B248038F7A /* TFYSwiftNestedHorizontalPan.swift in Sources */,
 				363B3D012D44FDC400BC628D /* TFYSwiftSegmentedRepresentable.swift in Sources */,
 				363B3C732D44FDC400BC628D /* AppDelegate.swift in Sources */,
 				363B3C742D44FDC400BC628D /* SceneDelegate.swift in Sources */,

@@ -5,6 +5,22 @@ All notable changes to **TFYSwiftSegmentedKit** will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-10-21
+
+### Fixed
+
+- CocoaPods subspec isolation: moved `TFYSwiftNestedHorizontalPan` from the
+  `TFYSwiftBase` subspec into `TFYSwiftTool` (its own source file) so that
+  `TFYSwiftTool` compiles independently during `pod lib lint`. The enum is used
+  by `TFYSwiftListContainerView` (in `TFYSwiftTool`) but was previously defined
+  in `TFYSwiftBase`, causing "cannot find in scope" errors when linting the
+  `TFYSwiftTool` subspec in isolation.
+
+### Changed
+
+- Bumped version to 2.0.4 across podspec, README install snippets, and
+  Package.swift references.
+
 ## [2.0.3] - 2026-07-23
 
 ### Fixed

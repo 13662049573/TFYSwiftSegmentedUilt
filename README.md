@@ -116,7 +116,7 @@ import TFYSwiftSegmentedKit
 
 ```ruby
 # 完整安装（默认含全部 subspec，含 SwiftUI）
-pod 'TFYSwiftSegmentedKit', '~> 2.0.3'
+pod 'TFYSwiftSegmentedKit', '~> 2.0.4'
 
 # 按需安装
 pod 'TFYSwiftSegmentedKit/TFYSwiftBase'        # 核心功能
@@ -452,7 +452,7 @@ pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
 
 ## 更新日志
 
-详见 [CHANGELOG.md](CHANGELOG.md)。最新发布：**2.0.3**。
+详见 [CHANGELOG.md](CHANGELOG.md)。最新发布：**2.0.4**。
 
 ---
 
@@ -505,7 +505,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.3")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.4")
 ```
 
 
@@ -513,7 +513,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### CocoaPods
 
 ```ruby
-pod 'TFYSwiftSegmentedKit', '~> 2.0.3'
+pod 'TFYSwiftSegmentedKit', '~> 2.0.4'
 ```
 
 
@@ -547,7 +547,7 @@ See the Chinese section above — all bullet points are identical in English. Hi
 
 ## What's New in 2.0.3
 
-Recommended version: **2.0.3** (2026-07-23).
+Recommended version: **2.0.4** (2026-10-21).
 
 - `itemWidthMode`, `itemEnabledStates` (tap blocked + swipe skips disabled pages, one adjacent enabled step at a time)
 - `allowsDeselection` / `isMomentary` / `clearSelection()`
@@ -562,7 +562,7 @@ Full notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Latest: **2.0.3**.
+See [CHANGELOG.md](CHANGELOG.md). Latest: **2.0.4**.
 
 
 
