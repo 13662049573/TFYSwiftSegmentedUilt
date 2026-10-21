@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "TFYSwiftSegmentedKit"
 
-  spec.version      = "2.0.3"
+  spec.version      = "2.0.4"
 
   spec.summary      = "纯 Swift 分段控件 / 分页标签组件库，支持等宽、禁用态、反选与 SwiftUI。"
 
