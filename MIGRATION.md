@@ -8,7 +8,7 @@
 
 | Item | 1.x | 2.0 |
 | --- | --- | --- |
-| iOS | 11 | **13** |
+| iOS | 11 | **16** (2.1.0+) |
 | Swift | 5.0 | **5.9+ / 6.0** |
 | Xcode | 14 | **16** |
 
@@ -85,7 +85,7 @@ TFYSwiftDiagnostics.shared.isSignpostEnabled = true
 
 ## Checklist
 
-- [ ] Bump minimum deployment target to iOS 13.
+- [ ] Bump minimum deployment target to iOS 16 (2.1.0+).
 - [ ] Replace `itemContentWidth` usages.
 - [ ] Update custom subclasses for strict concurrency.
 - [ ] Prefer `TFYSwiftListContainerBase` in API signatures.

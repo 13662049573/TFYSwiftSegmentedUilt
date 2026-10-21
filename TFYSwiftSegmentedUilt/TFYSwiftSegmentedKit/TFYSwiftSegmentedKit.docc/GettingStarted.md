@@ -7,13 +7,13 @@ Integrate TFYSwiftSegmentedKit in a UIKit or SwiftUI app.
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.3")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.1.0")
 ```
 
 ### CocoaPods
 
 ```ruby
-pod 'TFYSwiftSegmentedKit', '~> 2.0'
+pod 'TFYSwiftSegmentedKit', '~> 2.1.0'
 ```
 
 ## Minimum a UIKit segmented title bar

@@ -8,6 +8,8 @@
 [SPM](https://swift.org/package-manager/)
 [CI](.github/workflows/ci.yml)
 
+> **GitHub repository description** (About): Pure Swift segmented control / paging tabs — iOS 16+, SwiftUI, Combine, 12+ indicators, drag-to-reorder, CocoaPods & SPM.
+
 > 🇨🇳 中文版（本节） · 🇺🇸 [English](#english)
 
 TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件库。从 2.0 起，框架彻底与 JXSegmentedView 解耦并全面现代化：提供了严格并发安全的底层、12+ 指示器、SwiftUI 封装、Combine 订阅、async API、拖拽重排、Context Menu、触感反馈以及开箱即用的 CI/Lint/测试闭环。
@@ -19,6 +21,7 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 - [安装](#安装)
 - [快速开始](#快速开始)
 - [2.0 新能力速览](#20-新能力速览)
+- [2.1.0](#210)
 - [2.0.3 增量](#203-增量)
 - [SwiftUI](#swiftui)
 - [Combine / async](#combine--async)
@@ -63,7 +66,7 @@ TFYSwiftSegmentedKit 是一个纯 Swift 的分段选择器 / 分页标签组件�
 
 ## 要求
 
-- iOS 15.0+
+- iOS 16.0+
 - Swift 5.0+
 - Xcode 14.0+
 
@@ -116,7 +119,7 @@ import TFYSwiftSegmentedKit
 
 ```ruby
 # 完整安装（默认含全部 subspec，含 SwiftUI）
-pod 'TFYSwiftSegmentedKit', '~> 2.0.4'
+pod 'TFYSwiftSegmentedKit', '~> 2.1.0'
 
 # 按需安装
 pod 'TFYSwiftSegmentedKit/TFYSwiftBase'        # 核心功能
@@ -331,9 +334,15 @@ TFYSwiftSegmentedKit 基于 MIT 许可证开源。详见 [LICENSE](LICENSE) 文�
 
 
 
+## 2.1.0
+
+- 最低系统版本提升至 **iOS 16.0**（SPM / CocoaPods / Xcode 工程已对齐）。
+- 移除针对 iOS 15 及更早系统的演示与库内 `#available` 分支。
+- 需支持 iOS 15 的应用请继续使用 **2.0.x**。
+
 ## 2.0.3 增量
 
-当前推荐版本：**2.0.3**（2026-07-23）。相对 2.0.0 的主要增量：
+**2.0.3**（2026-07-23）相对 2.0.0 的主要增量：
 
 ### 等宽 · 禁用 · 反选
 
@@ -452,7 +461,7 @@ pod lib lint TFYSwiftSegmentedKit.podspec --allow-warnings
 
 ## 更新日志
 
-详见 [CHANGELOG.md](CHANGELOG.md)。最新发布：**2.0.4**。
+详见 [CHANGELOG.md](CHANGELOG.md)。最新发布：**2.1.0**。
 
 ---
 
@@ -468,6 +477,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [What's New in 2.0](#whats-new-in-20)
+- [What's New in 2.1.0](#whats-new-in-210)
 - [What's New in 2.0.3](#whats-new-in-203)
 - [SwiftUI](#swiftui-1)
 - [Combine & async](#combine--async)
@@ -494,7 +504,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 - Leading / trailing accessories, first-class badge helpers
 - Combine publishers (`selectedIndexPublisher`, `scrollingProgressPublisher`)
 - `async func selectItem(at:animated:)`
-- SPM, CocoaPods, Xcode 16+, iOS 15+
+- SPM, CocoaPods, Xcode 16+, iOS 16+
 
 
 
@@ -505,7 +515,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.0.4")
+.package(url: "https://github.com/13662049573/TFYSwiftSegmentedUilt.git", from: "2.1.0")
 ```
 
 
@@ -513,7 +523,7 @@ A pure-Swift segmented-control / paging-tab toolkit. Since v2.0 the framework is
 ### CocoaPods
 
 ```ruby
-pod 'TFYSwiftSegmentedKit', '~> 2.0.4'
+pod 'TFYSwiftSegmentedKit', '~> 2.1.0'
 ```
 
 
@@ -545,9 +555,15 @@ See the Chinese section above — all bullet points are identical in English. Hi
 
 
 
+## What's New in 2.1.0
+
+- Minimum deployment target **iOS 16.0** (SPM, CocoaPods, Xcode project).
+- Removed legacy pre–iOS 16 availability branches in demos and kit code.
+- Stay on **2.0.x** if you must support iOS 15.
+
 ## What's New in 2.0.3
 
-Recommended version: **2.0.4** (2026-10-21).
+**2.0.3** (2026-07-23) highlights:
 
 - `itemWidthMode`, `itemEnabledStates` (tap blocked + swipe skips disabled pages, one adjacent enabled step at a time)
 - `allowsDeselection` / `isMomentary` / `clearSelection()`
@@ -562,7 +578,7 @@ Full notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Latest: **2.0.4**.
+See [CHANGELOG.md](CHANGELOG.md). Latest: **2.1.0**.
 
 
 

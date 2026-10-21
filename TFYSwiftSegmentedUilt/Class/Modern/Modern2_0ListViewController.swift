@@ -3,7 +3,7 @@
 //  TFYSwiftSegmentedUilt
 //
 //  入口列表：展示 TFYSwiftSegmentedKit 2.0 新能力的 Demo。
-//  iOS 15+ / Swift 5.9+ / Swift 6 concurrency targeted。
+//  iOS 16+ / Swift 5.9+ / Swift 6 concurrency targeted。
 //
 
 import UIKit

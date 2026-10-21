@@ -45,10 +45,7 @@ class LoadDataCustomViewController: UIViewController {
         contentScrollView.showsHorizontalScrollIndicator = false
         contentScrollView.scrollsToTop = false
         contentScrollView.bounces = false
-        //禁用automaticallyInset
-        if #available(iOS 11.0, *) {
-            contentScrollView.contentInsetAdjustmentBehavior = .never
-        }
+        contentScrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(contentScrollView)
 
         //6、将contentScrollView和segmentedView.contentScrollView进行关联

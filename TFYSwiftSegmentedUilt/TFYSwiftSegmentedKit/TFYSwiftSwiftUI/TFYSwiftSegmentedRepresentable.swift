@@ -27,7 +27,7 @@ import UIKit
 /// )
 /// .frame(height: 44)
 /// ```
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public struct TFYSwiftSegmentedView: UIViewRepresentable {
 
     public typealias Customizer = (TFYSwiftView, TFYSwiftTitleDataSource) -> Void
@@ -121,7 +121,7 @@ public struct TFYSwiftSegmentedView: UIViewRepresentable {
 
 // MARK: - Pages builder（公开 API，避免依赖私有 `_VariadicView`）
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 @resultBuilder
 public enum TFYSwiftPagingPagesBuilder {
     public static func buildExpression<V: View>(_ expression: V) -> AnyView {
@@ -165,7 +165,7 @@ public enum TFYSwiftPagingPagesBuilder {
 ///     LibraryPage()
 /// }
 /// ```
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public struct TFYSwiftPagingContainer: View {
     @Binding private var selectedIndex: Int
     private let titles: [String]
@@ -231,7 +231,7 @@ public struct TFYSwiftPagingContainer: View {
 ///     Text("Page \(index)")
 /// }
 /// ```
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public struct TFYSwiftListPagingContainer<Page: View>: UIViewControllerRepresentable {
     @Binding public var selectedIndex: Int
     public let titles: [String]
@@ -279,7 +279,7 @@ public struct TFYSwiftListPagingContainer<Page: View>: UIViewControllerRepresent
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public final class TFYSwiftListPagingHostController<Page: View>: UIViewController,
                                                                   TFYSwiftListContainerViewDataSource,
                                                                   TFYSwiftViewDelegate {
@@ -381,7 +381,7 @@ public final class TFYSwiftListPagingHostController<Page: View>: UIViewControlle
 
 /// 作为 ListContainer 子 VC 的 SwiftUI 页面壳：自身可被 `addChild`，
 /// 内部再托管 `UIHostingController`，保证 view 层级与 VC 父子一致。
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 private final class TFYSwiftHostingListController<Page: View>: UIViewController,
                                                                 TFYSwiftListContainerViewListDelegate {
     private let host: UIHostingController<Page>
